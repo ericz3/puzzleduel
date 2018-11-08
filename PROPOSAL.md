@@ -16,7 +16,7 @@ an image of it.
 The classifier will be trained on the audio data and the model produced will be 
 stored in a file.
 
-**The program**
+**The program:**
 Upon running the program, a window will open with a button. Pressing the button 
 will allow the user to select an audio file from their computer. The audio file 
 will be classified to a bird species based on the model stored in the pre-
@@ -32,12 +32,12 @@ button again.
 	I will need to analyze the audio data and decide which features to extract 
 	to use with my classifier.
 
-2. **Make and Tune the Classifier**
+2. **Make and Tune the Classifier:**
 	I will write a neural network classifier and use cross validation to test
 	it. I will use those results to tune the specifications of my classifier 
 	to make a more accurate model. 
 
-3. **Make the GUI**
+3. **Make the GUI:**
 	I will make a simple window with a button that, when pressed, allows the 
 	user to look through their computer for an audio file. I will display a
 	picture of the species that the audio is classifies as and information 
