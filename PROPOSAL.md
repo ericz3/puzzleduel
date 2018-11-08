@@ -44,6 +44,12 @@ button again.
 	regarding that species. I will make it so that pressing the button again
 	allows the user to select another file.
 
+## Background
+
+I completed a machine learning project involving the identification of malware
+during a program at Boston University. I completed a digit identification 
+machine learning program in cs 126.
+
 ## Resources
 
 - Bird song recordings
