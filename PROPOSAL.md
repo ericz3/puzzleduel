@@ -51,4 +51,3 @@ again.
 		- [ofxGUI](https://openframeworks.cc/documentation/ofxGui/)
 	- Image Analysis
 		- [ofxCv](https://github.com/kylemcdonald/ofxCv)
-		- [tensorflow](https://www.tensorflow.org/)
