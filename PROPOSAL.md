@@ -31,6 +31,7 @@ again.
 - [ ] GUI
 	- [ ] buttons
 	- [ ] browse for and upload image from computer
+	- [ ] browse for and upload image from url
 	- [ ] display text
 	- [ ] links
 
@@ -49,5 +50,5 @@ again.
 	- GUI
 		- [ofxGUI](https://openframeworks.cc/documentation/ofxGui/)
 	- Image Analysis
-		- [OpenCV](https://opencv.org/)
+		- [ofxCv](https://github.com/kylemcdonald/ofxCv)
 		- [tensorflow](https://www.tensorflow.org/)
