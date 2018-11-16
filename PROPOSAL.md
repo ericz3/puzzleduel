@@ -49,4 +49,5 @@ again.
 	- GUI
 		- [ofxGUI](https://openframeworks.cc/documentation/ofxGui/)
 	- Image Analysis
-		- [ofxCv](https://github.com/kylemcdonald/ofxCv)
+		- [ofxCv](https://github.com/kylemcdonald/ofxCv) or 
+		[ofxOpenCv](https://openframeworks.cc/documentation/ofxOpenCv/)
