@@ -24,7 +24,6 @@ again.
 - [ ] Set up libraries
 - [ ] Learn and implement OpenCV
 	- [ ] manipulate images (crop, resize, etc.)
-- [ ] Learn and implement Tensorflow
 	- [ ] train on image data
 	- [ ] save model
 	- [ ] identify objects
