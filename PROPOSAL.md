@@ -42,6 +42,7 @@ end of the game, the player with the most points is the winner.
 - [ ] detect matches from orbs falling
 - [ ] allow for more than 2 players
 - [ ] improve/add more graphics
+- [ ] add sounds
 
 ## Resources
 
