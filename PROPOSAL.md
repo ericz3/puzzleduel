@@ -1,53 +1,54 @@
-# Project Proposal - Object Identifier
+# Project Proposal - puzzle battle
 
 ## Summary
 
-My project involves identifying objects in images. I will have a GUI that allows
-the user to submit an image. My program will be able to identify chosen objects 
-within that image and will display some basic information about those objects.
-
-### User Experience
-
-Upon running the program, a window will open with a button. Pressing the button 
-will allow the user to select an image file from their computer. The user will 
-then have the option to either classify the entire image (if the image contains 
-a single object), or drag and select a region in the image that contains a single
-object to classify. After the object is classified, the name of the object will 
-be displayed as well as basic info such as its color, dictionary definition, etc.
-The user will have the option to upload another image by pressing the button 
-again.
+My project will be a puzzle game where players compete with each other to see 
+who can get the most points in a certain amount of turns. The players play on
+a 6 x 6 board. Players earn points by erasing orbs. Orbs are erased when 3 or 
+more of the same color are touching. Each orb erased grants 1 point each. If 
+the player gets more than 6 matches, their points for that turn are multiplied 
+by 1.5. Players play a turn by selecting an orb and dragging it; when the orb 
+passes over another orb, they swap places. When the player releases the orb, 
+their turn is over. At the end of all the turns, if the players are tied, the 
+game goes on until one player has more points at the end of the turn. At the 
+end of the game, the player with the most points is the winner.
 
 ## Development Checklist
 
 ### Core Goals
-- [x] Obtain image data
-- [ ] Set up libraries
-- [ ] Learn and implement OpenCV
-	- [ ] manipulate images (crop, resize, etc.)
-	- [ ] train on image data
-	- [ ] save model
-	- [ ] identify objects
+- [x] Set up libraries
+- [ ] Gamestates (player 1 turn, player 2 turn, game over, menu, etc.)
+	- [ ] detect winner
+	- [ ] board 
+- [ ] Playing turn
+	- [ ] detect picking up starting orb
+	- [ ] drag orbs
+	- [ ] track orb position/swap orbs
+- [ ] Analyze board
+	- [ ] detect matches
+	- [ ] count orbs in match
+	- [ ] calculate points
+- [ ] Graphics
+	- [ ] orb movement animations
+	- [ ] orb graphics
+- [ ] networking
+	- [ ] animate other player's movements
+	- [ ] send over score info
 - [ ] GUI
-	- [ ] buttons
-	- [ ] browse for and upload image from computer
-	- [ ] browse for and upload image from url
-	- [ ] display text
-	- [ ] links
+	- [ ] game settings
+	- [ ] buttons (start game, etc.)
 
 ### Stretch Goals
-- [ ] User history that contains previously submitted images
-- [ ] Glossary containing all objects as well as example images
-- [ ] Count number of other objects in image that are the same as one selected
-- [ ] Classify all objects in image at once
-	- [ ] Allow user to select an object to display info
+- [ ] detect matches from orbs falling
+- [ ] allow for more than 2 players
+- [ ] improve/add more graphics
 
 ## Resources
 
-- Images
-	- [ImageNet](http://image-net.org/)
 - Libraries
 	- GUI
 		- [ofxGUI](https://openframeworks.cc/documentation/ofxGui/)
-	- Image Analysis
-		- [ofxCv](https://github.com/kylemcdonald/ofxCv) or 
-		[ofxOpenCv](https://openframeworks.cc/documentation/ofxOpenCv/)
+	- Networking
+		- [ofxNetwork](https://openframeworks.cc/documentation/ofxNetwork/)
+	- Graphics
+		- [open frameworks graphics module](https://openframeworks.cc/documentation/graphics/)
