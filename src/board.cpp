@@ -8,8 +8,6 @@ const int kBoardWidth = 6;
 const int kOrbTypes = 6;
 const int kOrbPointValue = 1;
 
-void Board::SetBoard(std::vector<Orb> board) { board_grid = board; }
-
 void Board::GenerateBoard() {
   board_grid.clear();
 
@@ -49,7 +47,7 @@ void Board::GenerateBoard() {
   }
 }
 
-void Board::Update() {}
+void Board::SetBoard(std::vector<Orb> board) { board_grid = board; }
 
 int Board::CalculatePoints() {
   vector<int> board_points(kBoardSize, 0);
@@ -94,13 +92,17 @@ int Board::CalculatePoints() {
   return points_sum;
 }
 
-void Board::Swap(int pos1, int pos2) {}
+void Board::Swap(int pos1, int pos2) {
+  Orb temp = board_grid.at(pos1);
+  board_grid.at(pos1) = board_grid.at(pos2);
+  board_grid.at(pos2) = temp;
+}
 
 vector<Orb> Board::GetBoardGrid() { return board_grid; }
 
-void Board::Draw() {}
+void Board::Update() {}
 
-int Board::CountMatches() { return 0; }
+void Board::Draw() {}
 
 std::ostream& operator<<(std::ostream& os, const Orb& obj) {
   os << static_cast<std::underlying_type<Orb>::type>(obj);

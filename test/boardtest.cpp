@@ -377,3 +377,38 @@ TEST_CASE("Calculate Points") {
     REQUIRE(board.CalculatePoints() == 8);
   }
 }
+
+TEST_CASE("Swap orbs") {
+  Board board;
+  board.GenerateBoard();
+
+  SECTION("Vertical swwap") {
+    int pos1 = 7;
+    int pos2 = 13;
+    Orb orb1 = board.GetBoardGrid().at(pos1);
+    Orb orb2 = board.GetBoardGrid().at(pos2);
+    board.Swap(pos1, pos2);
+    REQUIRE(board.GetBoardGrid().at(pos1) == orb2);
+    REQUIRE(board.GetBoardGrid().at(pos2) == orb1);
+  }
+
+  SECTION("Horizontal swap") {
+    int pos1 = 22;
+    int pos2 = 16;
+    Orb orb1 = board.GetBoardGrid().at(pos1);
+    Orb orb2 = board.GetBoardGrid().at(pos2);
+    board.Swap(pos1, pos2);
+    REQUIRE(board.GetBoardGrid().at(pos1) == orb2);
+    REQUIRE(board.GetBoardGrid().at(pos2) == orb1);
+  }
+
+  SECTION("Diagonal swap") {
+    int pos1 = 19;
+    int pos2 = 26;
+    Orb orb1 = board.GetBoardGrid().at(pos1);
+    Orb orb2 = board.GetBoardGrid().at(pos2);
+    board.Swap(pos1, pos2);
+    REQUIRE(board.GetBoardGrid().at(pos1) == orb2);
+    REQUIRE(board.GetBoardGrid().at(pos2) == orb1);
+  }
+}

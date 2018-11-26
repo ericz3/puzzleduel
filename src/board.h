@@ -16,19 +16,19 @@ enum class Orb {
 
 class Board {
  public:
-  void SetBoard(std::vector<Orb> board);
   // create a starting board in which no orbs of the same color are touching
   void GenerateBoard();
-  void Update();
+  // set board_grid to given vector
+  void SetBoard(std::vector<Orb> board);
   // calculates number of points earned in a solve
   int CalculatePoints();
-  //swap positions of 2 orbs
-  void Swap(int pos1, int pos2); 
+  // swap positions of 2 orbs
+  void Swap(int pos1, int pos2);
   std::vector<Orb> GetBoardGrid();
+  void Update();
 
  private:
   std::vector<Orb> board_grid;
-  int CountMatches();
   void Draw();
 };
 
