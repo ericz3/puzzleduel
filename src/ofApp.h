@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
+#include "board.h"
 
 class ofApp : public ofBaseApp {
  public:
@@ -20,7 +21,20 @@ class ofApp : public ofBaseApp {
   void dragEvent(ofDragInfo dragInfo);
   void gotMessage(ofMessage msg);
 
+ private:
   ofImage hand_open;
   ofImage hand_closed;
   ofImage cursor;
+  ofImage board_tile;
+
+  int hand_size;
+  int window_width;
+  int window_height;
+  int tile_width;
+  int board_width;
+
+  void DrawCursor();
+  void DrawBoardTiles();
+  void ResizeTile();
+  void ResizeCursor();
 };

@@ -1,13 +1,20 @@
 #include "ofApp.h"
 
+const int kMouseSizeDivisor = 6;
+const int kTileSizeDivisor = 6;
+
 //--------------------------------------------------------------
 void ofApp::setup() {
+  window_height = ofGetWindowHeight();
+  window_width = ofGetWindowWidth();
+  board_width = window_width;
   ofHideCursor();
-  hand_open.loadImage("openhand.png");
-  hand_closed.loadImage("closedhand.png");
-  hand_open.resize(ofGetWindowWidth() / 7, ofGetWindowWidth() / 7);
-  hand_closed.resize(ofGetWindowWidth() / 7, ofGetWindowWidth() / 7);
+  hand_open.load("openhand.png");
+  hand_closed.load("closedhand.png");
   cursor = hand_open;
+  board_tile.load("brownsquare.jpg");
+  ResizeCursor();
+  ResizeTile();
 }
 
 //--------------------------------------------------------------
@@ -15,8 +22,23 @@ void ofApp::update() {}
 
 //--------------------------------------------------------------
 void ofApp::draw() {
+  DrawBoardTiles();
+  DrawCursor();
+}
+
+void ofApp::DrawCursor() {
   cursor.draw(ofGetMouseX() - hand_closed.getWidth() / 2,
               ofGetMouseY() - hand_closed.getHeight() / 2);
+}
+
+void ofApp::DrawBoardTiles() {
+  for (int vertical_pos = window_height - board_width;
+       vertical_pos < window_height; vertical_pos += tile_width) {
+    for (int horizontal_pos = 0; horizontal_pos < window_width;
+         horizontal_pos += tile_width) {
+      board_tile.draw(horizontal_pos, vertical_pos);
+    }
+  }
 }
 
 //--------------------------------------------------------------
@@ -44,7 +66,26 @@ void ofApp::mouseEntered(int x, int y) {}
 void ofApp::mouseExited(int x, int y) {}
 
 //--------------------------------------------------------------
-void ofApp::windowResized(int w, int h) {}
+void ofApp::windowResized(int w, int h) {
+  window_height = h;
+  window_width = (window_height * 3) / 5;
+  board_width = window_width;
+  ofSetWindowShape(window_width, window_height);
+  ResizeCursor();
+  ResizeTile();
+}
+
+void ofApp::ResizeCursor() {
+  hand_size = window_width / kMouseSizeDivisor;
+  hand_open.resize(hand_size, hand_size);
+  hand_closed.resize(hand_size, hand_size);
+  cursor.resize(hand_size, hand_size);
+}
+
+void ofApp::ResizeTile() {
+  tile_width = window_width / kTileSizeDivisor;
+  board_tile.resize(tile_width, tile_width);
+}
 
 //--------------------------------------------------------------
 void ofApp::gotMessage(ofMessage msg) {}
