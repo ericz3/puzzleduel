@@ -23,10 +23,11 @@ end of the game, the player with the most points is the winner.
 - [ ] Playing turn
 	- [ ] detect picking up starting orb
 	- [ ] drag orbs
-	- [ ] track orb position/swap orbs
-- [ ] Analyze board
-	- [ ] detect matches
-	- [ ] calculate points
+	- [ ] track orb position
+	- [x] swap orbs
+- [x] Analyze board
+	- [x] detect matches
+	- [x] calculate points
 - [ ] Graphics
 	- [ ] orb movement animations
 	- [ ] orb graphics
