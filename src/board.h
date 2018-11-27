@@ -5,7 +5,7 @@
 #include "ofMain.h"
 
 const int kBoardSize = 36;
-const int kBoardWidth = 6;
+const int kOrbsInRowAndCol = 6;
 const int kOrbTypes = 6;
 const int kOrbPointValue = 1;
 

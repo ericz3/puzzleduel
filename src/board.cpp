@@ -7,8 +7,8 @@ void Board::GenerateBoard() {
   board_grid.clear();
 
   for (int i = 0; i < kBoardSize; i++) {
-    int col = i % kBoardWidth;
-    int row = i / kBoardWidth;
+    int col = i % kOrbsInRowAndCol;
+    int row = i / kOrbsInRowAndCol;
 
     if (row == 0) {
       if (col == 0) {
@@ -24,14 +24,14 @@ void Board::GenerateBoard() {
     } else {
       if (col == 0) {
         Orb temp = Orb(rand() % kOrbTypes + 1);
-        while (temp == board_grid.at(i - kBoardWidth)) {
+        while (temp == board_grid.at(i - kOrbsInRowAndCol)) {
           temp = Orb(rand() % kOrbTypes + 1);
         }
 
         board_grid.push_back(temp);
       } else {
         Orb temp = Orb(rand() % kOrbTypes + 1);
-        while (temp == board_grid.at(i - kBoardWidth) ||
+        while (temp == board_grid.at(i - kOrbsInRowAndCol) ||
                temp == board_grid.at(i - 1)) {
           temp = Orb(rand() % kOrbTypes + 1);
         }
@@ -50,8 +50,8 @@ int Board::CalculatePoints() {
 
   for (int pos = 0; pos < kBoardSize; pos++) {
     Orb current = board_grid.at(pos);
-    int row = pos / kBoardWidth;
-    int col = pos % kBoardWidth;
+    int row = pos / kOrbsInRowAndCol;
+    int col = pos % kOrbsInRowAndCol;
     if (row < 4) {
       if (col < 4) {
         if (current == board_grid.at(pos + 1) &&
@@ -62,11 +62,11 @@ int Board::CalculatePoints() {
         }
       }
 
-      if (current == board_grid.at(pos + kBoardWidth) &&
-          current == board_grid.at(pos + kBoardWidth + kBoardWidth)) {
+      if (current == board_grid.at(pos + kOrbsInRowAndCol) &&
+          current == board_grid.at(pos + kOrbsInRowAndCol + kOrbsInRowAndCol)) {
         board_points.at(pos) = kOrbPointValue;
-        board_points.at(pos + kBoardWidth) = kOrbPointValue;
-        board_points.at(pos + kBoardWidth + kBoardWidth) = kOrbPointValue;
+        board_points.at(pos + kOrbsInRowAndCol) = kOrbPointValue;
+        board_points.at(pos + kOrbsInRowAndCol + kOrbsInRowAndCol) = kOrbPointValue;
       }
     } else {
       if (col < 4) {

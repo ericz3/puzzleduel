@@ -25,7 +25,7 @@ class PuzzleBattle : public ofBaseApp {
   ofImage hand_open;
   ofImage hand_closed;
   ofImage cursor;
-  ofImage board_tile;
+  ofImage board_tiles;
   ofImage background;
   ofImage red_orb;
   ofImage blue_orb;
@@ -36,20 +36,17 @@ class PuzzleBattle : public ofBaseApp {
 
   Board game_board;
 
-  int cursor_size;
+  int cursor_width;
   int window_width;
   int window_height;
   int board_start_height;
-  int tile_width;
   int board_width;
   int orb_diameter;
-  int background_size;
+  int background_width;
 
   void DrawCursor();
-  //void DrawTiles();
   void DrawBoard();
 
-  void ResizeTile();
   void ResizeCursor();
   void ResizeBackground();
   void ResizeOrb();
