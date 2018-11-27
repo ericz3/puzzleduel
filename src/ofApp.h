@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ofMain.h"
 #include "board.h"
+#include "ofMain.h"
 
 class ofApp : public ofBaseApp {
  public:
@@ -26,6 +26,15 @@ class ofApp : public ofBaseApp {
   ofImage hand_closed;
   ofImage cursor;
   ofImage board_tile;
+  ofImage background;
+  ofImage red_orb;
+  ofImage blue_orb;
+  ofImage green_orb;
+  ofImage orange_orb;
+  ofImage yellow_orb;
+  ofImage purple_orb;
+
+  Board game_board;
 
   int hand_size;
   int window_width;
@@ -34,7 +43,11 @@ class ofApp : public ofBaseApp {
   int board_width;
 
   void DrawCursor();
-  void DrawBoardTiles();
+  void DrawTiles();
+  void DrawOrb(Orb orb);
+  void DrawBoard();
+
   void ResizeTile();
   void ResizeCursor();
+  void ResizeBackground();
 };

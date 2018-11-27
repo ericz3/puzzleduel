@@ -1,7 +1,8 @@
 #include "ofApp.h"
 
-const int kMouseSizeDivisor = 6;
+const int kMouseSizeDivisor = 7;
 const int kTileSizeDivisor = 6;
+const double kAspectRatioMultiplier = 0.6;
 
 //--------------------------------------------------------------
 void ofApp::setup() {
@@ -12,7 +13,8 @@ void ofApp::setup() {
   hand_open.load("openhand.png");
   hand_closed.load("closedhand.png");
   cursor = hand_open;
-  board_tile.load("brownsquare.jpg");
+  board_tile.load("graytile.png");
+  background.load("background.png");
   ResizeCursor();
   ResizeTile();
 }
@@ -22,7 +24,8 @@ void ofApp::update() {}
 
 //--------------------------------------------------------------
 void ofApp::draw() {
-  DrawBoardTiles();
+  background.draw(0, 0);
+  DrawTiles();
   DrawCursor();
 }
 
@@ -31,7 +34,7 @@ void ofApp::DrawCursor() {
               ofGetMouseY() - hand_closed.getHeight() / 2);
 }
 
-void ofApp::DrawBoardTiles() {
+void ofApp::DrawTiles() {
   for (int vertical_pos = window_height - board_width;
        vertical_pos < window_height; vertical_pos += tile_width) {
     for (int horizontal_pos = 0; horizontal_pos < window_width;
@@ -68,11 +71,12 @@ void ofApp::mouseExited(int x, int y) {}
 //--------------------------------------------------------------
 void ofApp::windowResized(int w, int h) {
   window_height = h;
-  window_width = (window_height * 3) / 5;
+  window_width = window_height * kAspectRatioMultiplier;
   board_width = window_width;
   ofSetWindowShape(window_width, window_height);
   ResizeCursor();
   ResizeTile();
+  ResizeBackground();
 }
 
 void ofApp::ResizeCursor() {
@@ -85,6 +89,10 @@ void ofApp::ResizeCursor() {
 void ofApp::ResizeTile() {
   tile_width = window_width / kTileSizeDivisor;
   board_tile.resize(tile_width, tile_width);
+}
+
+void ofApp::ResizeBackground() {
+  background.resize(window_width, window_width);
 }
 
 //--------------------------------------------------------------
