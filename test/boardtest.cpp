@@ -4,8 +4,6 @@
 
 using std::vector;
 
-const int kBoardSize = 36;
-
 TEST_CASE("generate board") {
   Board board;
   board.GenerateBoard();

@@ -3,7 +3,7 @@
 #include "board.h"
 #include "ofMain.h"
 
-class ofApp : public ofBaseApp {
+class PuzzleBattle : public ofBaseApp {
  public:
   void setup();
   void update();
@@ -30,24 +30,27 @@ class ofApp : public ofBaseApp {
   ofImage red_orb;
   ofImage blue_orb;
   ofImage green_orb;
-  ofImage orange_orb;
   ofImage yellow_orb;
+  ofImage white_orb;
   ofImage purple_orb;
 
   Board game_board;
 
-  int hand_size;
+  int cursor_size;
   int window_width;
   int window_height;
+  int board_start_height;
   int tile_width;
   int board_width;
+  int orb_diameter;
+  int background_size;
 
   void DrawCursor();
-  void DrawTiles();
-  void DrawOrb(Orb orb);
+  //void DrawTiles();
   void DrawBoard();
 
   void ResizeTile();
   void ResizeCursor();
   void ResizeBackground();
+  void ResizeOrb();
 };

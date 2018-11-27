@@ -4,12 +4,17 @@
 #include <vector>
 #include "ofMain.h"
 
+const int kBoardSize = 36;
+const int kBoardWidth = 6;
+const int kOrbTypes = 6;
+const int kOrbPointValue = 1;
+
 enum class Orb {
   EMPTY = 0,
   RED = 1,
   BLUE = 2,
   GREEN = 3,
-  ORANGE = 4,
+  WHITE = 4,
   YELLOW = 5,
   PURPLE = 6
 };
@@ -29,7 +34,6 @@ class Board {
 
  private:
   std::vector<Orb> board_grid;
-  void Draw();
 };
 
 std::ostream& operator<<(std::ostream& os, const Orb& obj);

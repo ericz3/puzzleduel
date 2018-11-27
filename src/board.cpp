@@ -3,11 +3,6 @@
 
 using std::vector;
 
-const int kBoardSize = 36;
-const int kBoardWidth = 6;
-const int kOrbTypes = 6;
-const int kOrbPointValue = 1;
-
 void Board::GenerateBoard() {
   board_grid.clear();
 
@@ -101,8 +96,6 @@ void Board::Swap(int pos1, int pos2) {
 vector<Orb> Board::GetBoardGrid() { return board_grid; }
 
 void Board::Update() {}
-
-void Board::Draw() {}
 
 std::ostream& operator<<(std::ostream& os, const Orb& obj) {
   os << static_cast<std::underlying_type<Orb>::type>(obj);
