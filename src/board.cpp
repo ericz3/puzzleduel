@@ -66,7 +66,8 @@ int Board::CalculatePoints() {
           current == board_grid.at(pos + kOrbsInRowAndCol + kOrbsInRowAndCol)) {
         board_points.at(pos) = kOrbPointValue;
         board_points.at(pos + kOrbsInRowAndCol) = kOrbPointValue;
-        board_points.at(pos + kOrbsInRowAndCol + kOrbsInRowAndCol) = kOrbPointValue;
+        board_points.at(pos + kOrbsInRowAndCol + kOrbsInRowAndCol) =
+            kOrbPointValue;
       }
     } else {
       if (col < 4) {
@@ -92,6 +93,10 @@ void Board::Swap(int pos1, int pos2) {
   board_grid.at(pos1) = board_grid.at(pos2);
   board_grid.at(pos2) = temp;
 }
+
+Orb Board::GetOrb(int pos) { return board_grid.at(pos); }
+
+void Board::SetOrb(int pos, Orb orb) { board_grid.at(pos) = orb; }
 
 vector<Orb> Board::GetBoardGrid() { return board_grid; }
 

@@ -4,10 +4,10 @@
 #include <vector>
 #include "ofMain.h"
 
-const int kBoardSize = 36;
-const int kOrbsInRowAndCol = 6;
-const int kOrbTypes = 6;
-const int kOrbPointValue = 1;
+unsigned const int kBoardSize = 36;
+unsigned const int kOrbsInRowAndCol = 6;
+unsigned const int kOrbTypes = 6;
+unsigned const int kOrbPointValue = 1;
 
 enum class Orb {
   EMPTY = 0,
@@ -29,6 +29,8 @@ class Board {
   int CalculatePoints();
   // swap positions of 2 orbs
   void Swap(int pos1, int pos2);
+  Orb GetOrb(int pos);
+  void SetOrb(int pos, Orb orb);
   std::vector<Orb> GetBoardGrid();
   void Update();
 

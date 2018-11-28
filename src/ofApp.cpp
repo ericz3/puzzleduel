@@ -2,9 +2,9 @@
 
 using std::vector;
 
-const int kMouseSizeDivisor = 7;
-const int kTileSizeDivisor = 6;
-const int kOrbDiameterDivisor = 7;
+unsigned const int kMouseSizeDivisor = 7;
+unsigned const int kTileSizeDivisor = 6;
+unsigned const int kOrbDiameterDivisor = 6;
 const double kAspectRatioMultiplier = 0.6;
 
 //--------------------------------------------------------------
@@ -47,8 +47,26 @@ void PuzzleBattle::draw() {
 }
 
 void PuzzleBattle::DrawCursor() {
-  cursor.draw(ofGetMouseX() - cursor_width / 2, ofGetMouseY() - cursor_width / 2,
-              cursor_width, cursor_width);
+  ofImage cursor_orb_image;
+  if (cursor_orb == Orb::RED) {
+    cursor_orb_image = red_orb;
+  } else if (cursor_orb == Orb::BLUE) {
+    cursor_orb_image = blue_orb;
+  } else if (cursor_orb == Orb::GREEN) {
+    cursor_orb_image = green_orb;
+  } else if (cursor_orb == Orb::YELLOW) {
+    cursor_orb_image = yellow_orb;
+  } else if (cursor_orb == Orb::WHITE) {
+    cursor_orb_image = white_orb;
+  } else if (cursor_orb == Orb::PURPLE) {
+    cursor_orb_image = purple_orb;
+  }
+
+  cursor_orb_image.draw(ofGetMouseX() - orb_diameter / 2,
+                        ofGetMouseY() - orb_diameter / 2, orb_diameter,
+                        orb_diameter);
+  cursor.draw(ofGetMouseX() - cursor_width / 2,
+              ofGetMouseY() - cursor_width / 2, cursor_width, cursor_width);
 }
 
 void PuzzleBattle::DrawBoard() {
@@ -62,6 +80,7 @@ void PuzzleBattle::DrawBoard() {
   int orb_y_pos;
   int tile_width = window_width / kTileSizeDivisor;
   for (int i = 0; i < kBoardSize; i++) {
+    orb_image.clear();
     if (board.at(i) == Orb::RED) {
       orb_image = red_orb;
     } else if (board.at(i) == Orb::BLUE) {
@@ -78,9 +97,8 @@ void PuzzleBattle::DrawBoard() {
 
     orb_row = i / kOrbsInRowAndCol;
     orb_col = i % kOrbsInRowAndCol;
-    orb_x_pos = orb_col * tile_width + (tile_width - orb_diameter) / 2;
-    orb_y_pos = board_start_height + orb_row * tile_width +
-                (tile_width - orb_diameter) / 2;
+    orb_x_pos = orb_col * tile_width;
+    orb_y_pos = board_start_height + orb_row * tile_width;
 
     orb_image.draw(orb_x_pos, orb_y_pos, orb_diameter, orb_diameter);
   }
@@ -102,11 +120,27 @@ void PuzzleBattle::mouseDragged(int x, int y, int button) {}
 void PuzzleBattle::mousePressed(int x, int y, int button) {
   cursor = hand_closed;
   cursor.resize(cursor_width, cursor_width);
+
+  // if not player turn then return;
+
+  int cursor_row;
+  int cursor_col;
+  int cursor_tile;
+  int tile_width = window_width / kTileSizeDivisor;
+  // if cursor not on board then return;
+  if (x > 0 && x < board_width && y < window_height && y > board_start_height) {
+    cursor_row = (y - board_start_height) / tile_width;
+    cursor_col = x / tile_width;
+    cursor_tile = kOrbsInRowAndCol * cursor_row + cursor_col;
+    cursor_orb = game_board.GetOrb(cursor_tile);
+    game_board.SetOrb(cursor_tile, Orb::EMPTY);
+  }
 }
 
 //--------------------------------------------------------------
 void PuzzleBattle::mouseReleased(int x, int y, int button) {
   cursor = hand_open;
+  cursor_orb = Orb::EMPTY;
 }
 
 //--------------------------------------------------------------

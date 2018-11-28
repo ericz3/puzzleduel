@@ -3,6 +3,19 @@
 #include "board.h"
 #include "ofMain.h"
 
+enum GameState {
+  START,
+  MENU,
+  PLAYER_TURN,
+  PLAYER_MOVE,
+  OPPONENT_TURN,
+  OPPONENT_MOVE,
+  PLAYER_COUNT_POINTS, 
+  OPPONENT_COUNT_POINTS,
+  SWITCH_PLAYER,
+  GAME_OVER
+};
+
 class PuzzleBattle : public ofBaseApp {
  public:
   void setup();
@@ -35,6 +48,8 @@ class PuzzleBattle : public ofBaseApp {
   ofImage purple_orb;
 
   Board game_board;
+  bool player_win;
+  Orb cursor_orb;
 
   int cursor_width;
   int window_width;

@@ -30,7 +30,8 @@ end of the game, the player with the most points is the winner.
 	- [x] calculate points
 - [ ] Graphics
 	- [ ] orb movement animations
-	- [ ] orb graphics
+	- [x] draw orbs
+	- [x] draw board
 - [ ] networking
 	- [ ] animate other player's movements
 	- [ ] send over score info
