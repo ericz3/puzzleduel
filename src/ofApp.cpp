@@ -5,6 +5,7 @@ using std::vector;
 unsigned const int kMouseSizeDivisor = 7;
 unsigned const int kTileSizeDivisor = 6;
 unsigned const int kOrbDiameterDivisor = 6;
+unsigned const int kEraseFadeIncrement = 3;
 const double kAspectRatioMultiplier = 0.6;
 
 //--------------------------------------------------------------
@@ -35,15 +36,35 @@ void PuzzleBattle::setup() {
 
   ofSetEscapeQuitsApp(false);
   game_board.GenerateBoard();
+  game_state = PLAYER_TURN;
+
+  erase_fade = 255;
 }
 
 //--------------------------------------------------------------
-void PuzzleBattle::update() {}
+void PuzzleBattle::update() {
+  if (game_state == PLAYER_ERASE_MATCHES) {
+    if (erase_fade == 0) {
+      erase_fade = 255;
+      game_state = PLAYER_COUNT_POINTS;
+
+      std::vector<int> &board_points = game_board.GetPointsGrid();
+      for (int i = 0; i < kBoardSize; i++) {
+        if (board_points.at(i) == kOrbPointValue) {
+          game_board.SetOrb(i, Orb::EMPTY);
+        }
+      }
+    } else {
+      erase_fade -= kEraseFadeIncrement;
+    }
+  }
+}
 
 //--------------------------------------------------------------
 void PuzzleBattle::draw() {
   background.draw(0, 0, background_width, background_width);
   DrawBoard();
+  DrawCalculatePoints();
   DrawCursor();
 }
 
@@ -70,10 +91,13 @@ void PuzzleBattle::DrawCursor() {
               ofGetMouseY() - cursor_width / 2, cursor_width, cursor_width);
 }
 
+void PuzzleBattle::DrawCalculatePoints() {}
+
 void PuzzleBattle::DrawBoard() {
   board_tiles.draw(0, board_start_height, board_width, board_width);
 
   std::vector<Orb> &board = game_board.GetBoardGrid();
+  std::vector<int> &board_points = game_board.GetPointsGrid();
   ofImage orb_image;
   int orb_row;
   int orb_col;
@@ -83,6 +107,12 @@ void PuzzleBattle::DrawBoard() {
   for (int i = 0; i < kBoardSize; i++) {
     orb_image.clear();
     Orb current_orb = board.at(i);
+
+    if (game_state == PLAYER_ERASE_MATCHES &&
+        board_points.at(i) == kOrbPointValue) {
+      ofSetColor(255, 255, 255, erase_fade);
+    }
+
     if (current_orb == Orb::RED) {
       orb_image = red_orb;
     } else if (current_orb == Orb::BLUE) {
@@ -103,6 +133,8 @@ void PuzzleBattle::DrawBoard() {
     orb_y_pos = board_start_height + orb_row * tile_width;
 
     orb_image.draw(orb_x_pos, orb_y_pos, orb_diameter, orb_diameter);
+
+    ofSetColor(255, 255, 255, 255);
   }
 }
 
@@ -117,33 +149,32 @@ void PuzzleBattle::mouseMoved(int x, int y) {}
 
 //--------------------------------------------------------------
 void PuzzleBattle::mouseDragged(int x, int y, int button) {
-  int cursor_row;
-  int cursor_col;
-  int cursor_tile;
-  int tile_width = window_width / kTileSizeDivisor;
+  if (game_state == PLAYER_MOVE) {
+    int cursor_row;
+    int cursor_col;
+    int cursor_tile;
+    int tile_width = window_width / kTileSizeDivisor;
 
-  if (x <= 0) {
-    cursor_col = 0;
-  } else if (x >= window_width - orb_diameter) {
-    cursor_col = kOrbsInRowAndCol - 1;
-  } else {
-    cursor_col = x / tile_width;
-  }
+    if (x <= 0) {
+      cursor_col = 0;
+    } else if (x >= window_width - orb_diameter) {
+      cursor_col = kOrbsInRowAndCol - 1;
+    } else {
+      cursor_col = x / tile_width;
+    }
 
-  if (y <= board_start_height) {
-    cursor_row = 0;
-  } else if (y >= window_height - orb_diameter) {
-    cursor_row = kOrbsInRowAndCol - 1;
-  } else {
-    cursor_row = (y - board_start_height) / tile_width;
+    if (y <= board_start_height) {
+      cursor_row = 0;
+    } else if (y >= window_height - orb_diameter) {
+      cursor_row = kOrbsInRowAndCol - 1;
+    } else {
+      cursor_row = (y - board_start_height) / tile_width;
+    }
+
+    cursor_tile = kOrbsInRowAndCol * cursor_row + cursor_col;
+    game_board.Swap(cursor_tile, orb_tile);
+    orb_tile = cursor_tile;
   }
-  /*
-    cursor_row = (y - board_start_height) / tile_width;
-    cursor_col = x / tile_width;
-  */
-  cursor_tile = kOrbsInRowAndCol * cursor_row + cursor_col;
-  game_board.Swap(cursor_tile, orb_tile);
-  orb_tile = cursor_tile;
 }
 
 //--------------------------------------------------------------
@@ -151,38 +182,35 @@ void PuzzleBattle::mousePressed(int x, int y, int button) {
   cursor = hand_closed;
   cursor.resize(cursor_width, cursor_width);
 
-  // if not player turn then return;
-
-  int cursor_row;
-  int cursor_col;
-  int cursor_tile;
-  int tile_width = window_width / kTileSizeDivisor;
-  // if cursor not on board then return;
-  if (x > 0 && x < board_width && y < window_height &&
-      y > board_start_height) {
-    cursor_row = (y - board_start_height) / tile_width;
-    cursor_col = x / tile_width;
-    cursor_tile = kOrbsInRowAndCol * cursor_row + cursor_col;
-    cursor_orb = game_board.GetOrb(cursor_tile);
-    game_board.SetOrb(cursor_tile, Orb::EMPTY);
-    orb_tile = cursor_tile;
+  if (game_state == PLAYER_TURN) {
+    int cursor_row;
+    int cursor_col;
+    int cursor_tile;
+    int tile_width = window_width / kTileSizeDivisor;
+    if (x > 0 && x < board_width && y < window_height &&
+        y > board_start_height) {
+      cursor_row = (y - board_start_height) / tile_width;
+      cursor_col = x / tile_width;
+      cursor_tile = kOrbsInRowAndCol * cursor_row + cursor_col;
+      cursor_orb = game_board.GetOrb(cursor_tile);
+      game_board.SetOrb(cursor_tile, Orb::EMPTY);
+      orb_tile = cursor_tile;
+      game_state = PLAYER_MOVE;
+    }
   }
 }
 
 //--------------------------------------------------------------
 void PuzzleBattle::mouseReleased(int x, int y, int button) {
   cursor = hand_open;
-  game_board.SetOrb(orb_tile, cursor_orb);
-  cursor_orb = Orb::EMPTY;
+  cursor.resize(cursor_width, cursor_width);
 
-  game_board.CalculatePoints();
-  vector<int> &points_board = game_board.GetPointsGrid();
-  for (int i = 0; i < kBoardSize; i++) {
-    int points = points_board.at(i);
-    if (points == kOrbPointValue) {
-      game_board.SetOrb(i, Orb::EMPTY);
-	}
-  }  
+  if (game_state == PLAYER_MOVE) {
+    game_board.SetOrb(orb_tile, cursor_orb);
+    cursor_orb = Orb::EMPTY;
+    game_board.CalculatePoints();
+    game_state = PLAYER_ERASE_MATCHES;
+  }
 }
 
 //--------------------------------------------------------------

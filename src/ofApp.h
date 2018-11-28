@@ -11,7 +11,9 @@ enum GameState {
   OPPONENT_TURN,
   OPPONENT_MOVE,
   PLAYER_COUNT_POINTS, 
+  PLAYER_ERASE_MATCHES,
   OPPONENT_COUNT_POINTS,
+  OPPONENT_ERASE_MATCHES,
   SWITCH_PLAYER,
   GAME_OVER
 };
@@ -47,6 +49,7 @@ class PuzzleBattle : public ofBaseApp {
   ofImage white_orb;
   ofImage purple_orb;
 
+  GameState game_state;
   Board game_board;
   bool player_win;
   Orb cursor_orb;
@@ -61,9 +64,12 @@ class PuzzleBattle : public ofBaseApp {
   int orb_tile;
 
   void DrawCursor();
+  void DrawCalculatePoints();
   void DrawBoard();
 
   void ResizeCursor();
   void ResizeBackground();
   void ResizeOrb();
+
+  int erase_fade;
 };
