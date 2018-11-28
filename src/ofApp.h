@@ -58,6 +58,7 @@ class PuzzleBattle : public ofBaseApp {
   int board_width;
   int orb_diameter;
   int background_width;
+  int orb_tile;
 
   void DrawCursor();
   void DrawBoard();

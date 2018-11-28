@@ -114,7 +114,35 @@ void PuzzleBattle::keyReleased(int key) {}
 void PuzzleBattle::mouseMoved(int x, int y) {}
 
 //--------------------------------------------------------------
-void PuzzleBattle::mouseDragged(int x, int y, int button) {}
+void PuzzleBattle::mouseDragged(int x, int y, int button) {
+  int cursor_row;
+  int cursor_col;
+  int cursor_tile;
+  int tile_width = window_width / kTileSizeDivisor;
+
+  if (x <= 0) {
+    cursor_col = 0;
+  } else if (x >= window_width - orb_diameter) {
+    cursor_col = kOrbsInRowAndCol - 1;
+  } else {
+    cursor_col = x / tile_width;
+  }
+
+  if (y <= board_start_height) {
+    cursor_row = 0;
+  } else if (y >= window_height - orb_diameter) {
+    cursor_row = kOrbsInRowAndCol - 1;
+  } else {
+    cursor_row = (y - board_start_height) / tile_width;
+  }
+  /*
+    cursor_row = (y - board_start_height) / tile_width;
+    cursor_col = x / tile_width;
+  */
+  cursor_tile = kOrbsInRowAndCol * cursor_row + cursor_col;
+  game_board.Swap(cursor_tile, orb_tile);
+  orb_tile = cursor_tile;
+}
 
 //--------------------------------------------------------------
 void PuzzleBattle::mousePressed(int x, int y, int button) {
@@ -128,18 +156,21 @@ void PuzzleBattle::mousePressed(int x, int y, int button) {
   int cursor_tile;
   int tile_width = window_width / kTileSizeDivisor;
   // if cursor not on board then return;
-  if (x > 0 && x < board_width && y < window_height && y > board_start_height) {
+  if (x > 0 && x < board_width && y < window_height &&
+      y > board_start_height) {
     cursor_row = (y - board_start_height) / tile_width;
     cursor_col = x / tile_width;
     cursor_tile = kOrbsInRowAndCol * cursor_row + cursor_col;
     cursor_orb = game_board.GetOrb(cursor_tile);
     game_board.SetOrb(cursor_tile, Orb::EMPTY);
+    orb_tile = cursor_tile;
   }
 }
 
 //--------------------------------------------------------------
 void PuzzleBattle::mouseReleased(int x, int y, int button) {
   cursor = hand_open;
+  game_board.SetOrb(orb_tile, cursor_orb);
   cursor_orb = Orb::EMPTY;
 }
 
