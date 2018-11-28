@@ -21,15 +21,15 @@ end of the game, the player with the most points is the winner.
 	- [ ] board 
 		-[x] generate board
 - [ ] Playing turn
-	- [ ] detect picking up starting orb
-	- [ ] drag orbs
-	- [ ] track orb position
+	- [x] detect picking up starting orb
+	- [x] drag orbs
+	- [x] track orb position
 	- [x] swap orbs
 - [x] Analyze board
 	- [x] detect matches
 	- [x] calculate points
 - [ ] Graphics
-	- [ ] orb movement animations
+	- [x] orb movement animations
 	- [x] draw orbs
 	- [x] draw board
 - [ ] networking
