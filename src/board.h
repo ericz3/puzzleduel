@@ -32,10 +32,12 @@ class Board {
   Orb GetOrb(int pos);
   void SetOrb(int pos, Orb orb);
   std::vector<Orb> GetBoardGrid();
+  std::vector<int> GetPointsGrid();
   void Update();
 
  private:
   std::vector<Orb> board_grid;
+  std::vector<int> board_points;
 };
 
 std::ostream& operator<<(std::ostream& os, const Orb& obj);

@@ -33,6 +33,7 @@ void PuzzleBattle::setup() {
   ResizeOrb();
   ResizeBackground();
 
+  ofSetEscapeQuitsApp(false);
   game_board.GenerateBoard();
 }
 
@@ -72,7 +73,7 @@ void PuzzleBattle::DrawCursor() {
 void PuzzleBattle::DrawBoard() {
   board_tiles.draw(0, board_start_height, board_width, board_width);
 
-  std::vector<Orb> board = game_board.GetBoardGrid();
+  std::vector<Orb> &board = game_board.GetBoardGrid();
   ofImage orb_image;
   int orb_row;
   int orb_col;
@@ -81,17 +82,18 @@ void PuzzleBattle::DrawBoard() {
   int tile_width = window_width / kTileSizeDivisor;
   for (int i = 0; i < kBoardSize; i++) {
     orb_image.clear();
-    if (board.at(i) == Orb::RED) {
+    Orb current_orb = board.at(i);
+    if (current_orb == Orb::RED) {
       orb_image = red_orb;
-    } else if (board.at(i) == Orb::BLUE) {
+    } else if (current_orb == Orb::BLUE) {
       orb_image = blue_orb;
-    } else if (board.at(i) == Orb::GREEN) {
+    } else if (current_orb == Orb::GREEN) {
       orb_image = green_orb;
-    } else if (board.at(i) == Orb::YELLOW) {
+    } else if (current_orb == Orb::YELLOW) {
       orb_image = yellow_orb;
-    } else if (board.at(i) == Orb::WHITE) {
+    } else if (current_orb == Orb::WHITE) {
       orb_image = white_orb;
-    } else if (board.at(i) == Orb::PURPLE) {
+    } else if (current_orb == Orb::PURPLE) {
       orb_image = purple_orb;
     }
 
@@ -172,6 +174,15 @@ void PuzzleBattle::mouseReleased(int x, int y, int button) {
   cursor = hand_open;
   game_board.SetOrb(orb_tile, cursor_orb);
   cursor_orb = Orb::EMPTY;
+
+  game_board.CalculatePoints();
+  vector<int> &points_board = game_board.GetPointsGrid();
+  for (int i = 0; i < kBoardSize; i++) {
+    int points = points_board.at(i);
+    if (points == kOrbPointValue) {
+      game_board.SetOrb(i, Orb::EMPTY);
+	}
+  }  
 }
 
 //--------------------------------------------------------------

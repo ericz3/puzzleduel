@@ -45,7 +45,7 @@ void Board::GenerateBoard() {
 void Board::SetBoard(std::vector<Orb> board) { board_grid = board; }
 
 int Board::CalculatePoints() {
-  vector<int> board_points(kBoardSize, 0);
+  board_points = vector<int>(kBoardSize, 0);
   int points_sum = 0;
 
   for (int pos = 0; pos < kBoardSize; pos++) {
@@ -99,6 +99,8 @@ Orb Board::GetOrb(int pos) { return board_grid.at(pos); }
 void Board::SetOrb(int pos, Orb orb) { board_grid.at(pos) = orb; }
 
 vector<Orb> Board::GetBoardGrid() { return board_grid; }
+
+vector<int> Board::GetPointsGrid() { return board_points; }
 
 void Board::Update() {}
 
