@@ -2,6 +2,7 @@
 
 #include "board.h"
 #include "ofMain.h"
+#include "ofxGui.h"
 
 enum GameState {
   START,
@@ -10,7 +11,7 @@ enum GameState {
   PLAYER_MOVE,
   OPPONENT_TURN,
   OPPONENT_MOVE,
-  PLAYER_COUNT_POINTS, 
+  PLAYER_COUNT_POINTS,
   PLAYER_ERASE_MATCHES,
   OPPONENT_COUNT_POINTS,
   OPPONENT_ERASE_MATCHES,
@@ -64,12 +65,18 @@ class PuzzleBattle : public ofBaseApp {
   int orb_tile;
 
   void DrawCursor();
+  void DrawMoveTimeBar();
   void DrawCalculatePoints();
   void DrawBoard();
 
   void ResizeCursor();
   void ResizeBackground();
   void ResizeOrb();
+
+  float start_time;
+  float end_time;
+
+  ofxPanel gui;
 
   int erase_fade;
 };

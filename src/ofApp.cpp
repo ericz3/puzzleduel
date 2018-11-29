@@ -6,7 +6,9 @@ unsigned const int kMouseSizeDivisor = 7;
 unsigned const int kTileSizeDivisor = 6;
 unsigned const int kOrbDiameterDivisor = 6;
 unsigned const int kEraseFadeIncrement = 3;
-const double kAspectRatioMultiplier = 0.6;
+unsigned const int kMaxAlpha = 255;
+const float kDefaultMoveTime = 15000;
+const float kAspectRatioMultiplier = 0.6;
 
 //--------------------------------------------------------------
 void PuzzleBattle::setup() {
@@ -38,14 +40,16 @@ void PuzzleBattle::setup() {
   game_board.GenerateBoard();
   game_state = PLAYER_TURN;
 
-  erase_fade = 255;
+  end_time = kDefaultMoveTime;
+
+  erase_fade = kMaxAlpha;
 }
 
 //--------------------------------------------------------------
 void PuzzleBattle::update() {
   if (game_state == PLAYER_ERASE_MATCHES) {
     if (erase_fade == 0) {
-      erase_fade = 255;
+      erase_fade = kMaxAlpha;
       game_state = PLAYER_COUNT_POINTS;
 
       std::vector<int> &board_points = game_board.GetPointsGrid();
@@ -58,37 +62,63 @@ void PuzzleBattle::update() {
       erase_fade -= kEraseFadeIncrement;
     }
   }
+
+  if (game_state == PLAYER_MOVE) {
+    if (ofGetElapsedTimeMillis() - start_time > end_time) {
+      mouseReleased(ofGetMouseX(), ofGetMouseY(), 0);
+    }
+  }
 }
 
 //--------------------------------------------------------------
 void PuzzleBattle::draw() {
+  // gui.draw();
   background.draw(0, 0, background_width, background_width);
   DrawBoard();
   DrawCalculatePoints();
   DrawCursor();
+  if (game_state == PLAYER_MOVE) {
+    DrawMoveTimeBar();
+  }
 }
 
 void PuzzleBattle::DrawCursor() {
-  ofImage cursor_orb_image;
-  if (cursor_orb == Orb::RED) {
-    cursor_orb_image = red_orb;
-  } else if (cursor_orb == Orb::BLUE) {
-    cursor_orb_image = blue_orb;
-  } else if (cursor_orb == Orb::GREEN) {
-    cursor_orb_image = green_orb;
-  } else if (cursor_orb == Orb::YELLOW) {
-    cursor_orb_image = yellow_orb;
-  } else if (cursor_orb == Orb::WHITE) {
-    cursor_orb_image = white_orb;
-  } else if (cursor_orb == Orb::PURPLE) {
-    cursor_orb_image = purple_orb;
+  if (game_state == PLAYER_MOVE) {
+    ofImage cursor_orb_image;
+    if (cursor_orb == Orb::RED) {
+      cursor_orb_image = red_orb;
+    } else if (cursor_orb == Orb::BLUE) {
+      cursor_orb_image = blue_orb;
+    } else if (cursor_orb == Orb::GREEN) {
+      cursor_orb_image = green_orb;
+    } else if (cursor_orb == Orb::YELLOW) {
+      cursor_orb_image = yellow_orb;
+    } else if (cursor_orb == Orb::WHITE) {
+      cursor_orb_image = white_orb;
+    } else if (cursor_orb == Orb::PURPLE) {
+      cursor_orb_image = purple_orb;
+    }
+
+    cursor_orb_image.draw(ofGetMouseX() - orb_diameter / 2,
+                          ofGetMouseY() - orb_diameter / 2, orb_diameter,
+                          orb_diameter);
   }
 
-  cursor_orb_image.draw(ofGetMouseX() - orb_diameter / 2,
-                        ofGetMouseY() - orb_diameter / 2, orb_diameter,
-                        orb_diameter);
   cursor.draw(ofGetMouseX() - cursor_width / 2,
               ofGetMouseY() - cursor_width / 2, cursor_width, cursor_width);
+}
+
+void PuzzleBattle::DrawMoveTimeBar() {
+  float current_time = ofGetElapsedTimeMillis() - start_time;
+  if (current_time <= end_time) {
+    float timer_bar = 1.0 - current_time / end_time;
+    ofSetColor(240, 80, 50);
+    ofDrawRectRounded(ofGetMouseX() - cursor_width / 2,
+                      ofGetMouseY() - cursor_width * 3.0 / 4.0,
+                      cursor_width * timer_bar, cursor_width / 6, cursor_width);
+
+    ofSetColor(255, 255, 255);
+  }
 }
 
 void PuzzleBattle::DrawCalculatePoints() {}
@@ -183,6 +213,8 @@ void PuzzleBattle::mousePressed(int x, int y, int button) {
   cursor.resize(cursor_width, cursor_width);
 
   if (game_state == PLAYER_TURN) {
+    start_time = ofGetElapsedTimeMillis();
+
     int cursor_row;
     int cursor_col;
     int cursor_tile;
