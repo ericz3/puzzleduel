@@ -7,6 +7,7 @@ unsigned const int kTileSizeDivisor = 6;
 unsigned const int kOrbDiameterDivisor = 6;
 unsigned const int kEraseFadeIncrement = 3;
 unsigned const int kMaxAlpha = 255;
+unsigned const int kCountPointsFontSizeDivisor = 10;
 const float kDefaultMoveTime = 15000;
 const float kAspectRatioMultiplier = 0.6;
 
@@ -31,6 +32,8 @@ void PuzzleBattle::setup() {
   yellow_orb.load("yelloworb.png");
   white_orb.load("whiteorb.png");
   purple_orb.load("purpleorb.png");
+
+  numbers_font.load("sandoval.ttf", board_width / kCountPointsFontSizeDivisor);
 
   ResizeCursor();
   ResizeOrb();
@@ -75,7 +78,9 @@ void PuzzleBattle::draw() {
   // gui.draw();
   background.draw(0, 0, background_width, background_width);
   DrawBoard();
-  DrawCalculatePoints();
+  if (game_state == PLAYER_COUNT_POINTS) {
+    DrawCalculatePoints();
+  }
   DrawCursor();
   if (game_state == PLAYER_MOVE) {
     DrawMoveTimeBar();
@@ -112,7 +117,14 @@ void PuzzleBattle::DrawMoveTimeBar() {
   float current_time = ofGetElapsedTimeMillis() - start_time;
   if (current_time <= end_time) {
     float timer_bar = 1.0 - current_time / end_time;
-    ofSetColor(240, 80, 50);
+
+    // color shift from green -> yellow -> red as time runs out
+    if (timer_bar >= 0.6) {
+      ofSetColor((1.0 - timer_bar) * 250 + 150, 255, 0);
+    } else {
+      ofSetColor(255, (timer_bar - 0.2) * 640, 0);
+    }
+
     ofDrawRectRounded(ofGetMouseX() - cursor_width / 2,
                       ofGetMouseY() - cursor_width * 3.0 / 4.0,
                       cursor_width * timer_bar, cursor_width / 6, cursor_width);

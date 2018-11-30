@@ -50,6 +50,8 @@ class PuzzleBattle : public ofBaseApp {
   ofImage white_orb;
   ofImage purple_orb;
 
+  ofTrueTypeFont numbers_font;
+
   GameState game_state;
   Board game_board;
   bool player_win;
