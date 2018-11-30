@@ -17,21 +17,25 @@ end of the game, the player with the most points is the winner.
 ### Core Goals
 - [x] Set up libraries
 - [ ] Gamestates (player 1 turn, player 2 turn, game over, menu, etc.)
-	- [ ] detect winner
-	- [ ] board 
-		-[x] generate board
-- [ ] Playing turn
+- [x] Playing turn
 	- [x] detect picking up starting orb
 	- [x] drag orbs
 	- [x] track orb position
 	- [x] swap orbs
+	- [x] timer
 - [x] Analyze board
+	- [x] generate board
 	- [x] detect matches
 	- [x] calculate points
 - [ ] Graphics
 	- [x] orb movement animations
 	- [x] draw orbs
 	- [x] draw board
+	- [x] orb mathcing animation
+	- [ ] animate opponent turn
+- [ ] Sound
+	- [ ] shifting orbs
+	-[]
 - [ ] networking
 	- [ ] animate other player's movements
 	- [ ] send over score info
@@ -56,3 +60,5 @@ end of the game, the player with the most points is the winner.
 		- [ofxNetwork](https://openframeworks.cc/documentation/ofxNetwork/)
 	- Graphics
 		- [open frameworks graphics module](https://openframeworks.cc/documentation/graphics/)
+	- Sound
+		- [open framework sounds module](https://openframeworks.cc/documentation/sound/)
