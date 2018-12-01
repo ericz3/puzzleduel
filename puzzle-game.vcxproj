@@ -283,7 +283,10 @@
     <ClCompile Include="..\..\..\addons\ofxNetwork\src\ofxTCPManager.cpp" />
     <ClCompile Include="..\..\..\addons\ofxNetwork\src\ofxTCPServer.cpp" />
     <ClCompile Include="..\..\..\addons\ofxNetwork\src\ofxUDPManager.cpp" />
-    <ClCompile Include="test\boardtest.cpp" />
+    <ClCompile Include="src\player.cpp" />
+    <ClCompile Include="test\boardtest.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\board.h" />
@@ -307,6 +310,7 @@
     <ClInclude Include="..\..\..\addons\ofxNetwork\src\ofxTCPSettings.h" />
     <ClInclude Include="..\..\..\addons\ofxNetwork\src\ofxUDPManager.h" />
     <ClInclude Include="..\..\..\addons\ofxNetwork\src\ofxUDPSettings.h" />
+    <ClInclude Include="src\player.h" />
     <ClInclude Include="test\catch.hpp" />
   </ItemGroup>
   <ItemGroup>

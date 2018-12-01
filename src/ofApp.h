@@ -3,19 +3,18 @@
 #include "board.h"
 #include "ofMain.h"
 #include "ofxGui.h"
+#include "player.h"
 
 enum GameState {
   START,
   MENU,
   PLAYER_TURN,
   PLAYER_MOVE,
-  OPPONENT_TURN,
-  OPPONENT_MOVE,
   PLAYER_COUNT_POINTS,
   PLAYER_ERASE_MATCHES,
+  OPPONENT_TURN,
   OPPONENT_COUNT_POINTS,
   OPPONENT_ERASE_MATCHES,
-  SWITCH_PLAYER,
   GAME_OVER
 };
 
@@ -50,12 +49,17 @@ class PuzzleBattle : public ofBaseApp {
   ofImage white_orb;
   ofImage purple_orb;
 
-  ofTrueTypeFont numbers_font;
+  ofTrueTypeFont game_font;
+  ofTrueTypeFont game_font_bold;
+  float font_scale;
 
   GameState game_state;
   Board game_board;
   bool player_win;
   Orb cursor_orb;
+  int num_rounds;
+  Player player;
+  Player opponent;
 
   int cursor_width;
   int window_width;
@@ -65,10 +69,12 @@ class PuzzleBattle : public ofBaseApp {
   int orb_diameter;
   int background_width;
   int orb_tile;
+  int round;
 
+  void DrawGameText();
   void DrawCursor();
   void DrawMoveTimeBar();
-  void DrawCalculatePoints();
+  void DrawCountPoints();
   void DrawBoard();
 
   void ResizeCursor();
@@ -79,6 +85,8 @@ class PuzzleBattle : public ofBaseApp {
   float end_time;
 
   ofxPanel gui;
+  // ofFbo count_points;
 
+  // int last_count_ind;
   int erase_fade;
 };

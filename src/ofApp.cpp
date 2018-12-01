@@ -1,4 +1,5 @@
 #include "ofApp.h"
+#include <string>
 
 using std::vector;
 
@@ -6,10 +7,17 @@ unsigned const int kMouseSizeDivisor = 7;
 unsigned const int kTileSizeDivisor = 6;
 unsigned const int kOrbDiameterDivisor = 6;
 unsigned const int kEraseFadeIncrement = 3;
-unsigned const int kMaxAlpha = 255;
-unsigned const int kCountPointsFontSizeDivisor = 10;
+unsigned const int kRoundFontSizeDivisor = 10;
+
+unsigned const int kDrawCountPointsTimeInterval = 400;
 const float kDefaultMoveTime = 15000;
+const int kDefaultNumRounds = 5;
+
 const float kAspectRatioMultiplier = 0.6;
+const float kDefaultWindowWidth = 1024.0;
+
+unsigned const int kMaxAlpha = 255;
+unsigned const int kDefaultRGB = 255;
 
 //--------------------------------------------------------------
 void PuzzleBattle::setup() {
@@ -33,7 +41,8 @@ void PuzzleBattle::setup() {
   white_orb.load("whiteorb.png");
   purple_orb.load("purpleorb.png");
 
-  numbers_font.load("sandoval.ttf", board_width / kCountPointsFontSizeDivisor);
+  game_font.load("Xolonium-Regular.ttf", board_width / kRoundFontSizeDivisor);
+  game_font_bold.load("Xolonium-Bold.ttf", board_width / kRoundFontSizeDivisor);
 
   ResizeCursor();
   ResizeOrb();
@@ -44,8 +53,16 @@ void PuzzleBattle::setup() {
   game_state = PLAYER_TURN;
 
   end_time = kDefaultMoveTime;
+  num_rounds = kDefaultNumRounds;
 
   erase_fade = kMaxAlpha;
+
+  round = 1;
+  /*
+  count_points.allocate(ofGetWindowWidth(), ofGetWindowHeight());
+  count_points.begin();
+  ofClear(255, 255, 255);
+  count_points.end();*/
 }
 
 //--------------------------------------------------------------
@@ -54,6 +71,10 @@ void PuzzleBattle::update() {
     if (erase_fade == 0) {
       erase_fade = kMaxAlpha;
       game_state = PLAYER_COUNT_POINTS;
+      /*last_count_ind = 0;
+      count_points.begin();
+      ofClear(255, 255, 255);
+      count_points.end();*/
 
       std::vector<int> &board_points = game_board.GetPointsGrid();
       for (int i = 0; i < kBoardSize; i++) {
@@ -77,14 +98,37 @@ void PuzzleBattle::update() {
 void PuzzleBattle::draw() {
   // gui.draw();
   background.draw(0, 0, background_width, background_width);
+
+  DrawGameText();
   DrawBoard();
   if (game_state == PLAYER_COUNT_POINTS) {
-    DrawCalculatePoints();
+    DrawCountPoints();
   }
   DrawCursor();
   if (game_state == PLAYER_MOVE) {
     DrawMoveTimeBar();
   }
+}
+
+void PuzzleBattle::DrawGameText() {
+  ofPushMatrix();  // draw roudn number start
+  ofSetColor(10, 222, 225);
+
+  ofTranslate(board_width / 2, board_start_height / 2);
+  ofScale((float)window_width / kDefaultWindowWidth,
+          (float)window_width / kDefaultWindowWidth, 1.0);
+
+  std::string round_s =
+      "Round " + std::to_string(round) + "/" + std::to_string(num_rounds);
+  int font_width = game_font_bold.stringWidth(round_s);
+  game_font_bold.drawString(round_s, -font_width / 2, 0);
+
+  ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
+  ofPopMatrix();  // draw round number end
+
+  ofPushMatrix();  // draw player score start
+  
+  ofPopMatrix();   // draw player score end
 }
 
 void PuzzleBattle::DrawCursor() {
@@ -129,14 +173,48 @@ void PuzzleBattle::DrawMoveTimeBar() {
                       ofGetMouseY() - cursor_width * 3.0 / 4.0,
                       cursor_width * timer_bar, cursor_width / 6, cursor_width);
 
-    ofSetColor(255, 255, 255);
+    ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
   }
 }
 
-void PuzzleBattle::DrawCalculatePoints() {}
+void PuzzleBattle::DrawCountPoints() {
+  /*std::vector<int> &board_points = game_board.GetPointsGrid();
+  int current_time = ofGetElapsedTimeMillis();
+  if (current_time - start_time >= kDrawCountPointsTimeInterval) {
+    start_time = current_time;
+    int tile_row;
+    int tile_col;
+    int tile_x_pos;
+    int tile_y_pos;
+    int tile_width = window_width / kTileSizeDivisor;
+    for (int i = last_count_ind + 1; i < kBoardSize; i++) {
+      if (board_points.at(i) == kOrbPointValue) {
+        tile_row = i / kOrbsInRowAndCol;
+        tile_col = i % kOrbsInRowAndCol;
+        tile_x_pos = tile_col * tile_width;
+        tile_y_pos = board_start_height + tile_row * tile_width;
+
+        last_count_ind = i;
+
+        count_points.begin();
+        ofCircle(tile_x_pos, tile_y_pos, 30);
+        count_points.end();
+
+        break;
+      }
+      if (i == kBoardSize - 1) {
+        game_state == PLAYER_TURN;
+      }
+    }
+  }
+
+  count_points.draw(0, 0);*/
+}
 
 void PuzzleBattle::DrawBoard() {
+  ofSetColor(175, 250, 250);
   board_tiles.draw(0, board_start_height, board_width, board_width);
+  ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 
   std::vector<Orb> &board = game_board.GetBoardGrid();
   std::vector<int> &board_points = game_board.GetPointsGrid();
@@ -152,7 +230,7 @@ void PuzzleBattle::DrawBoard() {
 
     if (game_state == PLAYER_ERASE_MATCHES &&
         board_points.at(i) == kOrbPointValue) {
-      ofSetColor(255, 255, 255, erase_fade);
+      ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB, erase_fade);
     }
 
     if (current_orb == Orb::RED) {
@@ -176,7 +254,7 @@ void PuzzleBattle::DrawBoard() {
 
     orb_image.draw(orb_x_pos, orb_y_pos, orb_diameter, orb_diameter);
 
-    ofSetColor(255, 255, 255, 255);
+    ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB, kDefaultRGB);
   }
 }
 
@@ -270,6 +348,7 @@ void PuzzleBattle::windowResized(int w, int h) {
   board_start_height = window_height - window_width;
   board_width = window_width;
   ofSetWindowShape(window_width, window_height);
+  // count_points.allocate(ofGetWindowWidth(), ofGetWindowHeight());
 
   ResizeCursor();
   ResizeBackground();

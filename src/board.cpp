@@ -102,8 +102,6 @@ vector<Orb> Board::GetBoardGrid() { return board_grid; }
 
 vector<int> Board::GetPointsGrid() { return board_points; }
 
-void Board::Update() {}
-
 std::ostream& operator<<(std::ostream& os, const Orb& obj) {
   os << static_cast<std::underlying_type<Orb>::type>(obj);
   return os;

@@ -64,6 +64,9 @@
     <ClCompile Include="test\boardtest.cpp">
       <Filter>test</Filter>
     </ClCompile>
+    <ClCompile Include="src\player.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -157,6 +160,9 @@
     </ClInclude>
     <ClInclude Include="test\catch.hpp">
       <Filter>test</Filter>
+    </ClInclude>
+    <ClInclude Include="src\player.h">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
