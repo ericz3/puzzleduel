@@ -3,11 +3,18 @@
 
 using std::vector;
 
+const std::string kTitle1 = "PUZZLE";
+const std::string kTitle2 = "DUEL";
+const std::string kCreateLobbyButtonText = "Create Lobby";
+const std::string kJoinLobbyButtonText = "Join Lobby";
+
 unsigned const int kMouseSizeDivisor = 7;
 unsigned const int kTileSizeDivisor = 6;
 unsigned const int kOrbDiameterDivisor = 6;
 unsigned const int kEraseFadeIncrement = 3;
 unsigned const int kRoundFontSizeDivisor = 10;
+unsigned const int kStartFontSizeDivisor = 8;
+unsigned const int kButtonFontSizeDivisor = 18;
 
 unsigned const int kDrawCountPointsTimeInterval = 400;
 const float kDefaultMoveTime = 15000;
@@ -40,24 +47,29 @@ void PuzzleBattle::setup() {
   yellow_orb.load("yelloworb.png");
   white_orb.load("whiteorb.png");
   purple_orb.load("purpleorb.png");
+  start_background.load("startbackground.jpg");
 
-  game_font.load("Xolonium-Regular.ttf", board_width / kRoundFontSizeDivisor);
-  game_font_bold.load("Xolonium-Bold.ttf", board_width / kRoundFontSizeDivisor);
+  game_font.load("Xolonium-Regular.ttf", window_width / kRoundFontSizeDivisor);
+  game_font_bold.load("Xolonium-Bold.ttf",
+                      window_width / kRoundFontSizeDivisor);
+  title_font.load("Xolonium-Bold.ttf", window_width / kStartFontSizeDivisor);
+  button_font.load("Xolonium-Regular.ttf",
+                   window_width / kButtonFontSizeDivisor);
 
   ResizeCursor();
   ResizeOrb();
   ResizeBackground();
+  ResizeButton();
 
   ofSetEscapeQuitsApp(false);
   game_board.GenerateBoard();
-  game_state = PLAYER_TURN;
+  game_state = START;
+  round = 1;
 
   end_time = kDefaultMoveTime;
   num_rounds = kDefaultNumRounds;
-
   erase_fade = kMaxAlpha;
 
-  round = 1;
   /*
   count_points.allocate(ofGetWindowWidth(), ofGetWindowHeight());
   count_points.begin();
@@ -67,6 +79,7 @@ void PuzzleBattle::setup() {
 
 //--------------------------------------------------------------
 void PuzzleBattle::update() {
+  font_scale = (float)window_width / kDefaultWindowWidth;
   if (game_state == PLAYER_ERASE_MATCHES) {
     if (erase_fade == 0) {
       erase_fade = kMaxAlpha;
@@ -96,39 +109,84 @@ void PuzzleBattle::update() {
 
 //--------------------------------------------------------------
 void PuzzleBattle::draw() {
-  // gui.draw();
-  background.draw(0, 0, background_width, background_width);
+  if (game_state == START) {
+    DrawStart();
+  } else {
+    background.draw(0, 0, background_width, background_width);
+    DrawGameText();
+    DrawBoard();
+    if (game_state == PLAYER_COUNT_POINTS) {
+      DrawCountPoints();
+    }
+    if (game_state == PLAYER_MOVE) {
+      DrawMoveTimeBar();
+    }
+  }
 
-  DrawGameText();
-  DrawBoard();
-  if (game_state == PLAYER_COUNT_POINTS) {
-    DrawCountPoints();
-  }
   DrawCursor();
-  if (game_state == PLAYER_MOVE) {
-    DrawMoveTimeBar();
-  }
+}
+
+void PuzzleBattle::DrawStart() {
+  start_background.draw(0, 0, window_width,
+                        window_width / kAspectRatioMultiplier);
+
+  ofSetColor(125, 200, 220);
+  ofDrawRectRounded(window_width / 2 - button_width / 2, window_height / 2,
+                    button_width, button_height, button_height / 4);
+  ofDrawRectRounded(window_width / 2 - button_width / 2,
+                    window_height / 2 + button_height * 1.5, button_width,
+                    button_height, button_height / 4);
+  ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
+
+  ofPushMatrix();  // draw start screen title start
+  ofSetColor(250, 200, 10);
+  ofTranslate(window_width / 2, window_height / 3);
+  ofScale(font_scale, font_scale, 1.0);
+
+  int font_width1 = title_font.stringWidth(kTitle1);
+  int font_height1 = title_font.stringHeight(kTitle1);
+  title_font.drawString(kTitle1, -font_width1 / 2, 0);
+
+  int font_width2 = title_font.stringWidth(kTitle2);
+  title_font.drawString(kTitle2, -font_width2 / 2, font_height1 * 1.25);
+  ofPopMatrix();  // draw start screen title end
+
+  ofPushMatrix();  // draw start screen button text start
+  ofSetColor(250, 220, 65);
+  ofTranslate(window_width / 2, window_height / 2);
+  ofScale(font_scale, font_scale, 1.0);
+
+  int font_width_button1 = button_font.stringWidth(kCreateLobbyButtonText);
+  int font_height_button1 = button_font.stringHeight(kCreateLobbyButtonText);
+  button_font.drawString(kCreateLobbyButtonText, -font_width_button1 / 2,
+                         font_height_button1 * 1.5);
+  int font_width_button2 = button_font.stringWidth(kJoinLobbyButtonText);
+  int font_height_button2 = button_font.stringHeight(kJoinLobbyButtonText);
+  button_font.drawString(kJoinLobbyButtonText, -font_width_button2 / 2,
+                         font_height_button2 * 5.3);
+
+  ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
+  ofPopMatrix();  // draw start screen button text end
 }
 
 void PuzzleBattle::DrawGameText() {
-  ofPushMatrix();  // draw roudn number start
-  ofSetColor(10, 222, 225);
+  ofPushMatrix();  // draw round number start
+  ofSetColor(250, 220, 65);
 
-  ofTranslate(board_width / 2, board_start_height / 2);
-  ofScale((float)window_width / kDefaultWindowWidth,
-          (float)window_width / kDefaultWindowWidth, 1.0);
+  ofTranslate(window_width / 2, board_start_height / 2);
+  ofScale(font_scale, font_scale, 1.0);
 
   std::string round_s =
       "Round " + std::to_string(round) + "/" + std::to_string(num_rounds);
-  int font_width = game_font_bold.stringWidth(round_s);
-  game_font_bold.drawString(round_s, -font_width / 2, 0);
+  int font_width = game_font.stringWidth(round_s);
+  game_font.drawString(round_s, -font_width / 2, 0);
 
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
   ofPopMatrix();  // draw round number end
 
   ofPushMatrix();  // draw player score start
-  
-  ofPopMatrix();   // draw player score end
+
+  ofPopMatrix();  // draw player score end
 }
 
 void PuzzleBattle::DrawCursor() {
@@ -301,8 +359,20 @@ void PuzzleBattle::mouseDragged(int x, int y, int button) {
 void PuzzleBattle::mousePressed(int x, int y, int button) {
   cursor = hand_closed;
   cursor.resize(cursor_width, cursor_width);
-
-  if (game_state == PLAYER_TURN) {
+  if (game_state == START) {
+    if (x > window_width / 2 - button_width / 2 &&
+        x < window_width / 2 + button_width / 2 && y > window_height / 2 &&
+        y < window_height / 2 + button_height) {
+      mouse_clicked_x = x;
+      mouse_clicked_y = y;
+    } else if (x > window_width / 2 - button_width / 2 &&
+               x < window_width / 2 + button_width / 2 &&
+               y > window_height / 2 + button_height * 1.5 &&
+               y < window_height / 2 + button_height * 2.5) {
+      mouse_clicked_x = x;
+      mouse_clicked_y = y;
+    }
+  } else if (game_state == PLAYER_TURN) {
     start_time = ofGetElapsedTimeMillis();
 
     int cursor_row;
@@ -326,8 +396,30 @@ void PuzzleBattle::mousePressed(int x, int y, int button) {
 void PuzzleBattle::mouseReleased(int x, int y, int button) {
   cursor = hand_open;
   cursor.resize(cursor_width, cursor_width);
+  if (game_state == START) {
+    if (x > window_width / 2 - button_width / 2 &&
+        x < window_width / 2 + button_width / 2 && y > window_height / 2 &&
+        y < window_height / 2 + button_height) {
+      if (mouse_clicked_x > window_width / 2 - button_width / 2 &&
+          mouse_clicked_x < window_width / 2 + button_width / 2 &&
+          mouse_clicked_y > window_height / 2 &&
+          mouse_clicked_y < window_height / 2 + button_height) {
+        game_state = PLAYER_TURN;
+      }
+    } else if (x > window_width / 2 - button_width / 2 &&
+               x < window_width / 2 + button_width / 2 &&
+               y > window_height / 2 + button_height * 1.5 &&
+               y < window_height / 2 + button_height * 2.5) {
+      if (mouse_clicked_x > window_width / 2 - button_width / 2 &&
+          mouse_clicked_x < window_width / 2 + button_width / 2 &&
+          mouse_clicked_y > window_height / 2 + button_height * 1.5 &&
+          mouse_clicked_y < window_height / 2 + button_height * 2.5) {
+        game_state = PLAYER_TURN;
+      }
+    }
+  }
 
-  if (game_state == PLAYER_MOVE) {
+  else if (game_state == PLAYER_MOVE) {
     game_board.SetOrb(orb_tile, cursor_orb);
     cursor_orb = Orb::EMPTY;
     game_board.CalculatePoints();
@@ -353,6 +445,7 @@ void PuzzleBattle::windowResized(int w, int h) {
   ResizeCursor();
   ResizeBackground();
   ResizeOrb();
+  ResizeButton();
 }
 
 void PuzzleBattle::ResizeCursor() {
@@ -363,6 +456,11 @@ void PuzzleBattle::ResizeBackground() { background_width = window_width; }
 
 void PuzzleBattle::ResizeOrb() {
   orb_diameter = board_width / kOrbDiameterDivisor;
+}
+
+void PuzzleBattle::ResizeButton() {
+  button_width = window_width * 2.0 / 3.0;
+  button_height = window_height / 10;
 }
 
 //--------------------------------------------------------------

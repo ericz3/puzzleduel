@@ -7,6 +7,9 @@
 
 enum GameState {
   START,
+  CREATE_GAME,
+  JOIN_GAME,
+  GAME_LOBBY,
   MENU,
   PLAYER_TURN,
   PLAYER_MOVE,
@@ -48,9 +51,12 @@ class PuzzleBattle : public ofBaseApp {
   ofImage yellow_orb;
   ofImage white_orb;
   ofImage purple_orb;
+  ofImage start_background;
 
   ofTrueTypeFont game_font;
   ofTrueTypeFont game_font_bold;
+  ofTrueTypeFont title_font;
+  ofTrueTypeFont button_font;
   float font_scale;
 
   GameState game_state;
@@ -58,8 +64,8 @@ class PuzzleBattle : public ofBaseApp {
   bool player_win;
   Orb cursor_orb;
   int num_rounds;
-  Player player;
-  Player opponent;
+  /* Player player;
+   Player opponent;*/
 
   int cursor_width;
   int window_width;
@@ -70,7 +76,12 @@ class PuzzleBattle : public ofBaseApp {
   int background_width;
   int orb_tile;
   int round;
+  int button_width;
+  int button_height;
+  int mouse_clicked_x; // used for button clicking
+  int mouse_clicked_y; // used for button clicking
 
+  void DrawStart();
   void DrawGameText();
   void DrawCursor();
   void DrawMoveTimeBar();
@@ -80,11 +91,11 @@ class PuzzleBattle : public ofBaseApp {
   void ResizeCursor();
   void ResizeBackground();
   void ResizeOrb();
+  void ResizeButton();
 
   float start_time;
   float end_time;
 
-  ofxPanel gui;
   // ofFbo count_points;
 
   // int last_count_ind;
