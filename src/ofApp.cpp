@@ -11,17 +11,25 @@ const std::string kJoinLobbyButtonText = "Join Lobby";
 unsigned const int kMouseSizeDivisor = 7;
 unsigned const int kTileSizeDivisor = 6;
 unsigned const int kOrbDiameterDivisor = 6;
-unsigned const int kEraseFadeIncrement = 3;
+unsigned const int kEraseFadeIncrement = 5;
 unsigned const int kRoundFontSizeDivisor = 10;
 unsigned const int kStartFontSizeDivisor = 8;
 unsigned const int kButtonFontSizeDivisor = 18;
 
 unsigned const int kDrawCountPointsTimeInterval = 400;
 const float kDefaultMoveTime = 15000;
-const int kDefaultNumRounds = 5;
+unsigned const int kDefaultNumRounds = 5;
+unsigned const int kMinRounds = 3;
+unsigned const int kMaxRounds = 20;
+const float kMaxMoveTime = 20000;
+const float kMinMoveTime = 5000;
 
 const float kAspectRatioMultiplier = 0.6;
 const float kDefaultWindowWidth = 1024.0;
+const float kSliderLengthMultiplier = 0.7;
+const float kRoundSelectorHeightMultiplier = 0.25;
+const float kMoveTimeSelectorHeightMultiplier = 0.5;
+const float kSliderHeightMultiplier = 0.008;
 
 unsigned const int kMaxAlpha = 255;
 unsigned const int kDefaultRGB = 255;
@@ -111,6 +119,8 @@ void PuzzleBattle::update() {
 void PuzzleBattle::draw() {
   if (game_state == START) {
     DrawStart();
+  } else if (game_state == CREATE_GAME) {
+    DrawCreateGame();
   } else {
     background.draw(0, 0, background_width, background_width);
     DrawGameText();
@@ -129,7 +139,12 @@ void PuzzleBattle::draw() {
 void PuzzleBattle::DrawStart() {
   start_background.draw(0, 0, window_width,
                         window_width / kAspectRatioMultiplier);
+  DrawStartButtons();
+  DrawStartTitle();
+  DrawStartButtonsText();
+}
 
+void PuzzleBattle::DrawStartButtons() {
   ofSetColor(125, 200, 220);
   ofDrawRectRounded(window_width / 2 - button_width / 2, window_height / 2,
                     button_width, button_height, button_height / 4);
@@ -137,8 +152,10 @@ void PuzzleBattle::DrawStart() {
                     window_height / 2 + button_height * 1.5, button_width,
                     button_height, button_height / 4);
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
+}
 
-  ofPushMatrix();  // draw start screen title start
+void PuzzleBattle::DrawStartTitle() {
+  ofPushMatrix();
   ofSetColor(250, 200, 10);
   ofTranslate(window_width / 2, window_height / 3);
   ofScale(font_scale, font_scale, 1.0);
@@ -149,9 +166,11 @@ void PuzzleBattle::DrawStart() {
 
   int font_width2 = title_font.stringWidth(kTitle2);
   title_font.drawString(kTitle2, -font_width2 / 2, font_height1 * 1.25);
-  ofPopMatrix();  // draw start screen title end
+  ofPopMatrix();
+}
 
-  ofPushMatrix();  // draw start screen button text start
+void PuzzleBattle::DrawStartButtonsText() {
+  ofPushMatrix();
   ofSetColor(250, 220, 65);
   ofTranslate(window_width / 2, window_height / 2);
   ofScale(font_scale, font_scale, 1.0);
@@ -166,7 +185,39 @@ void PuzzleBattle::DrawStart() {
                          font_height_button2 * 5.3);
 
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
-  ofPopMatrix();  // draw start screen button text end
+  ofPopMatrix();
+}
+
+void PuzzleBattle::DrawCreateGame() {
+  start_background.draw(0, 0, window_width,
+                        window_width / kAspectRatioMultiplier);
+  DrawSettingsSliders();
+  DrawSettingSlidersText();
+}
+
+void PuzzleBattle::DrawSettingsSliders() {
+  int slider_length = kSliderLengthMultiplier * window_width;
+  int slider_height = kSliderHeightMultiplier * window_height;
+  int slider_x = window_width / 2 - slider_length / 2;
+  int round_slider_y = window_height * kRoundSelectorHeightMultiplier;
+  int mt_slider_y = window_height * kMoveTimeSelectorHeightMultiplier;
+  ofSetColor(200, 250, 255);
+  ofDrawRectangle(slider_x, round_slider_y, slider_length, slider_height);
+  ofDrawRectangle(slider_x, mt_slider_y, slider_length, slider_height);
+  ofSetColor(250, 230, 40);
+  float round_slide_proportion =
+      (float)(num_rounds - kMinRounds) / (float)(kMaxRounds - kMinRounds);
+  ofDrawCircle(round_slide_proportion * slider_length + slider_x,
+               round_slider_y + slider_height / 2, slider_height * 3.0);
+  float mt_slide_porportion =
+      ((float)(end_time - kMinMoveTime) / (float)(kMaxMoveTime - kMinMoveTime));
+  ofDrawCircle(mt_slide_porportion * slider_length + slider_x,
+               mt_slider_y + slider_height / 2, slider_height * 3.0);
+  ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
+}
+
+void PuzzleBattle::DrawSettingSlidersText() {
+
 }
 
 void PuzzleBattle::DrawGameText() {
@@ -404,7 +455,7 @@ void PuzzleBattle::mouseReleased(int x, int y, int button) {
           mouse_clicked_x < window_width / 2 + button_width / 2 &&
           mouse_clicked_y > window_height / 2 &&
           mouse_clicked_y < window_height / 2 + button_height) {
-        game_state = PLAYER_TURN;
+        game_state = CREATE_GAME;
       }
     } else if (x > window_width / 2 - button_width / 2 &&
                x < window_width / 2 + button_width / 2 &&
@@ -414,7 +465,7 @@ void PuzzleBattle::mouseReleased(int x, int y, int button) {
           mouse_clicked_x < window_width / 2 + button_width / 2 &&
           mouse_clicked_y > window_height / 2 + button_height * 1.5 &&
           mouse_clicked_y < window_height / 2 + button_height * 2.5) {
-        game_state = PLAYER_TURN;
+        game_state = JOIN_GAME;
       }
     }
   }

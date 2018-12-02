@@ -82,6 +82,14 @@ class PuzzleBattle : public ofBaseApp {
   int mouse_clicked_y; // used for button clicking
 
   void DrawStart();
+  void DrawStartButtons();
+  void DrawStartTitle();
+  void DrawStartButtonsText();
+
+  void DrawCreateGame();
+  void DrawSettingsSliders();
+  void DrawSettingSlidersText();
+
   void DrawGameText();
   void DrawCursor();
   void DrawMoveTimeBar();
