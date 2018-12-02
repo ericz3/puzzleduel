@@ -9,7 +9,8 @@ enum GameState {
   START,
   CREATE_GAME,
   JOIN_GAME,
-  GAME_LOBBY,
+  LOBBY_HOST,
+  LOBBY_JOINED,
   MENU,
   PLAYER_TURN,
   PLAYER_MOVE,
@@ -88,7 +89,9 @@ class PuzzleBattle : public ofBaseApp {
 
   void DrawCreateGame();
   void DrawSettingsSliders();
-  void DrawSettingSlidersText();
+  void DrawSettingsSlidersText();
+  void DrawCreateGameButtons();
+  void DrawCreateGameButtonsText();
 
   void DrawGameText();
   void DrawCursor();
