@@ -65,6 +65,7 @@ class PuzzleBattle : public ofBaseApp {
   bool player_win;
   Orb cursor_orb;
   int num_rounds;
+  std::string player_name;
   /* Player player;
    Player opponent;*/
 
@@ -79,8 +80,8 @@ class PuzzleBattle : public ofBaseApp {
   int round;
   int button_width;
   int button_height;
-  int mouse_clicked_x; // used for button clicking
-  int mouse_clicked_y; // used for button clicking
+  int mouse_clicked_x;  // used for button clicking
+  int mouse_clicked_y;  // used for button clicking
 
   void DrawStart();
   void DrawStartButtons();
@@ -90,6 +91,7 @@ class PuzzleBattle : public ofBaseApp {
   void DrawCreateGame();
   void DrawSettingsSliders();
   void DrawSettingsSlidersText();
+  void DrawCreateGameNameBox();
   void DrawCreateGameButtons();
   void DrawCreateGameButtonsText();
 

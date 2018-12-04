@@ -6,7 +6,11 @@ using std::vector;
 const std::string kTitle1 = "PUZZLE";
 const std::string kTitle2 = "DUEL";
 const std::string kCreateLobbyButtonText = "Create Lobby";
+const std::string kConfirmButtonText = "Confirm";
+const std::string kBackButtonText = "Back";
+const std::string kConnectButtonText = "Connect";
 const std::string kJoinLobbyButtonText = "Join Lobby";
+const std::string kNameBoxText = "Name (10 chars max)";
 
 unsigned const int kMouseSizeDivisor = 7;
 unsigned const int kTileSizeDivisor = 6;
@@ -198,6 +202,7 @@ void PuzzleBattle::DrawCreateGame() {
                         window_width / kAspectRatioMultiplier);
   DrawSettingsSliders();
   DrawSettingsSlidersText();
+  DrawCreateGameNameBox();
   DrawCreateGameButtons();
   DrawCreateGameButtonsText();
 }
@@ -252,6 +257,26 @@ void PuzzleBattle::DrawSettingsSlidersText() {
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
 
+void PuzzleBattle::DrawCreateGameNameBox() {
+  ofSetColor(235, 255, 255);
+  int name_box_height = 1.25 * button_font.getLineHeight();
+  int name_box_width = 0.75 * button_width;
+  ofDrawRectangle(window_width / 2 - name_box_width / 2, window_height * 0.4,
+                  name_box_width, name_box_height);
+
+  ofSetColor(250, 220, 65);
+  ofPushMatrix();
+  ofTranslate(window_width / 2, window_height * 0.4);
+  ofScale(font_scale * 0.85, font_scale * 0.85, 1.0);
+
+  std::string name_box_s = kNameBoxText;
+  int name_box_s_width = button_font.stringWidth(name_box_s);
+  int name_box_s_height = button_font.stringHeight(name_box_s);
+  button_font.drawString(name_box_s, -name_box_s_width / 2, name_box_s_height * 3);
+  ofPopMatrix();
+  ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
+}
+
 void PuzzleBattle::DrawCreateGameButtons() {
   ofSetColor(125, 200, 220);
   ofDrawRectRounded(window_width / 2 - button_width / 2, window_height * 0.6,
@@ -261,7 +286,29 @@ void PuzzleBattle::DrawCreateGameButtons() {
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
 
-void PuzzleBattle::DrawCreateGameButtonsText() {}
+void PuzzleBattle::DrawCreateGameButtonsText() {
+  ofSetColor(250, 220, 65);
+  ofPushMatrix();
+  ofTranslate(window_width / 2, window_height * 0.6);
+  ofScale(font_scale, font_scale, 1.0);
+
+  std::string confirm_s = kConfirmButtonText;
+  int confirm_s_width = button_font.stringWidth(confirm_s);
+  int confirm_s_height = button_font.stringHeight(confirm_s);
+  button_font.drawString(confirm_s, -confirm_s_width / 2, confirm_s_height * 2);
+  ofPopMatrix();
+
+  ofPushMatrix();
+  ofTranslate(window_width / 2, window_height * 0.75);
+  ofScale(font_scale, font_scale, 1.0);
+
+  std::string back_s = kBackButtonText;
+  int back_s_width = button_font.stringWidth(back_s);
+  int back_s_height = button_font.stringHeight(back_s);
+  button_font.drawString(back_s, -back_s_width / 2, back_s_height * 2);
+  ofPopMatrix();
+  ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
+}
 
 void PuzzleBattle::DrawGameText() {
   ofPushMatrix();  // draw round number start
