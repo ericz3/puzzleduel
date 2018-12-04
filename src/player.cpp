@@ -1,10 +1,11 @@
 #include "player.h"
 
-Player::Player(std::string name) {
-  this->name = name;
+Player::Player() {
   score = 0;
   win = false;
 }
+
+void Player::SetName(std::string name) { this->name = name; }
 
 std::string Player::GetName() { return name; }
 

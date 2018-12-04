@@ -65,8 +65,8 @@ class PuzzleBattle : public ofBaseApp {
   Orb cursor_orb;
   int num_rounds;
   std::string player_name;
-  /* Player player;
-   Player opponent;*/
+   Player player;
+   Player opponent;
 
   int cursor_width;
   int window_width;
@@ -83,6 +83,14 @@ class PuzzleBattle : public ofBaseApp {
   int name_box_height;
   int mouse_clicked_x;  // used for button clicking
   int mouse_clicked_y;  // used for button clicking
+  int slider_bar_length;
+  int slider_bar_height;
+  int slider_bar_x;
+  int round_slider_bar_y;
+  int mt_slider_bar_y;
+  int round_slider_x;
+  int mt_slider_x;
+  int slider_radius;
 
   void DrawStart();
   void DrawStartButtons();
@@ -106,10 +114,12 @@ class PuzzleBattle : public ofBaseApp {
   void ResizeCursor();
   void ResizeBackground();
   void ResizeOrb();
-  void ResizeButton();
+  void ResizeUI();
 
   // checks if mouse is in specified area
   bool MouseInArea(int x_left, int x_right, int y_top, int y_bottom);
+  bool dragging_round_slider;
+  bool dragging_time_slider;
 
   float start_time;
   float end_time;

@@ -9,7 +9,8 @@ class Player {
   bool win;
 
  public:
-  Player(std::string name);
+  Player();
+  void SetName(std::string name);
   std::string GetName();
   int GetScore();
   void AddPoints(int points);
