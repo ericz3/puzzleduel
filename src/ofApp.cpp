@@ -79,7 +79,8 @@ void PuzzleBattle::setup() {
   game_board.GenerateBoard();
   game_state = START;
   round = 1;
-  box_selected = false;
+  name_box_selected = false;
+  player_name = "";
 
   end_time = kDefaultMoveTime;
   num_rounds = kDefaultNumRounds;
@@ -260,27 +261,31 @@ void PuzzleBattle::DrawSettingsSlidersText() {
 }
 
 void PuzzleBattle::DrawCreateGameNameBox() {
-  if (box_selected) {
+  if (name_box_selected) {
     ofSetColor(30, 160, 255);
     int outline_width = window_width / kBoxOutlineWidthDivisor;
-    int outline_box_h = 1.25 * button_font.getLineHeight() + 2 * outline_width;
-    int outline_box_w = 0.75 * button_width + 2 * outline_width;
+    int outline_box_h = name_box_height + 2 * outline_width;
+    int outline_box_w = name_box_width + 2 * outline_width;
     ofDrawRectangle(window_width / 2 - outline_box_w / 2,
                     window_height * 0.4 - outline_width, outline_box_w,
                     outline_box_h);
   }
 
   ofSetColor(235, 255, 255);
-  int name_box_height = 1.25 * button_font.getLineHeight();
-  int name_box_width = 0.75 * button_width;
   ofDrawRectangle(window_width / 2 - name_box_width / 2, window_height * 0.4,
                   name_box_width, name_box_height);
 
-  ofSetColor(250, 220, 65);
   ofPushMatrix();
   ofTranslate(window_width / 2, window_height * 0.4);
   ofScale(font_scale * 0.85, font_scale * 0.85, 1.0);
 
+  ofSetColor(25, 200, 50);
+  int player_name_width = button_font.stringWidth(player_name);
+  int player_name_height = button_font.getLineHeight();
+  button_font.drawString(player_name, -player_name_width / 2,
+                         player_name_height);
+
+  ofSetColor(250, 220, 65);
   std::string name_box_s = kNameBoxText;
   int name_box_s_width = button_font.stringWidth(name_box_s);
   int name_box_s_height = button_font.stringHeight(name_box_s);
@@ -471,7 +476,33 @@ void PuzzleBattle::DrawBoard() {
 }
 
 //--------------------------------------------------------------
-void PuzzleBattle::keyPressed(int key) {}
+void PuzzleBattle::keyPressed(int key) {
+  if (game_state == CREATE_GAME) {
+    if (name_box_selected) {
+      if (key == OF_KEY_BACKSPACE && player_name.length() != 0) {
+        player_name.pop_back();
+      } else if (key == OF_KEY_DEL) {
+        player_name.clear();
+      } else if (key != OF_KEY_LEFT_ALT && key != OF_KEY_RIGHT_ALT &&
+                 key != OF_KEY_LEFT_CONTROL && key != OF_KEY_RIGHT_CONTROL &&
+                 key != OF_KEY_TAB && key != OF_KEY_COMMAND &&
+                 key != OF_KEY_LEFT_SHIFT && key != OF_KEY_RIGHT_SHIFT &&
+                 key != OF_KEY_END && key != OF_KEY_ESC && key != OF_KEY_F1 &&
+                 key != OF_KEY_F2 && key != OF_KEY_F3 && key != OF_KEY_F4 &&
+                 key != OF_KEY_F5 && key != OF_KEY_F6 && key != OF_KEY_F7 &&
+                 key != OF_KEY_F8 && key != OF_KEY_F9 && key != OF_KEY_F10 &&
+                 key != OF_KEY_F11 && key != OF_KEY_F12 &&
+                 key != OF_KEY_PAGE_UP && key != OF_KEY_HOME &&
+                 key != OF_KEY_INSERT && key != OF_KEY_PAGE_DOWN &&
+                 key != OF_KEY_PAGE_UP && key != OF_KEY_RETURN &&
+                 key != OF_KEY_SUPER && key != OF_KEY_DOWN &&
+                 key != OF_KEY_UP && key != OF_KEY_LEFT &&
+                 key != OF_KEY_RIGHT && player_name.length() < 10) {
+        player_name.push_back((char)key);
+      }
+    }
+  }
+}
 
 //--------------------------------------------------------------
 void PuzzleBattle::keyReleased(int key) {}
@@ -514,7 +545,13 @@ void PuzzleBattle::mousePressed(int x, int y, int button) {
   cursor = hand_closed;
   cursor.resize(cursor_width, cursor_width);
   if (game_state == CREATE_GAME) {
-    box_selected = true;
+    if (MouseInArea(window_width / 2 - name_box_width / 2,
+                    window_width / 2 + name_box_width / 2, window_height * 0.4,
+                    window_height * 0.4 + name_box_height)) {
+      name_box_selected = true;
+    } else {
+      name_box_selected = false;
+    }
   }
 
   if (game_state == START) {
@@ -561,7 +598,7 @@ void PuzzleBattle::mouseReleased(int x, int y, int button) {
           mouse_clicked_x < window_width / 2 + button_width / 2 &&
           mouse_clicked_y > window_height / 2 + button_height * 1.5 &&
           mouse_clicked_y < window_height / 2 + button_height * 2.5) {
-        game_state = PLAYER_TURN;
+        game_state = JOIN_GAME;
       }
     }
   }
@@ -620,6 +657,8 @@ void PuzzleBattle::ResizeOrb() {
 void PuzzleBattle::ResizeButton() {
   button_width = window_width * 2.0 / 3.0;
   button_height = window_height / 10;
+  name_box_height = 1.25 * button_height/ 2;
+  name_box_width = 0.75 * button_width;
 }
 
 //--------------------------------------------------------------

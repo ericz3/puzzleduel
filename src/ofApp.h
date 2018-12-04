@@ -80,6 +80,8 @@ class PuzzleBattle : public ofBaseApp {
   int round;
   int button_width;
   int button_height;
+  int name_box_width;
+  int name_box_height;
   int mouse_clicked_x;  // used for button clicking
   int mouse_clicked_y;  // used for button clicking
 
@@ -94,7 +96,7 @@ class PuzzleBattle : public ofBaseApp {
   void DrawCreateGameNameBox();
   void DrawCreateGameButtons();
   void DrawCreateGameButtonsText();
-  bool box_selected;
+  bool name_box_selected;
 
   void DrawGameText();
   void DrawCursor();
