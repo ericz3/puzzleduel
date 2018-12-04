@@ -94,6 +94,7 @@ class PuzzleBattle : public ofBaseApp {
   void DrawCreateGameNameBox();
   void DrawCreateGameButtons();
   void DrawCreateGameButtonsText();
+  bool box_selected;
 
   void DrawGameText();
   void DrawCursor();
@@ -105,6 +106,9 @@ class PuzzleBattle : public ofBaseApp {
   void ResizeBackground();
   void ResizeOrb();
   void ResizeButton();
+
+  // checks if mouse is in specified area
+  bool MouseInArea(int x_left, int x_right, int y_top, int y_bottom);
 
   float start_time;
   float end_time;

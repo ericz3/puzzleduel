@@ -15,13 +15,14 @@ const std::string kNameBoxText = "Name (10 chars max)";
 unsigned const int kMouseSizeDivisor = 7;
 unsigned const int kTileSizeDivisor = 6;
 unsigned const int kOrbDiameterDivisor = 6;
-unsigned const int kEraseFadeIncrement = 5;
+unsigned const int kEraseFadeIncrement = 4;
 unsigned const int kRoundFontSizeDivisor = 10;
 unsigned const int kStartFontSizeDivisor = 8;
 unsigned const int kButtonFontSizeDivisor = 18;
+unsigned const int kBoxOutlineWidthDivisor = 100;
 
 // unsigned const int kDrawCountPointsTimeInterval = 400;
-const float kDefaultMoveTime = 10000;
+const float kDefaultMoveTime = 15000;
 unsigned const int kDefaultNumRounds = 5;
 unsigned const int kMinRounds = 3;
 unsigned const int kMaxRounds = 20;
@@ -78,6 +79,7 @@ void PuzzleBattle::setup() {
   game_board.GenerateBoard();
   game_state = START;
   round = 1;
+  box_selected = false;
 
   end_time = kDefaultMoveTime;
   num_rounds = kDefaultNumRounds;
@@ -258,6 +260,16 @@ void PuzzleBattle::DrawSettingsSlidersText() {
 }
 
 void PuzzleBattle::DrawCreateGameNameBox() {
+  if (box_selected) {
+    ofSetColor(30, 160, 255);
+    int outline_width = window_width / kBoxOutlineWidthDivisor;
+    int outline_box_h = 1.25 * button_font.getLineHeight() + 2 * outline_width;
+    int outline_box_w = 0.75 * button_width + 2 * outline_width;
+    ofDrawRectangle(window_width / 2 - outline_box_w / 2,
+                    window_height * 0.4 - outline_width, outline_box_w,
+                    outline_box_h);
+  }
+
   ofSetColor(235, 255, 255);
   int name_box_height = 1.25 * button_font.getLineHeight();
   int name_box_width = 0.75 * button_width;
@@ -272,7 +284,8 @@ void PuzzleBattle::DrawCreateGameNameBox() {
   std::string name_box_s = kNameBoxText;
   int name_box_s_width = button_font.stringWidth(name_box_s);
   int name_box_s_height = button_font.stringHeight(name_box_s);
-  button_font.drawString(name_box_s, -name_box_s_width / 2, name_box_s_height * 3);
+  button_font.drawString(name_box_s, -name_box_s_width / 2,
+                         name_box_s_height * 3);
   ofPopMatrix();
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
@@ -500,19 +513,13 @@ void PuzzleBattle::mouseDragged(int x, int y, int button) {
 void PuzzleBattle::mousePressed(int x, int y, int button) {
   cursor = hand_closed;
   cursor.resize(cursor_width, cursor_width);
+  if (game_state == CREATE_GAME) {
+    box_selected = true;
+  }
+
   if (game_state == START) {
-    if (x > window_width / 2 - button_width / 2 &&
-        x < window_width / 2 + button_width / 2 && y > window_height / 2 &&
-        y < window_height / 2 + button_height) {
-      mouse_clicked_x = x;
-      mouse_clicked_y = y;
-    } else if (x > window_width / 2 - button_width / 2 &&
-               x < window_width / 2 + button_width / 2 &&
-               y > window_height / 2 + button_height * 1.5 &&
-               y < window_height / 2 + button_height * 2.5) {
-      mouse_clicked_x = x;
-      mouse_clicked_y = y;
-    }
+    mouse_clicked_x = x;
+    mouse_clicked_y = y;
   } else if (game_state == PLAYER_TURN) {
     start_time = ofGetElapsedTimeMillis();
 
@@ -520,8 +527,7 @@ void PuzzleBattle::mousePressed(int x, int y, int button) {
     int cursor_col;
     int cursor_tile;
     int tile_width = window_width / kTileSizeDivisor;
-    if (x > 0 && x < board_width && y < window_height &&
-        y > board_start_height) {
+    if (MouseInArea(0, board_width, board_start_height, window_height)) {
       cursor_row = (y - board_start_height) / tile_width;
       cursor_col = x / tile_width;
       cursor_tile = kOrbsInRowAndCol * cursor_row + cursor_col;
@@ -538,24 +544,24 @@ void PuzzleBattle::mouseReleased(int x, int y, int button) {
   cursor = hand_open;
   cursor.resize(cursor_width, cursor_width);
   if (game_state == START) {
-    if (x > window_width / 2 - button_width / 2 &&
-        x < window_width / 2 + button_width / 2 && y > window_height / 2 &&
-        y < window_height / 2 + button_height) {
+    if (MouseInArea(window_width / 2 - button_width / 2,
+                    window_width / 2 + button_width / 2, window_height / 2,
+                    window_height / 2 + button_height)) {
       if (mouse_clicked_x > window_width / 2 - button_width / 2 &&
           mouse_clicked_x < window_width / 2 + button_width / 2 &&
           mouse_clicked_y > window_height / 2 &&
           mouse_clicked_y < window_height / 2 + button_height) {
         game_state = CREATE_GAME;
       }
-    } else if (x > window_width / 2 - button_width / 2 &&
-               x < window_width / 2 + button_width / 2 &&
-               y > window_height / 2 + button_height * 1.5 &&
-               y < window_height / 2 + button_height * 2.5) {
+    } else if (MouseInArea(window_width / 2 - button_width / 2,
+                           window_width / 2 + button_width / 2,
+                           window_height / 2 + button_height * 1.5,
+                           window_height / 2 + button_height * 2.5)) {
       if (mouse_clicked_x > window_width / 2 - button_width / 2 &&
           mouse_clicked_x < window_width / 2 + button_width / 2 &&
           mouse_clicked_y > window_height / 2 + button_height * 1.5 &&
           mouse_clicked_y < window_height / 2 + button_height * 2.5) {
-        game_state = JOIN_GAME;
+        game_state = PLAYER_TURN;
       }
     }
   }
@@ -565,6 +571,18 @@ void PuzzleBattle::mouseReleased(int x, int y, int button) {
     cursor_orb = Orb::EMPTY;
     game_board.CalculatePoints();
     game_state = PLAYER_ERASE_MATCHES;
+  }
+}
+
+bool PuzzleBattle::MouseInArea(int x_left, int x_right, int y_top,
+                               int y_bottom) {
+  int mouse_x = ofGetMouseX();
+  int mouse_y = ofGetMouseY();
+  if (mouse_x > x_left && mouse_x < x_right && mouse_y > y_top &&
+      mouse_y < y_bottom) {
+    return true;
+  } else {
+    return false;
   }
 }
 
