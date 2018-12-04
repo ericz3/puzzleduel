@@ -552,6 +552,9 @@ void PuzzleBattle::mousePressed(int x, int y, int button) {
     } else {
       name_box_selected = false;
     }
+
+    mouse_clicked_x = x;
+    mouse_clicked_y = y;
   }
 
   if (game_state == START) {
@@ -601,9 +604,28 @@ void PuzzleBattle::mouseReleased(int x, int y, int button) {
         game_state = JOIN_GAME;
       }
     }
-  }
-
-  else if (game_state == PLAYER_MOVE) {
+  } else if (game_state == CREATE_GAME) {
+    if (MouseInArea(window_width / 2 - button_width / 2,
+                    window_width / 2 + button_width / 2, window_height * 0.6,
+                    window_height * 0.6 + button_height)) {
+      if (mouse_clicked_x > window_width / 2 - button_width / 2 &&
+          mouse_clicked_x < window_width / 2 + button_width / 2 &&
+          mouse_clicked_y > window_height * 0.6 &&
+          mouse_clicked_y < window_height * 0.6 + button_height) {
+        game_state = LOBBY;
+      }
+    } else if (MouseInArea(window_width / 2 - button_width / 2,
+                           window_width / 2 + button_width / 2,
+                           window_height * 0.75,
+                           window_height * 0.75 + button_height)) {
+      if (mouse_clicked_x > window_width / 2 - button_width / 2 &&
+          mouse_clicked_x < window_width / 2 + button_width / 2 &&
+          mouse_clicked_y > window_height * 0.75 &&
+          mouse_clicked_y < window_height * 0.75 + button_height) {
+        game_state = START;
+      }
+    }
+  } else if (game_state == PLAYER_MOVE) {
     game_board.SetOrb(orb_tile, cursor_orb);
     cursor_orb = Orb::EMPTY;
     game_board.CalculatePoints();
@@ -657,7 +679,7 @@ void PuzzleBattle::ResizeOrb() {
 void PuzzleBattle::ResizeButton() {
   button_width = window_width * 2.0 / 3.0;
   button_height = window_height / 10;
-  name_box_height = 1.25 * button_height/ 2;
+  name_box_height = 1.25 * button_height / 2;
   name_box_width = 0.75 * button_width;
 }
 
