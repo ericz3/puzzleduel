@@ -12,17 +12,18 @@ const string kCreateLobbyButtonText = "Create Lobby";
 const string kConfirmButtonText = "Confirm";
 const string kBackButtonText = "Back";
 const string kConnectButtonText = "Connect";
-const string kJoinLobbyButtonText = "Join Lobby";
+const string kJoinGameButtonText = "Join Lobby";
 const string kNameBoxText = "Name (10 chars max)";
 
 unsigned const int kMouseSizeDivisor = 7;
 unsigned const int kTileSizeDivisor = 6;
 unsigned const int kOrbDiameterDivisor = 6;
-unsigned const int kEraseFadeIncrement = 4;
 unsigned const int kRoundFontSizeDivisor = 10;
 unsigned const int kStartFontSizeDivisor = 8;
 unsigned const int kButtonFontSizeDivisor = 18;
-unsigned const int kBoxOutlineWidthDivisor = 100;
+unsigned const int kLabelFontSizeDivisor = 22;
+unsigned const int kBoxOutlineThicknessDivisor = 100;
+unsigned const int kJoinGameBoxYPosDivisor = 6;
 
 // unsigned const int kDrawCountPointsTimeInterval = 400;
 const float kDefaultMoveTime = 15000;
@@ -44,13 +45,14 @@ const float kSecondsPerMillisecond = 0.001;
 unsigned const int kMaxPort = 65535;
 const string kMessageDelimiter = "\n";
 
+unsigned const int kEraseFadeIncrement = 3;
 unsigned const int kMaxAlpha = 255;
 unsigned const int kDefaultRGB = 255;
 
 //--------------------------------------------------------------
 void PuzzleBattle::setup() {
   ofSetVerticalSync(true);
-  ofSetFrameRate(30);
+  ofSetFrameRate(60);
   ofEnableAntiAliasing();
 
   window_height = ofGetWindowHeight();
@@ -72,7 +74,7 @@ void PuzzleBattle::setup() {
   yellow_orb.load("yelloworb.png");
   white_orb.load("whiteorb.png");
   purple_orb.load("purpleorb.png");
-  start_background.load("startbackground.jpg");
+  menu_background.load("startbackground.jpg");
 
   game_font.load("Xolonium-Regular.ttf", window_width / kRoundFontSizeDivisor);
   game_font_bold.load("Xolonium-Bold.ttf",
@@ -80,6 +82,7 @@ void PuzzleBattle::setup() {
   title_font.load("Xolonium-Bold.ttf", window_width / kStartFontSizeDivisor);
   button_font.load("Xolonium-Regular.ttf",
                    window_width / kButtonFontSizeDivisor);
+  label_font.load("Xolonium-Regular.ttf", window_width / kLabelFontSizeDivisor);
 
   ResizeCursor();
   ResizeOrb();
@@ -110,12 +113,11 @@ void PuzzleBattle::setup() {
 
 //--------------------------------------------------------------
 void PuzzleBattle::update() {
-  font_scale = (float)window_width / kDefaultWindowWidth;
-
   if (game_state == PLAYER_MOVE) {
     if (ofGetElapsedTimeMillis() - start_time > end_time) {
       mouseReleased(ofGetMouseX(), ofGetMouseY(), 0);
     }
+
   } else if (game_state == PLAYER_ERASE_MATCHES) {
     if (erase_fade == 0) {
       erase_fade = kMaxAlpha;
@@ -131,9 +133,11 @@ void PuzzleBattle::update() {
           game_board.SetOrb(i, Orb::EMPTY);
         }
       }
+
     } else {
       erase_fade -= kEraseFadeIncrement;
     }
+
   } else if (game_state == LOBBY) {
   }
 }
@@ -144,6 +148,8 @@ void PuzzleBattle::draw() {
     DrawStart();
   } else if (game_state == CREATE_GAME) {
     DrawCreateGame();
+  } else if (game_state == JOIN_GAME) {
+    DrawJoinGame();
   } else {
     background.draw(0, 0, background_width, background_width);
     DrawGameText();
@@ -160,8 +166,8 @@ void PuzzleBattle::draw() {
 }
 
 void PuzzleBattle::DrawStart() {
-  start_background.draw(0, 0, window_width,
-                        window_width / kAspectRatioMultiplier);
+  menu_background.draw(0, 0, window_width,
+                       window_width / kAspectRatioMultiplier);
   DrawStartButtons();
   DrawStartTitle();
   DrawStartButtonsText();
@@ -182,11 +188,9 @@ void PuzzleBattle::DrawStartTitle() {
   ofSetColor(250, 200, 10);
   ofTranslate(window_width / 2, window_height / 3);
   ofScale(font_scale, font_scale, 1.0);
-
   int font_width1 = title_font.stringWidth(kTitle1);
   int font_height1 = title_font.stringHeight(kTitle1);
   title_font.drawString(kTitle1, -font_width1 / 2, 0);
-
   int font_width2 = title_font.stringWidth(kTitle2);
   title_font.drawString(kTitle2, -font_width2 / 2, font_height1 * 1.25);
   ofPopMatrix();
@@ -201,23 +205,22 @@ void PuzzleBattle::DrawStartButtonsText() {
   int font_height_button1 = button_font.stringHeight(kCreateLobbyButtonText);
   button_font.drawString(kCreateLobbyButtonText, -font_width_button1 / 2,
                          font_height_button1 * 1.5);
-
   ofPopMatrix();
 
   ofPushMatrix();
   ofTranslate(window_width / 2, window_height / 2 + button_height * 1.5);
   ofScale(font_scale, font_scale, 1.0);
-  int font_width_button2 = button_font.stringWidth(kJoinLobbyButtonText);
-  int font_height_button2 = button_font.stringHeight(kJoinLobbyButtonText);
-  button_font.drawString(kJoinLobbyButtonText, -font_width_button2 / 2,
+  int font_width_button2 = button_font.stringWidth(kJoinGameButtonText);
+  int font_height_button2 = button_font.stringHeight(kJoinGameButtonText);
+  button_font.drawString(kJoinGameButtonText, -font_width_button2 / 2,
                          font_height_button2 * 1.5);
   ofPopMatrix();
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
 
 void PuzzleBattle::DrawCreateGame() {
-  start_background.draw(0, 0, window_width,
-                        window_width / kAspectRatioMultiplier);
+  menu_background.draw(0, 0, window_width,
+                       window_width / kAspectRatioMultiplier);
   DrawSettingsSliders();
   DrawSettingsSlidersText();
   DrawCreateGameNameBox();
@@ -250,25 +253,26 @@ void PuzzleBattle::DrawSettingsSlidersText() {
   ofSetColor(250, 220, 65);
   ofPushMatrix();
   ofTranslate(window_width / 2, window_height * kRoundSelectorHeightMultiplier);
-  ofScale(font_scale * 0.85, font_scale * 0.85, 1.0);
+  ofScale(font_scale, font_scale, 1.0);
   string rounds_string = "Rounds: " + std::to_string(num_rounds);
-  int font_width_rounds = button_font.stringWidth(rounds_string);
-  int font_height_rounds = button_font.stringHeight(rounds_string);
-  button_font.drawString(rounds_string, -font_width_rounds / 2,
-                         font_height_rounds * 3);
+  int font_width_rounds = label_font.stringWidth(rounds_string);
+  int font_height_rounds = label_font.stringHeight(rounds_string);
+  label_font.drawString(rounds_string, -font_width_rounds / 2,
+                        font_height_rounds * 3);
   ofPopMatrix();
 
   ofPushMatrix();
   ofTranslate(window_width / 2,
               window_height * kMoveTimeSelectorHeightMultiplier);
-  ofScale(font_scale * 0.85, font_scale * 0.85, 1.0);
+  ofScale(font_scale, font_scale, 1.0);
   string move_time_string =
       "Move Time: " +
-      std::to_string((int)rint(end_time * kSecondsPerMillisecond)) + " Seconds";
-  int font_width_mt = button_font.stringWidth(move_time_string);
-  int font_height_mt = button_font.stringHeight(move_time_string);
-  button_font.drawString(move_time_string, -font_width_mt / 2,
-                         font_height_mt * 3);
+      std::to_string((int)std::round(end_time * kSecondsPerMillisecond)) +
+      " Seconds";
+  int font_width_mt = label_font.stringWidth(move_time_string);
+  int font_height_mt = label_font.stringHeight(move_time_string);
+  label_font.drawString(move_time_string, -font_width_mt / 2,
+                        font_height_mt * 3);
   ofPopMatrix();
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
@@ -276,34 +280,29 @@ void PuzzleBattle::DrawSettingsSlidersText() {
 void PuzzleBattle::DrawCreateGameNameBox() {
   if (name_box_selected) {
     ofSetColor(30, 160, 255);
-    int outline_width = window_width / kBoxOutlineWidthDivisor;
-    int outline_box_h = name_box_height + 2 * outline_width;
-    int outline_box_w = name_box_width + 2 * outline_width;
-    ofDrawRectangle(window_width / 2 - outline_box_w / 2,
-                    window_height * 0.4 - outline_width, outline_box_w,
-                    outline_box_h);
+    ofDrawRectangle(window_width / 2 - outline_box_width / 2,
+                    window_height * 0.4 - box_outline_thickness,
+                    outline_box_width, outline_box_height);
   }
 
   ofSetColor(235, 255, 255);
-  ofDrawRectangle(window_width / 2 - name_box_width / 2, window_height * 0.4,
-                  name_box_width, name_box_height);
+  ofDrawRectangle(window_width / 2 - box_width / 2, window_height * 0.4,
+                  box_width, box_height);
 
   ofPushMatrix();
   ofTranslate(window_width / 2, window_height * 0.4);
-  ofScale(font_scale * 0.85, font_scale * 0.85, 1.0);
-
+  ofScale(font_scale, font_scale, 1.0);
   ofSetColor(25, 200, 50);
-  int player_name_width = button_font.stringWidth(player_name);
-  int player_name_height = button_font.getLineHeight();
-  button_font.drawString(player_name, -player_name_width / 2,
-                         player_name_height);
-
+  int player_name_width = label_font.stringWidth(player_name);
+  int player_name_height = label_font.getLineHeight();
+  label_font.drawString(player_name, -player_name_width / 2,
+                        player_name_height);
   ofSetColor(250, 220, 65);
   string name_box_s = kNameBoxText;
-  int name_box_s_width = button_font.stringWidth(name_box_s);
-  int name_box_s_height = button_font.stringHeight(name_box_s);
-  button_font.drawString(name_box_s, -name_box_s_width / 2,
-                         name_box_s_height * 3);
+  int name_box_s_width = label_font.stringWidth(name_box_s);
+  int name_box_s_height = label_font.stringHeight(name_box_s);
+  label_font.drawString(name_box_s, -name_box_s_width / 2,
+                        name_box_s_height * 3);
   ofPopMatrix();
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
@@ -327,7 +326,6 @@ void PuzzleBattle::DrawCreateGameButtonsText() {
   ofPushMatrix();
   ofTranslate(window_width / 2, window_height * 0.75);
   ofScale(font_scale, font_scale, 1.0);
-
   string back_s = kBackButtonText;
   int back_s_width = button_font.stringWidth(back_s);
   int back_s_height = button_font.stringHeight(back_s);
@@ -350,24 +348,73 @@ void PuzzleBattle::DrawCreateGameButtonsText() {
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
 
-void PuzzleBattle::DrawGameText() {
-  ofPushMatrix();  // draw round number start
-  ofSetColor(250, 220, 65);
+void PuzzleBattle::DrawJoinGame() {
+  menu_background.draw(0, 0, window_width,
+                       window_width / kAspectRatioMultiplier);
+  DrawJoinGameInputBoxes();
+  DrawJoinGameText();
+  DrawJoinGameButtons();
+  DrawJoinGameButtosText();
+}
 
-  ofTranslate(window_width / 2, board_start_height / 2);
+void PuzzleBattle::DrawJoinGameInputBoxes() {
+  if (name_box_selected) {
+    ofSetColor(30, 160, 255);
+    ofDrawRectangle(
+        window_width / 2 - outline_box_width / 2,
+        window_height / kJoinGameBoxYPosDivisor - box_outline_thickness,
+        outline_box_width, outline_box_height);
+  }
+
+  ofSetColor(235, 255, 255);
+  ofDrawRectangle(window_width / 2 - box_width / 2,
+                  window_height / kJoinGameBoxYPosDivisor, box_width,
+                  box_height);
+
+  if (port_box_selected) {
+    ofSetColor(30, 160, 255);
+    ofDrawRectangle(
+        window_width / 2 - outline_box_width / 2,
+        window_height / kJoinGameBoxYPosDivisor * 2 - box_outline_thickness,
+        outline_box_width, outline_box_height);
+  }
+
+  ofSetColor(235, 255, 255);
+  ofDrawRectangle(window_width / 2 - box_width / 2,
+                  window_height / kJoinGameBoxYPosDivisor * 2, box_width,
+                  box_height);
+  ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
+}
+
+void PuzzleBattle::DrawJoinGameText() {
+  ofSetColor(250, 220, 65);
+  ofPushMatrix();
+  ofTranslate(window_width / 2, window_height / kJoinGameBoxYPosDivisor);
   ofScale(font_scale, font_scale, 1.0);
 
+  ofPopMatrix();
+  ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
+}
+
+void PuzzleBattle::DrawJoinGameButtons() {}
+
+void PuzzleBattle::DrawJoinGameButtosText() {}
+
+void PuzzleBattle::DrawGameText() {
+  ofSetColor(250, 220, 65);
+  ofPushMatrix();  // draw round number start
+  ofTranslate(window_width / 2, board_start_height / 2);
+  ofScale(font_scale, font_scale, 1.0);
   string round_s =
       "Round " + std::to_string(round) + "/" + std::to_string(num_rounds);
   int font_width = game_font.stringWidth(round_s);
   game_font.drawString(round_s, -font_width / 2, 0);
-
-  ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
   ofPopMatrix();  // draw round number end
 
   ofPushMatrix();  // draw player score start
 
   ofPopMatrix();  // draw player score end
+  ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
 
 void PuzzleBattle::DrawCursor() {
@@ -546,24 +593,21 @@ void PuzzleBattle::mouseDragged(int x, int y, int button) {
     game_board.Swap(cursor_tile, orb_tile);
     orb_tile = cursor_tile;
   } else if (game_state == CREATE_GAME) {
-    float bar_proportion =
-        (float)(ofGetMouseX() - slider_bar_x) / (float)slider_bar_length;
+    float bar_proportion;
+    if (x < slider_bar_x) {
+      bar_proportion = 0.0;
+    } else if (x > slider_bar_x + slider_bar_length) {
+      bar_proportion = 1.0;
+    } else {
+      bar_proportion = (float)(x - slider_bar_x) / (float)slider_bar_length;
+    }
+
     if (dragging_round_slider == true) {
       float rounds_range = (float)(kMaxRounds - kMinRounds);
-      num_rounds = rint(bar_proportion * rounds_range + (float)kMinRounds);
-      if (num_rounds > kMaxRounds) {
-        num_rounds = kMaxRounds;
-      } else if (num_rounds < kMinRounds) {
-        num_rounds = kMinRounds;
-      }
+      num_rounds = std::round(bar_proportion * rounds_range + kMinRounds);
     } else if (dragging_time_slider == true) {
       float move_time_range = (float)(kMaxMoveTime - kMinMoveTime);
-      end_time = rint(bar_proportion * move_time_range + (float)kMinMoveTime);
-      if (end_time > kMaxMoveTime) {
-        end_time = kMaxMoveTime;
-      } else if (end_time < kMinMoveTime) {
-        end_time = kMinMoveTime;
-      }
+      end_time = std::round(bar_proportion * move_time_range + kMinMoveTime);
     }
   }
 }
@@ -579,9 +623,9 @@ void PuzzleBattle::mousePressed(int x, int y, int button) {
   } else if (game_state == CREATE_GAME) {
     mouse_clicked_x = x;
     mouse_clicked_y = y;
-    if (MouseInArea(window_width / 2 - name_box_width / 2,
-                    window_width / 2 + name_box_width / 2, window_height * 0.4,
-                    window_height * 0.4 + name_box_height)) {
+    if (MouseInArea(window_width / 2 - box_width / 2,
+                    window_width / 2 + box_width / 2, window_height * 0.4,
+                    window_height * 0.4 + box_height)) {
       name_box_selected = true;
     } else {
       name_box_selected = false;
@@ -603,6 +647,28 @@ void PuzzleBattle::mousePressed(int x, int y, int button) {
     } else {
       dragging_time_slider = false;
     }
+
+  } else if (game_state == JOIN_GAME) {
+    mouse_clicked_x = x;
+    mouse_clicked_y = y;
+    if (MouseInArea(window_width / 2 - box_width / 2,
+                    window_width / 2 + box_width / 2,
+                    window_height / kJoinGameBoxYPosDivisor,
+                    window_height / kJoinGameBoxYPosDivisor + box_height)) {
+      name_box_selected = true;
+    } else {
+      name_box_selected = false;
+    }
+
+    if (MouseInArea(
+            window_width / 2 - box_width / 2, window_width / 2 + box_width / 2,
+            (window_height / kJoinGameBoxYPosDivisor) * 2,
+            (window_height / kJoinGameBoxYPosDivisor) * 2 + box_height)) {
+      port_box_selected = true;
+    } else {
+      port_box_selected = false;
+    }
+
   } else if (game_state == PLAYER_TURN) {
     start_time = ofGetElapsedTimeMillis();
 
@@ -647,6 +713,7 @@ void PuzzleBattle::mouseReleased(int x, int y, int button) {
         game_state = JOIN_GAME;
       }
     }
+
   } else if (game_state == CREATE_GAME) {
     dragging_round_slider = false;
     dragging_time_slider = false;
@@ -662,6 +729,7 @@ void PuzzleBattle::mouseReleased(int x, int y, int button) {
         SetUpServer();
         game_state = LOBBY;
       }
+
     } else if (MouseInArea(window_width / 2 - button_width / 2,
                            window_width / 2 + button_width / 2,
                            window_height * 0.75,
@@ -670,9 +738,11 @@ void PuzzleBattle::mouseReleased(int x, int y, int button) {
           mouse_clicked_x < window_width / 2 + button_width / 2 &&
           mouse_clicked_y > window_height * 0.75 &&
           mouse_clicked_y < window_height * 0.75 + button_height) {
+        player_name.clear();
         game_state = START;
       }
     }
+
   } else if (game_state == PLAYER_MOVE) {
     game_board.SetOrb(orb_tile, cursor_orb);
     cursor_orb = Orb::EMPTY;
@@ -737,10 +807,14 @@ void PuzzleBattle::ResizeOrb() {
 }
 
 void PuzzleBattle::ResizeUI() {
+  font_scale = (float)window_width / kDefaultWindowWidth;
   button_width = window_width * 2.0 / 3.0;
   button_height = window_height / 10;
-  name_box_height = 1.25 * button_height / 2;
-  name_box_width = 0.75 * button_width;
+  box_height = 1.25 * button_height / 2;
+  box_width = 0.75 * button_width;
+  box_outline_thickness = window_width / kBoxOutlineThicknessDivisor;
+  outline_box_height = box_height + 2 * box_outline_thickness;
+  outline_box_width = box_width + 2 * box_outline_thickness;
   slider_bar_length = kSliderLengthMultiplier * window_width;
   slider_bar_height = kSliderHeightMultiplier * window_height;
   slider_bar_x = window_width / 2 - slider_bar_length / 2;

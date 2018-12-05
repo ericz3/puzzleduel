@@ -52,17 +52,18 @@ class PuzzleBattle : public ofBaseApp {
   ofImage yellow_orb;
   ofImage white_orb;
   ofImage purple_orb;
-  ofImage start_background;
+  ofImage menu_background;
 
   ofTrueTypeFont game_font;
   ofTrueTypeFont game_font_bold;
   ofTrueTypeFont title_font;
   ofTrueTypeFont button_font;
+  ofTrueTypeFont label_font;
   float font_scale;
 
   GameState game_state;
   Board game_board;
-  int num_rounds;
+  unsigned int num_rounds;
   bool player_win;
   Orb cursor_orb;
 
@@ -81,8 +82,8 @@ class PuzzleBattle : public ofBaseApp {
   int round;
   int button_width;
   int button_height;
-  int name_box_width;
-  int name_box_height;
+  int box_width;
+  int box_height;
   int mouse_clicked_x;  // used for button clicking
   int mouse_clicked_y;  // used for button clicking
   int slider_bar_length;
@@ -93,6 +94,9 @@ class PuzzleBattle : public ofBaseApp {
   int round_slider_x;
   int mt_slider_x;
   int slider_radius;
+  int box_outline_thickness;
+  int outline_box_height;
+  int outline_box_width;
 
   void DrawStart();
   void DrawStartButtons();
@@ -105,7 +109,15 @@ class PuzzleBattle : public ofBaseApp {
   void DrawCreateGameNameBox();
   void DrawCreateGameButtons();
   void DrawCreateGameButtonsText();
+
+  void DrawJoinGame();
+  void DrawJoinGameInputBoxes();
+  void DrawJoinGameText();
+  void DrawJoinGameButtons();
+  void DrawJoinGameButtosText();
+
   bool name_box_selected;
+  bool port_box_selected;
 
   void DrawGameText();
   void DrawCursor();
