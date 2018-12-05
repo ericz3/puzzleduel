@@ -3,14 +3,15 @@
 #include "board.h"
 #include "ofMain.h"
 #include "ofxGui.h"
+#include "ofxNetwork.h"
 #include "player.h"
 
 enum GameState {
   START,
   CREATE_GAME,
   JOIN_GAME,
+  CONNECTING,
   LOBBY,
-  MENU,
   PLAYER_TURN,
   PLAYER_MOVE,
   PLAYER_COUNT_POINTS,
@@ -61,12 +62,13 @@ class PuzzleBattle : public ofBaseApp {
 
   GameState game_state;
   Board game_board;
+  int num_rounds;
   bool player_win;
   Orb cursor_orb;
-  int num_rounds;
+
   std::string player_name;
-   Player player;
-   Player opponent;
+  Player player;
+  Player opponent;
 
   int cursor_width;
   int window_width;
@@ -116,6 +118,13 @@ class PuzzleBattle : public ofBaseApp {
   void ResizeOrb();
   void ResizeUI();
 
+  ofxTCPServer server;
+  ofxTCPClient client;
+  int connect_port;
+
+  void SetUpServer();
+  void SetUpClient();
+
   // checks if mouse is in specified area
   bool MouseInArea(int x_left, int x_right, int y_top, int y_bottom);
   bool dragging_round_slider;
@@ -123,9 +132,9 @@ class PuzzleBattle : public ofBaseApp {
 
   float start_time;
   float end_time;
+  int erase_fade;
 
   // ofFbo count_points;
 
   // int last_count_ind;
-  int erase_fade;
 };
