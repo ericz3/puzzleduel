@@ -48,7 +48,7 @@ const float kMaxMoveTime = 20000;
 const float kMinMoveTime = 5000;
 
 unsigned const int kMaxNameLength = 10;
-unsigned const int kPortStringLength = 5;
+unsigned const int kPortStrLength = 5;
 unsigned const int kMaxPort = 65535;
 const string kMessageDelimiter = "\n";
 
@@ -441,7 +441,7 @@ void PuzzleBattle::DrawJoinGameButtons() {
                     window_height * kBackButtonYPosMultiplier, button_width,
                     button_height, button_height / 4);
 
-  if (player_name.length() <= 0 || port_s.length() != kPortStringLength) {
+  if (player_name.length() <= 0 || port_s.length() != kPortStrLength) {
     ofSetColor(180, 205, 215);
   }
 
@@ -465,7 +465,7 @@ void PuzzleBattle::DrawJoinGameButtosText() {
   ofPushMatrix();
   ofTranslate(window_width / 2, window_height * kConfirmButtonYPosMultiplier);
   ofScale(font_scale, font_scale, 1.0);
-  if (player_name.length() <= 0 || port_s.length() != kPortStringLength) {
+  if (player_name.length() <= 0 || port_s.length() != kPortStrLength) {
     ofSetColor(240, 220, 140);
   }
 
@@ -649,8 +649,7 @@ void PuzzleBattle::keyPressed(int key) {
         port_s.pop_back();
       } else if (key == OF_KEY_DEL) {
         port_s.clear();
-      } else if (key >= 48 && key <= 57 &&
-                 port_s.length() < kPortStringLength) {
+      } else if (key >= 48 && key <= 57 && port_s.length() < kPortStrLength) {
         port_s.push_back(key);
       }
     }
@@ -745,7 +744,6 @@ void PuzzleBattle::mousePressed(int x, int y, int button) {
     } else {
       dragging_time_slider = false;
     }
-
   } else if (game_state == JOIN_GAME) {
     mouse_clicked_x = x;
     mouse_clicked_y = y;
@@ -766,7 +764,6 @@ void PuzzleBattle::mousePressed(int x, int y, int button) {
     } else {
       port_box_selected = false;
     }
-
   } else if (game_state == PLAYER_TURN) {
     start_time = ofGetElapsedTimeMillis();
 
@@ -811,36 +808,45 @@ void PuzzleBattle::mouseReleased(int x, int y, int button) {
         game_state = JOIN_GAME;
       }
     }
-
-  } else if (game_state == CREATE_GAME) {
+  } else if (game_state == CREATE_GAME || game_state == JOIN_GAME) {
     dragging_round_slider = false;
     dragging_time_slider = false;
-    if (MouseInArea(window_width / 2 - button_width / 2,
-                    window_width / 2 + button_width / 2, window_height * 0.6,
-                    window_height * 0.6 + button_height) &&
+    if (MouseInArea(
+            window_width / 2 - button_width / 2,
+            window_width / 2 + button_width / 2,
+            window_height * kConfirmButtonYPosMultiplier,
+            window_height * kConfirmButtonYPosMultiplier + button_height) &&
         player_name.length() > 0) {
       if (mouse_clicked_x > window_width / 2 - button_width / 2 &&
           mouse_clicked_x < window_width / 2 + button_width / 2 &&
-          mouse_clicked_y > window_height * 0.6 &&
-          mouse_clicked_y < window_height * 0.6 + button_height) {
-        player = Player(player_name, true);
-        SetUpServer();
-        game_state = LOBBY;
+          mouse_clicked_y > window_height * kConfirmButtonYPosMultiplier &&
+          mouse_clicked_y <
+              window_height * kConfirmButtonYPosMultiplier + button_height) {
+        if (game_state == CREATE_GAME) {
+          player = Player(player_name, true);
+          SetUpServer();
+          game_state = LOBBY;
+        } else if (game_state == JOIN_GAME &&
+                   port_s.length() == kPortStrLength) {
+          player = Player(player_name, false);
+          game_state = CONNECTING;
+        }
       }
-
-    } else if (MouseInArea(window_width / 2 - button_width / 2,
-                           window_width / 2 + button_width / 2,
-                           window_height * 0.75,
-                           window_height * 0.75 + button_height)) {
+    } else if (MouseInArea(
+                   window_width / 2 - button_width / 2,
+                   window_width / 2 + button_width / 2,
+                   window_height * kBackButtonYPosMultiplier,
+                   window_height * kBackButtonYPosMultiplier + button_height)) {
       if (mouse_clicked_x > window_width / 2 - button_width / 2 &&
           mouse_clicked_x < window_width / 2 + button_width / 2 &&
-          mouse_clicked_y > window_height * 0.75 &&
-          mouse_clicked_y < window_height * 0.75 + button_height) {
+          mouse_clicked_y > window_height * kBackButtonYPosMultiplier &&
+          mouse_clicked_y <
+              window_height * kBackButtonYPosMultiplier + button_height) {
         player_name.clear();
+        port_s.clear();
         game_state = START;
       }
     }
-
   } else if (game_state == PLAYER_MOVE) {
     game_board.SetOrb(orb_tile, cursor_orb);
     cursor_orb = Orb::EMPTY;
