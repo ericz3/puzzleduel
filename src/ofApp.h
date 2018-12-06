@@ -117,6 +117,8 @@ class PuzzleBattle : public ofBaseApp {
   void DrawJoinGameButtons();
   void DrawJoinGameButtosText();
 
+  void DrawConnecting();
+
   bool name_box_selected;
   bool port_box_selected;
 

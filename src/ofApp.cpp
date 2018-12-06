@@ -15,6 +15,8 @@ const string kConnectButtonText = "Connect";
 const string kJoinGameButtonText = "Join Lobby";
 const string kNameBoxLabel = "Name (10 chars max)";
 const string kPortBoxLabel = "Lobby ID (5 digits)";
+const string kConnectingText = "Connecting ...";
+const string kQuitButtonText = "Quit";
 
 unsigned const int kMouseSizeDivisor = 7;
 unsigned const int kTileSizeDivisor = 6;
@@ -147,6 +149,11 @@ void PuzzleBattle::update() {
     }
 
   } else if (game_state == LOBBY) {
+  } else if (game_state == CONNECTING) {
+    SetUpClient();
+    if (client.isConnected()) {
+      game_state == LOBBY;
+    }
   }
 }
 
@@ -158,6 +165,9 @@ void PuzzleBattle::draw() {
     DrawCreateGame();
   } else if (game_state == JOIN_GAME) {
     DrawJoinGame();
+  } else if (game_state == CONNECTING) {
+    DrawConnecting();
+  } else if (game_state == LOBBY) {
   } else {
     background.draw(0, 0, background_width, background_width);
     DrawGameText();
@@ -456,10 +466,9 @@ void PuzzleBattle::DrawJoinGameButtosText() {
   ofPushMatrix();
   ofTranslate(window_width / 2, window_height * kBackButtonYPosMultiplier);
   ofScale(font_scale, font_scale, 1.0);
-  string back_s = kBackButtonText;
-  int back_s_width = button_font.stringWidth(back_s);
-  int back_s_height = button_font.stringHeight(back_s);
-  button_font.drawString(back_s, -back_s_width / 2, back_s_height * 2);
+  int back_s_width = button_font.stringWidth(kBackButtonText);
+  int back_s_height = button_font.stringHeight(kBackButtonText);
+  button_font.drawString(kBackButtonText, -back_s_width / 2, back_s_height * 2);
   ofPopMatrix();
 
   ofPushMatrix();
@@ -473,6 +482,35 @@ void PuzzleBattle::DrawJoinGameButtosText() {
   int connect_s_width = button_font.stringWidth(connect_s);
   int connect_s_height = button_font.stringHeight(connect_s);
   button_font.drawString(connect_s, -connect_s_width / 2, connect_s_height * 2);
+  ofPopMatrix();
+  ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
+}
+
+void PuzzleBattle::DrawConnecting() {
+  ofSetColor(250, 210, 170);
+  menu_background.draw(0, 0, window_width,
+                       window_width / kAspectRatioMultiplier);
+
+  ofSetColor(185, 200, 255);
+  ofDrawRectRounded(window_width / 2 - button_width / 2,
+                    window_height * kBackButtonYPosMultiplier, button_width,
+                    button_height, button_height / 4);
+
+  ofSetColor(250, 220, 65);
+  ofPushMatrix();
+  ofTranslate(window_width / 2, window_height / 3);
+  ofScale(font_scale, font_scale, 1.0);
+  int connect_string_width = label_font.stringWidth(kConnectingText);
+  label_font.drawString(kConnectingText, -connect_string_width / 2, 0);
+  ofPopMatrix();
+
+  ofPushMatrix();
+  ofTranslate(window_width / 2, window_height * kBackButtonYPosMultiplier);
+  ofScale(font_scale, font_scale, 1.0);
+  int quit_string_width = button_font.stringWidth(kQuitButtonText);
+  int quit_string_height = button_font.stringHeight(kQuitButtonText);
+  button_font.drawString(kQuitButtonText, -quit_string_width / 2,
+                         quit_string_height * 1.5);
   ofPopMatrix();
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
@@ -764,6 +802,9 @@ void PuzzleBattle::mousePressed(int x, int y, int button) {
     } else {
       port_box_selected = false;
     }
+  } else if (game_state == CONNECTING) {
+    mouse_clicked_x = x;
+    mouse_clicked_y = y;
   } else if (game_state == PLAYER_TURN) {
     start_time = ofGetElapsedTimeMillis();
 
@@ -837,6 +878,22 @@ void PuzzleBattle::mouseReleased(int x, int y, int button) {
                    window_width / 2 + button_width / 2,
                    window_height * kBackButtonYPosMultiplier,
                    window_height * kBackButtonYPosMultiplier + button_height)) {
+      if (mouse_clicked_x > window_width / 2 - button_width / 2 &&
+          mouse_clicked_x < window_width / 2 + button_width / 2 &&
+          mouse_clicked_y > window_height * kBackButtonYPosMultiplier &&
+          mouse_clicked_y <
+              window_height * kBackButtonYPosMultiplier + button_height) {
+        player_name.clear();
+        port_s.clear();
+        game_state = START;
+      }
+    }
+  } else if (game_state == CONNECTING) {
+    if (MouseInArea(
+            window_width / 2 - button_width / 2,
+            window_width / 2 + button_width / 2,
+            window_height * kBackButtonYPosMultiplier,
+            window_height * kBackButtonYPosMultiplier + button_height)) {
       if (mouse_clicked_x > window_width / 2 - button_width / 2 &&
           mouse_clicked_x < window_width / 2 + button_width / 2 &&
           mouse_clicked_y > window_height * kBackButtonYPosMultiplier &&
