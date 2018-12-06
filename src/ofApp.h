@@ -112,7 +112,8 @@ class PuzzleBattle : public ofBaseApp {
 
   void DrawJoinGame();
   void DrawJoinGameInputBoxes();
-  void DrawJoinGameText();
+  void DrawJoinGameInputBoxText();
+  void DrawJoinGameInputBoxLabels();
   void DrawJoinGameButtons();
   void DrawJoinGameButtosText();
 
@@ -132,7 +133,7 @@ class PuzzleBattle : public ofBaseApp {
 
   ofxTCPServer server;
   ofxTCPClient client;
-  int connect_port;
+  std::string port_s;
 
   void SetUpServer();
   void SetUpClient();
