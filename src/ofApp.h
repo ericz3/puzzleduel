@@ -23,7 +23,7 @@ enum GameState {
   GAME_OVER
 };
 
-class PuzzleBattle : public ofBaseApp {
+class PuzzleDuel : public ofBaseApp {
  public:
   void setup();
   void update();

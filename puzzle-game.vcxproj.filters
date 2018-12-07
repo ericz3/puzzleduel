@@ -67,6 +67,9 @@
     <ClCompile Include="src\player.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\multiplayermanager.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -162,6 +165,9 @@
       <Filter>test</Filter>
     </ClInclude>
     <ClInclude Include="src\player.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\multiplayermanager.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

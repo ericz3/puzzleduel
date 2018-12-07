@@ -66,7 +66,7 @@ unsigned const int kMaxAlpha = 255;
 unsigned const int kDefaultRGB = 255;
 
 //--------------------------------------------------------------
-void PuzzleBattle::setup() {
+void PuzzleDuel::setup() {
   ofSetVerticalSync(true);
   ofSetFrameRate(60);
   ofEnableAntiAliasing();
@@ -131,7 +131,7 @@ void PuzzleBattle::setup() {
 }
 
 //--------------------------------------------------------------
-void PuzzleBattle::update() {
+void PuzzleDuel::update() {
   if (game_state == PLAYER_MOVE) {
     if (ofGetElapsedTimeMillis() - start_time > end_time) {
       mouseReleased(ofGetMouseX(), ofGetMouseY(), 0);
@@ -162,7 +162,7 @@ void PuzzleBattle::update() {
 }
 
 //--------------------------------------------------------------
-void PuzzleBattle::draw() {
+void PuzzleDuel::draw() {
   if (game_state == START) {
     DrawStart();
   } else if (game_state == CREATE_GAME) {
@@ -189,7 +189,7 @@ void PuzzleBattle::draw() {
   DrawCursor();
 }
 
-void PuzzleBattle::DrawStart() {
+void PuzzleDuel::DrawStart() {
   menu_background.draw(0, 0, background_width,
                        background_width / kAspectRatioMultiplier);
   DrawStartButtons();
@@ -197,7 +197,7 @@ void PuzzleBattle::DrawStart() {
   DrawStartButtonsText();
 }
 
-void PuzzleBattle::DrawStartButtons() {
+void PuzzleDuel::DrawStartButtons() {
   ofSetColor(125, 200, 220);
   ofDrawRectRounded(window_width / 2 - button_width / 2, window_height / 2,
                     button_width, button_height, button_height / 4);
@@ -207,7 +207,7 @@ void PuzzleBattle::DrawStartButtons() {
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
 
-void PuzzleBattle::DrawStartTitle() {
+void PuzzleDuel::DrawStartTitle() {
   ofPushMatrix();
   ofSetColor(250, 200, 10);
   ofTranslate(window_width / 2, window_height / 3);
@@ -220,7 +220,7 @@ void PuzzleBattle::DrawStartTitle() {
   ofPopMatrix();
 }
 
-void PuzzleBattle::DrawStartButtonsText() {
+void PuzzleDuel::DrawStartButtonsText() {
   ofSetColor(250, 220, 65);
   ofPushMatrix();
   ofTranslate(window_width / 2, window_height / 2);
@@ -242,7 +242,7 @@ void PuzzleBattle::DrawStartButtonsText() {
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
 
-void PuzzleBattle::DrawCreateGame() {
+void PuzzleDuel::DrawCreateGame() {
   menu_background.draw(0, 0, window_width,
                        window_width / kAspectRatioMultiplier);
   DrawSettingsSliders();
@@ -252,7 +252,7 @@ void PuzzleBattle::DrawCreateGame() {
   DrawCreateGameButtonsText();
 }
 
-void PuzzleBattle::DrawSettingsSliders() {
+void PuzzleDuel::DrawSettingsSliders() {
   ofSetColor(200, 250, 255);
   ofDrawRectangle(slider_bar_x, round_slider_bar_y, slider_bar_length,
                   slider_bar_height);
@@ -273,7 +273,7 @@ void PuzzleBattle::DrawSettingsSliders() {
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
 
-void PuzzleBattle::DrawSettingsSlidersText() {
+void PuzzleDuel::DrawSettingsSlidersText() {
   ofSetColor(250, 220, 65);
   ofPushMatrix();
   ofTranslate(window_width / 2, window_height * kRoundSelectorYPosMultiplier);
@@ -301,7 +301,7 @@ void PuzzleBattle::DrawSettingsSlidersText() {
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
 
-void PuzzleBattle::DrawCreateGameNameBox() {
+void PuzzleDuel::DrawCreateGameNameBox() {
   if (name_box_selected) {
     ofSetColor(30, 160, 255);
     ofDrawRectangle(window_width / 2 - outline_box_width / 2,
@@ -329,7 +329,7 @@ void PuzzleBattle::DrawCreateGameNameBox() {
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
 
-void PuzzleBattle::DrawCreateGameButtons() {
+void PuzzleDuel::DrawCreateGameButtons() {
   ofSetColor(125, 200, 220);
   ofDrawRectRounded(window_width / 2 - button_width / 2,
                     window_height * kBackButtonYPosMultiplier, button_width,
@@ -345,7 +345,7 @@ void PuzzleBattle::DrawCreateGameButtons() {
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
 
-void PuzzleBattle::DrawCreateGameButtonsText() {
+void PuzzleDuel::DrawCreateGameButtonsText() {
   ofSetColor(250, 220, 65);
   ofPushMatrix();
   ofTranslate(window_width / 2, window_height * kBackButtonYPosMultiplier);
@@ -371,7 +371,7 @@ void PuzzleBattle::DrawCreateGameButtonsText() {
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
 
-void PuzzleBattle::DrawJoinGame() {
+void PuzzleDuel::DrawJoinGame() {
   menu_background.draw(0, 0, window_width,
                        window_width / kAspectRatioMultiplier);
   DrawJoinGameInputBoxes();
@@ -381,7 +381,7 @@ void PuzzleBattle::DrawJoinGame() {
   DrawJoinGameButtonsText();
 }
 
-void PuzzleBattle::DrawJoinGameInputBoxes() {
+void PuzzleDuel::DrawJoinGameInputBoxes() {
   if (name_box_selected) {
     ofSetColor(30, 160, 255);
     ofDrawRectangle(
@@ -410,7 +410,7 @@ void PuzzleBattle::DrawJoinGameInputBoxes() {
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
 
-void PuzzleBattle::DrawJoinGameInputBoxText() {
+void PuzzleDuel::DrawJoinGameInputBoxText() {
   ofSetColor(25, 200, 50);
   int font_height = label_font.getLineHeight();
   ofPushMatrix();
@@ -429,7 +429,7 @@ void PuzzleBattle::DrawJoinGameInputBoxText() {
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
 
-void PuzzleBattle::DrawJoinGameInputBoxLabels() {
+void PuzzleDuel::DrawJoinGameInputBoxLabels() {
   int font_height = label_font.getLineHeight();
 
   ofSetColor(250, 220, 65);
@@ -451,7 +451,7 @@ void PuzzleBattle::DrawJoinGameInputBoxLabels() {
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
 
-void PuzzleBattle::DrawJoinGameButtons() {
+void PuzzleDuel::DrawJoinGameButtons() {
   ofSetColor(125, 200, 220);
   ofDrawRectRounded(window_width / 2 - button_width / 2,
                     window_height * kBackButtonYPosMultiplier, button_width,
@@ -467,7 +467,7 @@ void PuzzleBattle::DrawJoinGameButtons() {
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
 
-void PuzzleBattle::DrawJoinGameButtonsText() {
+void PuzzleDuel::DrawJoinGameButtonsText() {
   ofSetColor(250, 220, 65);
   ofPushMatrix();
   ofTranslate(window_width / 2, window_height * kBackButtonYPosMultiplier);
@@ -492,7 +492,7 @@ void PuzzleBattle::DrawJoinGameButtonsText() {
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
 
-void PuzzleBattle::DrawConnecting() {
+void PuzzleDuel::DrawConnecting() {
   ofSetColor(250, 210, 170);
   menu_background.draw(0, 0, window_width,
                        window_width / kAspectRatioMultiplier);
@@ -521,7 +521,7 @@ void PuzzleBattle::DrawConnecting() {
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
 
-void PuzzleBattle::DrawConnectionFailed() {
+void PuzzleDuel::DrawConnectionFailed() {
   DrawStart();
   ofSetColor(120, 100, 115, 200);
   ofDrawRectangle(0, 0, background_width,
@@ -550,7 +550,7 @@ void PuzzleBattle::DrawConnectionFailed() {
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
 
-void PuzzleBattle::DrawGameText() {
+void PuzzleDuel::DrawGameText() {
   ofSetColor(250, 220, 65);
   ofPushMatrix();  // draw round number start
   ofTranslate(window_width / 2, board_start_height / 2);
@@ -567,7 +567,7 @@ void PuzzleBattle::DrawGameText() {
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
 
-void PuzzleBattle::DrawCursor() {
+void PuzzleDuel::DrawCursor() {
   if (game_state == PLAYER_MOVE) {
     ofImage cursor_orb_image;
     if (cursor_orb == Orb::RED) {
@@ -593,7 +593,7 @@ void PuzzleBattle::DrawCursor() {
               ofGetMouseY() - cursor_width / 2, cursor_width, cursor_width);
 }
 
-void PuzzleBattle::DrawMoveTimeBar() {
+void PuzzleDuel::DrawMoveTimeBar() {
   float current_time = ofGetElapsedTimeMillis() - start_time;
   if (current_time <= end_time) {
     float timer_bar = 1.0 - current_time / end_time;
@@ -613,7 +613,7 @@ void PuzzleBattle::DrawMoveTimeBar() {
   }
 }
 
-void PuzzleBattle::DrawCountPoints() {
+void PuzzleDuel::DrawCountPoints() {
   /*std::vector<int> &board_points = game_board.GetPointsGrid();
   int current_time = ofGetElapsedTimeMillis();
   if (current_time - start_time >= kDrawCountPointsTimeInterval) {
@@ -647,7 +647,7 @@ void PuzzleBattle::DrawCountPoints() {
   count_points.draw(0, 0);*/
 }
 
-void PuzzleBattle::DrawBoard() {
+void PuzzleDuel::DrawBoard() {
   ofSetColor(175, 250, 250);
   board_tiles.draw(0, board_start_height, board_width, board_width);
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
@@ -695,7 +695,7 @@ void PuzzleBattle::DrawBoard() {
 }
 
 //--------------------------------------------------------------
-void PuzzleBattle::keyPressed(int key) {
+void PuzzleDuel::keyPressed(int key) {
   if (game_state == CREATE_GAME) {
     if (name_box_selected) {
       if (key == OF_KEY_BACKSPACE && player_name.length() > 0) {
@@ -736,13 +736,13 @@ void PuzzleBattle::keyPressed(int key) {
 }
 
 //--------------------------------------------------------------
-void PuzzleBattle::keyReleased(int key) {}
+void PuzzleDuel::keyReleased(int key) {}
 
 //--------------------------------------------------------------
-void PuzzleBattle::mouseMoved(int x, int y) {}
+void PuzzleDuel::mouseMoved(int x, int y) {}
 
 //--------------------------------------------------------------
-void PuzzleBattle::mouseDragged(int x, int y, int button) {
+void PuzzleDuel::mouseDragged(int x, int y, int button) {
   if (game_state == PLAYER_MOVE) {
     int cursor_row;
     int cursor_col;
@@ -789,7 +789,7 @@ void PuzzleBattle::mouseDragged(int x, int y, int button) {
 }
 
 //--------------------------------------------------------------
-void PuzzleBattle::mousePressed(int x, int y, int button) {
+void PuzzleDuel::mousePressed(int x, int y, int button) {
   cursor = hand_closed;
   cursor.resize(cursor_width, cursor_width);
 
@@ -866,7 +866,7 @@ void PuzzleBattle::mousePressed(int x, int y, int button) {
 }
 
 //--------------------------------------------------------------
-void PuzzleBattle::mouseReleased(int x, int y, int button) {
+void PuzzleDuel::mouseReleased(int x, int y, int button) {
   cursor = hand_open;
   cursor.resize(cursor_width, cursor_width);
   if (game_state == START) {
@@ -915,7 +915,7 @@ void PuzzleBattle::mouseReleased(int x, int y, int button) {
           connection_start_time = ofGetElapsedTimeMillis();
           connect_time = 0;
           port = std::stoi(port_s);
-          std::thread connect_client(&PuzzleBattle::SetUpClient, this);
+          std::thread connect_client(&PuzzleDuel::SetUpClient, this);
           connect_client.detach();
         }
       }
@@ -958,13 +958,13 @@ void PuzzleBattle::mouseReleased(int x, int y, int button) {
   }
 }
 
-void PuzzleBattle::SetUpServer() {
+void PuzzleDuel::SetUpServer() {
   ofxTCPSettings settings(rand() % kMaxPort + 1);
   server.setup(settings);
   server.setMessageDelimiter(kMessageDelimiter);
 }
 
-void PuzzleBattle::SetUpClient() {
+void PuzzleDuel::SetUpClient() {
   ofxTCPSettings settings(port);
   while (!client.isConnected() &&
          ofGetElapsedTimeMillis() - connection_start_time <=
@@ -987,8 +987,7 @@ void PuzzleBattle::SetUpClient() {
   }
 }
 
-bool PuzzleBattle::MouseInArea(int x_left, int x_right, int y_top,
-                               int y_bottom) {
+bool PuzzleDuel::MouseInArea(int x_left, int x_right, int y_top, int y_bottom) {
   int mouse_x = ofGetMouseX();
   int mouse_y = ofGetMouseY();
   if (mouse_x > x_left && mouse_x < x_right && mouse_y > y_top &&
@@ -1000,13 +999,13 @@ bool PuzzleBattle::MouseInArea(int x_left, int x_right, int y_top,
 }
 
 //--------------------------------------------------------------
-void PuzzleBattle::mouseEntered(int x, int y) {}
+void PuzzleDuel::mouseEntered(int x, int y) {}
 
 //--------------------------------------------------------------
-void PuzzleBattle::mouseExited(int x, int y) {}
+void PuzzleDuel::mouseExited(int x, int y) {}
 
 //--------------------------------------------------------------
-void PuzzleBattle::windowResized(int w, int h) {
+void PuzzleDuel::windowResized(int w, int h) {
   window_height = h;
   window_width = window_height * kAspectRatioMultiplier;
   board_start_height = window_height - window_width;
@@ -1020,17 +1019,17 @@ void PuzzleBattle::windowResized(int w, int h) {
   ResizeUI();
 }
 
-void PuzzleBattle::ResizeCursor() {
+void PuzzleDuel::ResizeCursor() {
   cursor_width = window_width / kMouseSizeDivisor;
 }
 
-void PuzzleBattle::ResizeBackground() { background_width = window_width; }
+void PuzzleDuel::ResizeBackground() { background_width = window_width; }
 
-void PuzzleBattle::ResizeOrb() {
+void PuzzleDuel::ResizeOrb() {
   orb_diameter = board_width / kOrbDiameterDivisor;
 }
 
-void PuzzleBattle::ResizeUI() {
+void PuzzleDuel::ResizeUI() {
   font_scale = (float)window_width / kDefaultWindowWidth;
   button_width = (float)window_width / kButtonWidthDivisor;
   button_height = window_height / kButtonHeightDivisor;
@@ -1048,7 +1047,7 @@ void PuzzleBattle::ResizeUI() {
 }
 
 //--------------------------------------------------------------
-void PuzzleBattle::gotMessage(ofMessage msg) {}
+void PuzzleDuel::gotMessage(ofMessage msg) {}
 
 //--------------------------------------------------------------
-void PuzzleBattle::dragEvent(ofDragInfo dragInfo) {}
+void PuzzleDuel::dragEvent(ofDragInfo dragInfo) {}
