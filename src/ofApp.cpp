@@ -1,7 +1,9 @@
 #include "ofApp.h"
 #include <math.h>
 #include <cmath>
+#include <iostream>
 #include <string>
+#include <thread>
 
 using std::string;
 using std::vector;
@@ -48,6 +50,8 @@ unsigned const int kMinRounds = 3;
 unsigned const int kMaxRounds = 20;
 const float kMaxMoveTime = 20000;
 const float kMinMoveTime = 5000;
+unsigned const int kConnectionTimeOut = 30000;
+unsigned const int kConnectTimeInterval = 3000;
 
 unsigned const int kMaxNameLength = 10;
 unsigned const int kPortStrLength = 5;
@@ -149,12 +153,20 @@ void PuzzleBattle::update() {
     }
 
   } else if (game_state == LOBBY) {
-  } else if (game_state == CONNECTING) {
-    SetUpClient();
-    if (client.isConnected()) {
-      game_state == LOBBY;
-    }
-  }
+  } /* else if (game_state == CONNECTING) {
+     std::cout << ofGetElapsedTimeMillis() - connection_start_time << std::endl;
+     if (client.isConnected()) {
+       game_state = LOBBY;
+     } else if (ofGetElapsedTimeMillis() - connection_start_time >=
+                kConnectionTimeOut) {
+       game_state = CONNECTION_FAIL;
+     } else {
+       int time_since_try = ofGetElapsedTimeMillis() - connect_time;
+       if (time_since_try > kConnectTimeInterval) {
+         SetUpClient();
+       }
+     }
+   }*/
 }
 
 //--------------------------------------------------------------
@@ -167,6 +179,10 @@ void PuzzleBattle::draw() {
     DrawJoinGame();
   } else if (game_state == CONNECTING) {
     DrawConnecting();
+  } else if (game_state == CONNECTION_FAIL) {
+    ofSetColor(175, 180, 190, 150);
+    DrawStart();
+
   } else if (game_state == LOBBY) {
   } else {
     background.draw(0, 0, background_width, background_width);
@@ -871,6 +887,10 @@ void PuzzleBattle::mouseReleased(int x, int y, int button) {
                    port_s.length() == kPortStrLength) {
           player = Player(player_name, false);
           game_state = CONNECTING;
+          connection_start_time = ofGetElapsedTimeMillis();
+          connect_time = 0;
+          std::thread connect_client(&PuzzleBattle::SetUpClient, this);
+          connect_client.detach();
         }
       }
     } else if (MouseInArea(
@@ -901,6 +921,7 @@ void PuzzleBattle::mouseReleased(int x, int y, int button) {
               window_height * kBackButtonYPosMultiplier + button_height) {
         player_name.clear();
         port_s.clear();
+        connection_start_time = -kConnectionTimeOut;
         game_state = START;
       }
     }
@@ -913,15 +934,30 @@ void PuzzleBattle::mouseReleased(int x, int y, int button) {
 }
 
 void PuzzleBattle::SetUpServer() {
-  ofxTCPSettings settings(rand() % kMaxPort + 1);
+  ofxTCPSettings settings(11111/*rand() % kMaxPort + 1*/);
   server.setup(settings);
   server.setMessageDelimiter(kMessageDelimiter);
 }
 
 void PuzzleBattle::SetUpClient() {
   ofxTCPSettings settings(std::stoi(port_s));
-  client.setup(settings);
-  client.setMessageDelimiter(kMessageDelimiter);
+  while (!client.isConnected() &&
+         ofGetElapsedTimeMillis() - connection_start_time <=
+             kConnectionTimeOut) {
+    std::cout << (ofGetElapsedTimeMillis() - connection_start_time) / 1000
+              << std::endl;
+    if (ofGetElapsedTimeMillis() - connect_time > kConnectTimeInterval) {
+      client.setup(settings);
+      client.setMessageDelimiter(kMessageDelimiter);
+      connect_time = ofGetElapsedTimeMillis();
+    }
+  }
+
+  if (client.isConnected()) {
+    game_state = LOBBY;
+  } else {
+    game_state = CONNECTION_FAIL;
+  }
 }
 
 bool PuzzleBattle::MouseInArea(int x_left, int x_right, int y_top,

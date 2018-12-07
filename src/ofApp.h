@@ -11,6 +11,7 @@ enum GameState {
   CREATE_GAME,
   JOIN_GAME,
   CONNECTING,
+  CONNECTION_FAIL,
   LOBBY,
   PLAYER_TURN,
   PLAYER_MOVE,
@@ -136,6 +137,7 @@ class PuzzleBattle : public ofBaseApp {
   ofxTCPServer server;
   ofxTCPClient client;
   std::string port_s;
+  bool client_connected;
 
   void SetUpServer();
   void SetUpClient();
@@ -148,6 +150,8 @@ class PuzzleBattle : public ofBaseApp {
   float start_time;
   float end_time;
   int erase_fade;
+  int connection_start_time;
+  int connect_time;
 
   // ofFbo count_points;
 
