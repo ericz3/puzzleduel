@@ -11,7 +11,7 @@ enum GameState {
   CREATE_GAME,
   JOIN_GAME,
   CONNECTING,
-  CONNECTION_FAIL,
+  CONNECTION_FAILED,
   LOBBY,
   PLAYER_TURN,
   PLAYER_MOVE,
@@ -60,6 +60,7 @@ class PuzzleBattle : public ofBaseApp {
   ofTrueTypeFont title_font;
   ofTrueTypeFont button_font;
   ofTrueTypeFont label_font;
+  ofTrueTypeFont message_font;
   float font_scale;
 
   GameState game_state;
@@ -116,9 +117,11 @@ class PuzzleBattle : public ofBaseApp {
   void DrawJoinGameInputBoxText();
   void DrawJoinGameInputBoxLabels();
   void DrawJoinGameButtons();
-  void DrawJoinGameButtosText();
+  void DrawJoinGameButtonsText();
 
   void DrawConnecting();
+
+  void DrawConnectionFailed();
 
   bool name_box_selected;
   bool port_box_selected;
@@ -137,6 +140,7 @@ class PuzzleBattle : public ofBaseApp {
   ofxTCPServer server;
   ofxTCPClient client;
   std::string port_s;
+  int port;
   bool client_connected;
 
   void SetUpServer();

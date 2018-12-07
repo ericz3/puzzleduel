@@ -1,7 +1,6 @@
 #include "ofApp.h"
 #include <math.h>
 #include <cmath>
-#include <iostream>
 #include <string>
 #include <thread>
 
@@ -19,6 +18,8 @@ const string kNameBoxLabel = "Name (10 chars max)";
 const string kPortBoxLabel = "Lobby ID (5 digits)";
 const string kConnectingText = "Connecting ...";
 const string kQuitButtonText = "Quit";
+const string kConnectionErrorMessage1 = "CONNECTION FAILED";
+const string kConnectionErrorMessage2 = "Press any key";
 
 unsigned const int kMouseSizeDivisor = 7;
 unsigned const int kTileSizeDivisor = 6;
@@ -27,6 +28,7 @@ unsigned const int kRoundFontSizeDivisor = 10;
 unsigned const int kStartFontSizeDivisor = 8;
 unsigned const int kButtonFontSizeDivisor = 18;
 unsigned const int kLabelFontSizeDivisor = 22;
+unsigned const int kMessageFontSizedivisor = 28;
 unsigned const int kButtonHeightDivisor = 10;
 const float kButtonWidthDivisor = 1.5;
 unsigned const int kBoxOutlineThicknessDivisor = 100;
@@ -42,6 +44,7 @@ const float kSliderHeightMultiplier = 0.008;
 const float kSecondsPerMillisecond = 0.001;
 const float kConfirmButtonYPosMultiplier = 0.6;
 const float kBackButtonYPosMultiplier = 0.75;
+const float kErrorBoxWidthMultiplier = 0.70;
 
 // unsigned const int kDrawCountPointsTimeInterval = 400;
 const float kDefaultMoveTime = 15000;
@@ -96,6 +99,8 @@ void PuzzleBattle::setup() {
   button_font.load("Xolonium-Regular.ttf",
                    window_width / kButtonFontSizeDivisor);
   label_font.load("Xolonium-Regular.ttf", window_width / kLabelFontSizeDivisor);
+  message_font.load("Xolonium-Regular.ttf",
+                    window_width / kMessageFontSizedivisor);
 
   ResizeCursor();
   ResizeOrb();
@@ -153,20 +158,7 @@ void PuzzleBattle::update() {
     }
 
   } else if (game_state == LOBBY) {
-  } /* else if (game_state == CONNECTING) {
-     std::cout << ofGetElapsedTimeMillis() - connection_start_time << std::endl;
-     if (client.isConnected()) {
-       game_state = LOBBY;
-     } else if (ofGetElapsedTimeMillis() - connection_start_time >=
-                kConnectionTimeOut) {
-       game_state = CONNECTION_FAIL;
-     } else {
-       int time_since_try = ofGetElapsedTimeMillis() - connect_time;
-       if (time_since_try > kConnectTimeInterval) {
-         SetUpClient();
-       }
-     }
-   }*/
+  }
 }
 
 //--------------------------------------------------------------
@@ -179,10 +171,8 @@ void PuzzleBattle::draw() {
     DrawJoinGame();
   } else if (game_state == CONNECTING) {
     DrawConnecting();
-  } else if (game_state == CONNECTION_FAIL) {
-    ofSetColor(175, 180, 190, 150);
-    DrawStart();
-
+  } else if (game_state == CONNECTION_FAILED) {
+    DrawConnectionFailed();
   } else if (game_state == LOBBY) {
   } else {
     background.draw(0, 0, background_width, background_width);
@@ -200,8 +190,8 @@ void PuzzleBattle::draw() {
 }
 
 void PuzzleBattle::DrawStart() {
-  menu_background.draw(0, 0, window_width,
-                       window_width / kAspectRatioMultiplier);
+  menu_background.draw(0, 0, background_width,
+                       background_width / kAspectRatioMultiplier);
   DrawStartButtons();
   DrawStartTitle();
   DrawStartButtonsText();
@@ -388,7 +378,7 @@ void PuzzleBattle::DrawJoinGame() {
   DrawJoinGameInputBoxText();
   DrawJoinGameInputBoxLabels();
   DrawJoinGameButtons();
-  DrawJoinGameButtosText();
+  DrawJoinGameButtonsText();
 }
 
 void PuzzleBattle::DrawJoinGameInputBoxes() {
@@ -477,7 +467,7 @@ void PuzzleBattle::DrawJoinGameButtons() {
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
 
-void PuzzleBattle::DrawJoinGameButtosText() {
+void PuzzleBattle::DrawJoinGameButtonsText() {
   ofSetColor(250, 220, 65);
   ofPushMatrix();
   ofTranslate(window_width / 2, window_height * kBackButtonYPosMultiplier);
@@ -527,6 +517,35 @@ void PuzzleBattle::DrawConnecting() {
   int quit_string_height = button_font.stringHeight(kQuitButtonText);
   button_font.drawString(kQuitButtonText, -quit_string_width / 2,
                          quit_string_height * 1.5);
+  ofPopMatrix();
+  ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
+}
+
+void PuzzleBattle::DrawConnectionFailed() {
+  DrawStart();
+  ofSetColor(120, 100, 115, 200);
+  ofDrawRectangle(0, 0, background_width,
+                  background_width / kAspectRatioMultiplier);
+  ofSetColor(185, 200, 255, 255);
+  int error_box_width = window_width * kErrorBoxWidthMultiplier;
+  int error_box_height = error_box_width / 2;
+  ofDrawRectRounded(window_width / 2 - error_box_width / 2,
+                    window_height / 2 - error_box_height / 2, error_box_width,
+                    error_box_height, error_box_height / 8);
+
+  ofSetColor(215, 25, 25, 255);
+  int font_height = message_font.getLineHeight();
+  ofPushMatrix();
+  ofTranslate(window_width / 2, window_height / 2);
+  ofScale(font_scale, font_scale, 1);
+  int failed_message1_width =
+      message_font.stringWidth(kConnectionErrorMessage1);
+  message_font.drawString(kConnectionErrorMessage1, -failed_message1_width / 2,
+                          -font_height);
+  int failed_message2_width =
+      message_font.stringWidth(kConnectionErrorMessage2);
+  message_font.drawString(kConnectionErrorMessage2, -failed_message2_width / 2,
+                          font_height);
   ofPopMatrix();
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
@@ -706,6 +725,12 @@ void PuzzleBattle::keyPressed(int key) {
       } else if (key >= 48 && key <= 57 && port_s.length() < kPortStrLength) {
         port_s.push_back(key);
       }
+    }
+  } else if (game_state == CONNECTION_FAILED) {
+    if (true) {
+      player_name.clear();
+      port_s.clear();
+      game_state = START;
     }
   }
 }
@@ -889,6 +914,7 @@ void PuzzleBattle::mouseReleased(int x, int y, int button) {
           game_state = CONNECTING;
           connection_start_time = ofGetElapsedTimeMillis();
           connect_time = 0;
+          port = std::stoi(port_s);
           std::thread connect_client(&PuzzleBattle::SetUpClient, this);
           connect_client.detach();
         }
@@ -921,7 +947,6 @@ void PuzzleBattle::mouseReleased(int x, int y, int button) {
               window_height * kBackButtonYPosMultiplier + button_height) {
         player_name.clear();
         port_s.clear();
-        connection_start_time = -kConnectionTimeOut;
         game_state = START;
       }
     }
@@ -934,18 +959,20 @@ void PuzzleBattle::mouseReleased(int x, int y, int button) {
 }
 
 void PuzzleBattle::SetUpServer() {
-  ofxTCPSettings settings(11111/*rand() % kMaxPort + 1*/);
+  ofxTCPSettings settings(rand() % kMaxPort + 1);
   server.setup(settings);
   server.setMessageDelimiter(kMessageDelimiter);
 }
 
 void PuzzleBattle::SetUpClient() {
-  ofxTCPSettings settings(std::stoi(port_s));
+  ofxTCPSettings settings(port);
   while (!client.isConnected() &&
          ofGetElapsedTimeMillis() - connection_start_time <=
              kConnectionTimeOut) {
-    std::cout << (ofGetElapsedTimeMillis() - connection_start_time) / 1000
-              << std::endl;
+    if (game_state != CONNECTING) {
+      return;
+    }
+
     if (ofGetElapsedTimeMillis() - connect_time > kConnectTimeInterval) {
       client.setup(settings);
       client.setMessageDelimiter(kMessageDelimiter);
@@ -956,7 +983,7 @@ void PuzzleBattle::SetUpClient() {
   if (client.isConnected()) {
     game_state = LOBBY;
   } else {
-    game_state = CONNECTION_FAIL;
+    game_state = CONNECTION_FAILED;
   }
 }
 
