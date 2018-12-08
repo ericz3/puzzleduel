@@ -16,7 +16,7 @@ end of the game, the player with the most points is the winner.
 
 ### Core Goals
 - [x] Set up libraries
-- [ ] Gamestates (player 1 turn, player 2 turn, game over, menu, etc.)
+- [x] Gamestates (player 1 turn, player 2 turn, game over, menu, etc.)
 - [x] Playing turn
 	- [x] detect picking up starting orb
 	- [x] drag orbs
@@ -39,9 +39,9 @@ end of the game, the player with the most points is the winner.
 - [ ] networking
 	- [ ] animate other player's movements
 	- [ ] send over score info
-- [ ] GUI
-	- [ ] game settings
-	- [ ] buttons (start game, etc.)
+- [x] GUI
+	- [x] game settings
+	- [x] buttons (start game, etc.)
 
 ### Stretch Goals
 - [ ] point multipliers for amounts of matches (ex: 1.25x points with 5+ matches)

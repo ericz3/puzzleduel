@@ -17,4 +17,5 @@ class Player {
   int GetScore();
   void AddPoints(int points);
   bool IsWinner();
+  bool IsHost();
 };

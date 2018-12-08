@@ -53,13 +53,9 @@ unsigned const int kMinRounds = 3;
 unsigned const int kMaxRounds = 20;
 const float kMaxMoveTime = 20000;
 const float kMinMoveTime = 5000;
-unsigned const int kConnectionTimeOut = 30000;
-unsigned const int kConnectTimeInterval = 3000;
 
 unsigned const int kMaxNameLength = 10;
 unsigned const int kPortStrLength = 5;
-unsigned const int kMaxPort = 65535;
-const string kMessageDelimiter = "\n";
 
 unsigned const int kEraseFadeIncrement = 3;
 unsigned const int kMaxAlpha = 255;
@@ -109,15 +105,12 @@ void PuzzleDuel::setup() {
 
   ofSetEscapeQuitsApp(false);
   game_board.GenerateBoard();
-  game_state = START;
   round = 1;
   name_box_selected = false;
   dragging_round_slider = false;
   dragging_time_slider = false;
   player_name = "";
   port_s = "";
-  player = Player();
-  opponent = Player();
 
   end_time = kDefaultMoveTime;
   num_rounds = kDefaultNumRounds;
@@ -132,15 +125,15 @@ void PuzzleDuel::setup() {
 
 //--------------------------------------------------------------
 void PuzzleDuel::update() {
-  if (game_state == PLAYER_MOVE) {
+  if (game_manager.game_state == PLAYER_MOVE) {
     if (ofGetElapsedTimeMillis() - start_time > end_time) {
       mouseReleased(ofGetMouseX(), ofGetMouseY(), 0);
     }
 
-  } else if (game_state == PLAYER_ERASE_MATCHES) {
+  } else if (game_manager.game_state == PLAYER_ERASE_MATCHES) {
     if (erase_fade == 0) {
       erase_fade = kMaxAlpha;
-      game_state = PLAYER_COUNT_POINTS;
+      game_manager.game_state = PLAYER_COUNT_POINTS;
       /*last_count_ind = 0;
       count_points.begin();
       ofClear(255, 255, 255);
@@ -157,31 +150,31 @@ void PuzzleDuel::update() {
       erase_fade -= kEraseFadeIncrement;
     }
 
-  } else if (game_state == LOBBY) {
+  } else if (game_manager.game_state == LOBBY) {
   }
 }
 
 //--------------------------------------------------------------
 void PuzzleDuel::draw() {
-  if (game_state == START) {
+  if (game_manager.game_state == START) {
     DrawStart();
-  } else if (game_state == CREATE_GAME) {
+  } else if (game_manager.game_state == CREATE_GAME) {
     DrawCreateGame();
-  } else if (game_state == JOIN_GAME) {
+  } else if (game_manager.game_state == JOIN_GAME) {
     DrawJoinGame();
-  } else if (game_state == CONNECTING) {
+  } else if (game_manager.game_state == CONNECTING) {
     DrawConnecting();
-  } else if (game_state == CONNECTION_FAILED) {
+  } else if (game_manager.game_state == CONNECTION_FAILED) {
     DrawConnectionFailed();
-  } else if (game_state == LOBBY) {
+  } else if (game_manager.game_state == LOBBY) {
   } else {
     background.draw(0, 0, background_width, background_width);
     DrawGameText();
     DrawBoard();
-    if (game_state == PLAYER_COUNT_POINTS) {
+    if (game_manager.game_state == PLAYER_COUNT_POINTS) {
       DrawCountPoints();
     }
-    if (game_state == PLAYER_MOVE) {
+    if (game_manager.game_state == PLAYER_MOVE) {
       DrawMoveTimeBar();
     }
   }
@@ -568,7 +561,7 @@ void PuzzleDuel::DrawGameText() {
 }
 
 void PuzzleDuel::DrawCursor() {
-  if (game_state == PLAYER_MOVE) {
+  if (game_manager.game_state == PLAYER_MOVE) {
     ofImage cursor_orb_image;
     if (cursor_orb == Orb::RED) {
       cursor_orb_image = red_orb;
@@ -664,7 +657,7 @@ void PuzzleDuel::DrawBoard() {
     orb_image.clear();
     Orb current_orb = board.at(i);
 
-    if (game_state == PLAYER_ERASE_MATCHES &&
+    if (game_manager.game_state == PLAYER_ERASE_MATCHES &&
         board_points.at(i) == kOrbPointValue) {
       ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB, erase_fade);
     }
@@ -696,7 +689,7 @@ void PuzzleDuel::DrawBoard() {
 
 //--------------------------------------------------------------
 void PuzzleDuel::keyPressed(int key) {
-  if (game_state == CREATE_GAME) {
+  if (game_manager.game_state == CREATE_GAME) {
     if (name_box_selected) {
       if (key == OF_KEY_BACKSPACE && player_name.length() > 0) {
         player_name.pop_back();
@@ -707,7 +700,7 @@ void PuzzleDuel::keyPressed(int key) {
         player_name.push_back(key);
       }
     }
-  } else if (game_state == JOIN_GAME) {
+  } else if (game_manager.game_state == JOIN_GAME) {
     if (name_box_selected) {
       if (key == OF_KEY_BACKSPACE && player_name.length() > 0) {
         player_name.pop_back();
@@ -726,11 +719,11 @@ void PuzzleDuel::keyPressed(int key) {
         port_s.push_back(key);
       }
     }
-  } else if (game_state == CONNECTION_FAILED) {
+  } else if (game_manager.game_state == CONNECTION_FAILED) {
     if (true) {
       player_name.clear();
       port_s.clear();
-      game_state = START;
+      game_manager.game_state = START;
     }
   }
 }
@@ -743,7 +736,7 @@ void PuzzleDuel::mouseMoved(int x, int y) {}
 
 //--------------------------------------------------------------
 void PuzzleDuel::mouseDragged(int x, int y, int button) {
-  if (game_state == PLAYER_MOVE) {
+  if (game_manager.game_state == PLAYER_MOVE) {
     int cursor_row;
     int cursor_col;
     int cursor_tile;
@@ -768,7 +761,7 @@ void PuzzleDuel::mouseDragged(int x, int y, int button) {
     cursor_tile = kOrbsInRowAndCol * cursor_row + cursor_col;
     game_board.Swap(cursor_tile, orb_tile);
     orb_tile = cursor_tile;
-  } else if (game_state == CREATE_GAME) {
+  } else if (game_manager.game_state == CREATE_GAME) {
     float bar_proportion;
     if (x < slider_bar_x) {
       bar_proportion = 0.0;
@@ -793,10 +786,10 @@ void PuzzleDuel::mousePressed(int x, int y, int button) {
   cursor = hand_closed;
   cursor.resize(cursor_width, cursor_width);
 
-  if (game_state == START) {
+  if (game_manager.game_state == START) {
     mouse_clicked_x = x;
     mouse_clicked_y = y;
-  } else if (game_state == CREATE_GAME) {
+  } else if (game_manager.game_state == CREATE_GAME) {
     mouse_clicked_x = x;
     mouse_clicked_y = y;
     if (MouseInArea(window_width / 2 - box_width / 2,
@@ -823,7 +816,7 @@ void PuzzleDuel::mousePressed(int x, int y, int button) {
     } else {
       dragging_time_slider = false;
     }
-  } else if (game_state == JOIN_GAME) {
+  } else if (game_manager.game_state == JOIN_GAME) {
     mouse_clicked_x = x;
     mouse_clicked_y = y;
     if (MouseInArea(window_width / 2 - box_width / 2,
@@ -843,10 +836,10 @@ void PuzzleDuel::mousePressed(int x, int y, int button) {
     } else {
       port_box_selected = false;
     }
-  } else if (game_state == CONNECTING) {
+  } else if (game_manager.game_state == CONNECTING) {
     mouse_clicked_x = x;
     mouse_clicked_y = y;
-  } else if (game_state == PLAYER_TURN) {
+  } else if (game_manager.game_state == PLAYER_TURN) {
     start_time = ofGetElapsedTimeMillis();
 
     int cursor_row;
@@ -860,7 +853,7 @@ void PuzzleDuel::mousePressed(int x, int y, int button) {
       cursor_orb = game_board.GetOrb(cursor_tile);
       game_board.SetOrb(cursor_tile, Orb::EMPTY);
       orb_tile = cursor_tile;
-      game_state = PLAYER_MOVE;
+      game_manager.game_state = PLAYER_MOVE;
     }
   }
 }
@@ -869,7 +862,7 @@ void PuzzleDuel::mousePressed(int x, int y, int button) {
 void PuzzleDuel::mouseReleased(int x, int y, int button) {
   cursor = hand_open;
   cursor.resize(cursor_width, cursor_width);
-  if (game_state == START) {
+  if (game_manager.game_state == START) {
     if (MouseInArea(window_width / 2 - button_width / 2,
                     window_width / 2 + button_width / 2, window_height / 2,
                     window_height / 2 + button_height)) {
@@ -877,7 +870,7 @@ void PuzzleDuel::mouseReleased(int x, int y, int button) {
           mouse_clicked_x < window_width / 2 + button_width / 2 &&
           mouse_clicked_y > window_height / 2 &&
           mouse_clicked_y < window_height / 2 + button_height) {
-        game_state = CREATE_GAME;
+        game_manager.game_state = CREATE_GAME;
       }
     } else if (MouseInArea(window_width / 2 - button_width / 2,
                            window_width / 2 + button_width / 2,
@@ -887,10 +880,11 @@ void PuzzleDuel::mouseReleased(int x, int y, int button) {
           mouse_clicked_x < window_width / 2 + button_width / 2 &&
           mouse_clicked_y > window_height / 2 + button_height * 1.5 &&
           mouse_clicked_y < window_height / 2 + button_height * 2.5) {
-        game_state = JOIN_GAME;
+        game_manager.game_state = JOIN_GAME;
       }
     }
-  } else if (game_state == CREATE_GAME || game_state == JOIN_GAME) {
+  } else if (game_manager.game_state == CREATE_GAME ||
+             game_manager.game_state == JOIN_GAME) {
     dragging_round_slider = false;
     dragging_time_slider = false;
     if (MouseInArea(
@@ -904,19 +898,14 @@ void PuzzleDuel::mouseReleased(int x, int y, int button) {
           mouse_clicked_y > window_height * kConfirmButtonYPosMultiplier &&
           mouse_clicked_y <
               window_height * kConfirmButtonYPosMultiplier + button_height) {
-        if (game_state == CREATE_GAME) {
-          player = Player(player_name, true);
-          SetUpServer();
-          game_state = LOBBY;
-        } else if (game_state == JOIN_GAME &&
+        if (game_manager.game_state == CREATE_GAME) {
+          game_manager.game_state = LOBBY;
+          game_manager.SetupServer(player_name);
+        } else if (game_manager.game_state == JOIN_GAME &&
                    port_s.length() == kPortStrLength) {
-          player = Player(player_name, false);
-          game_state = CONNECTING;
-          connection_start_time = ofGetElapsedTimeMillis();
-          connect_time = 0;
-          port = std::stoi(port_s);
-          std::thread connect_client(&PuzzleDuel::SetUpClient, this);
-          connect_client.detach();
+          int port = std::stoi(port_s);
+          game_manager.game_state = CONNECTING;
+          game_manager.SetupClient(player_name, port);
         }
       }
     } else if (MouseInArea(
@@ -931,10 +920,10 @@ void PuzzleDuel::mouseReleased(int x, int y, int button) {
               window_height * kBackButtonYPosMultiplier + button_height) {
         player_name.clear();
         port_s.clear();
-        game_state = START;
+        game_manager.game_state = START;
       }
     }
-  } else if (game_state == CONNECTING) {
+  } else if (game_manager.game_state == CONNECTING) {
     if (MouseInArea(
             window_width / 2 - button_width / 2,
             window_width / 2 + button_width / 2,
@@ -947,43 +936,14 @@ void PuzzleDuel::mouseReleased(int x, int y, int button) {
               window_height * kBackButtonYPosMultiplier + button_height) {
         player_name.clear();
         port_s.clear();
-        game_state = START;
+        game_manager.game_state = START;
       }
     }
-  } else if (game_state == PLAYER_MOVE) {
+  } else if (game_manager.game_state == PLAYER_MOVE) {
     game_board.SetOrb(orb_tile, cursor_orb);
     cursor_orb = Orb::EMPTY;
     game_board.CalculatePoints();
-    game_state = PLAYER_ERASE_MATCHES;
-  }
-}
-
-void PuzzleDuel::SetUpServer() {
-  ofxTCPSettings settings(rand() % kMaxPort + 1);
-  server.setup(settings);
-  server.setMessageDelimiter(kMessageDelimiter);
-}
-
-void PuzzleDuel::SetUpClient() {
-  ofxTCPSettings settings(port);
-  while (!client.isConnected() &&
-         ofGetElapsedTimeMillis() - connection_start_time <=
-             kConnectionTimeOut) {
-    if (game_state != CONNECTING) {
-      return;
-    }
-
-    if (ofGetElapsedTimeMillis() - connect_time > kConnectTimeInterval) {
-      client.setup(settings);
-      client.setMessageDelimiter(kMessageDelimiter);
-      connect_time = ofGetElapsedTimeMillis();
-    }
-  }
-
-  if (client.isConnected()) {
-    game_state = LOBBY;
-  } else {
-    game_state = CONNECTION_FAILED;
+    game_manager.game_state = PLAYER_ERASE_MATCHES;
   }
 }
 

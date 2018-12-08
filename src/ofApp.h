@@ -1,27 +1,11 @@
 #pragma once
 
 #include "board.h"
+#include "gamemanager.h"
 #include "ofMain.h"
 #include "ofxGui.h"
 #include "ofxNetwork.h"
 #include "player.h"
-
-enum GameState {
-  START,
-  CREATE_GAME,
-  JOIN_GAME,
-  CONNECTING,
-  CONNECTION_FAILED,
-  LOBBY,
-  PLAYER_TURN,
-  PLAYER_MOVE,
-  PLAYER_COUNT_POINTS,
-  PLAYER_ERASE_MATCHES,
-  OPPONENT_TURN,
-  OPPONENT_COUNT_POINTS,
-  OPPONENT_ERASE_MATCHES,
-  GAME_OVER
-};
 
 class PuzzleDuel : public ofBaseApp {
  public:
@@ -63,15 +47,13 @@ class PuzzleDuel : public ofBaseApp {
   ofTrueTypeFont message_font;
   float font_scale;
 
-  GameState game_state;
+  GameManager game_manager;
   Board game_board;
   unsigned int num_rounds;
   bool player_win;
   Orb cursor_orb;
 
   std::string player_name;
-  Player player;
-  Player opponent;
 
   int cursor_width;
   int window_width;
@@ -137,14 +119,7 @@ class PuzzleDuel : public ofBaseApp {
   void ResizeOrb();
   void ResizeUI();
 
-  ofxTCPServer server;
-  ofxTCPClient client;
   std::string port_s;
-  int port;
-  bool client_connected;
-
-  void SetUpServer();
-  void SetUpClient();
 
   // checks if mouse is in specified area
   bool MouseInArea(int x_left, int x_right, int y_top, int y_bottom);
