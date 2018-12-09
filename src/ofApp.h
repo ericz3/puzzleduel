@@ -81,6 +81,11 @@ class PuzzleDuel : public ofBaseApp {
   int box_outline_thickness;
   int outline_box_height;
   int outline_box_width;
+  int lobby_p1_box_height;
+  int lobby_p2_box_height;
+  int player_box_width;
+  int player_box_height;
+  int player_box_y;
 
   void DrawStart();
   void DrawStartButtons();
@@ -105,8 +110,12 @@ class PuzzleDuel : public ofBaseApp {
 
   void DrawConnectionFailed();
 
-  bool name_box_selected;
-  bool port_box_selected;
+  void DrawLobby();
+  void DrawLobbyPlayerBoxes();
+  void DrawLobbyButtons();
+  void DrawLobbySettings();
+  void DrawLobbyPlayerNames();
+  void DrawLobbyButtonText();
 
   void DrawGameText();
   void DrawCursor();
@@ -125,6 +134,9 @@ class PuzzleDuel : public ofBaseApp {
   bool MouseInArea(int x_left, int x_right, int y_top, int y_bottom);
   bool dragging_round_slider;
   bool dragging_time_slider;
+
+  bool name_box_selected;
+  bool port_box_selected;
 
   float start_time;
   float end_time;

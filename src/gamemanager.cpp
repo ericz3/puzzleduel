@@ -26,7 +26,7 @@ void GameManager::SetupServer(std::string player_name, float move_time,
   player = Player(player_name, true);
   this->move_time = move_time;
   this->rounds = rounds;
-  port = 1111 /*rand() % kMaxPort + 1*/;
+  port = rand() % kMaxPort + 1;
   ofxTCPSettings settings(port);
   server.setup(settings);
   server.setMessageDelimiter(kMessageDelimiter);
