@@ -20,7 +20,8 @@ const string kConnectingText = "Connecting ...";
 const string kQuitButtonText = "Quit";
 const string kConnectionErrorMessage1 = "CONNECTION FAILED";
 const string kConnectionErrorMessage2 = "Press any key";
-const string kLobbyPlayerLabel = "Player: ";
+const string kLobbyP1Label = " Player 1: ";
+const string kLobbyP2Label = " Player 2: ";
 
 unsigned const int kMouseSizeDivisor = 7;
 unsigned const int kTileSizeDivisor = 6;
@@ -46,7 +47,7 @@ const float kSecondsPerMillisecond = 0.001;
 const float kConfirmButtonYPosMultiplier = 0.6;
 const float kBackButtonYPosMultiplier = 0.75;
 const float kErrorBoxWidthMultiplier = 0.70;
-const float kLobbyPlayerBoxWidthMultiplier = 0.85;
+const float kLobbyPlayerBoxWidthMultiplier = 0.90;
 const float kLobbyPlayerBoxHeightMultiplier = 0.1;
 const float kLobbyPlayerBoxYPosMultiplier = 0.15;
 const float kLobbyIdYPosMultiplier = 0.1;
@@ -565,7 +566,7 @@ void PuzzleDuel::DrawLobby() {
 }
 
 void PuzzleDuel::DrawLobbyPlayerBoxes() {
-  ofSetColor(100, 190, 230, 150);
+  ofSetColor(95, 180, 220, 150);
   ofDrawRectRounded(window_width / 2 - player_box_width / 2, player_box_y,
                     player_box_width, player_box_height,
                     player_box_height / 12);
@@ -587,6 +588,7 @@ void PuzzleDuel::DrawLobbyButtons() {
 }
 
 void PuzzleDuel::DrawLobbySettings() {
+  ofSetColor(105, 255, 115);
   ofPushMatrix();
   ofTranslate(window_width / 2, window_height * kLobbyIdYPosMultiplier);
   ofScale(font_scale, font_scale, 1.0);
@@ -600,13 +602,15 @@ void PuzzleDuel::DrawLobbySettings() {
   label_font.drawString(lobby_id_string, -lobby_id_string_width / 2, 0);
   ofPopMatrix();
 
+  ofSetColor(250, 220, 65);
   ofPushMatrix();
   ofTranslate(window_width / 2, window_height * kLobbySettingsYPosMultiplier);
   ofScale(font_scale, font_scale, 1.0);
   std::string rounds_string = "rounds: " + std::to_string(game_manager.rounds);
   int rounds_string_width = label_font.stringWidth(rounds_string);
   std::string move_time_string =
-      "move time: " + std::to_string((int)(game_manager.move_time / 1000));
+      "move time: " + std::to_string((int)(game_manager.move_time / 1000)) +
+      " seconds";
   int move_time_string_width = label_font.stringWidth(move_time_string);
   label_font.drawString(rounds_string, -rounds_string_width / 2, 0);
   label_font.drawString(move_time_string, -move_time_string_width / 2,
@@ -615,28 +619,50 @@ void PuzzleDuel::DrawLobbySettings() {
 }
 
 void PuzzleDuel::DrawLobbyPlayerNames() {
-  std::string player1_label;
-  std::string player2_label;
+  std::string player1_name;
+  std::string player2_name;
   if (game_manager.player.IsHost()) {
-    player1_label = kLobbyPlayerLabel + game_manager.player.GetName();
-    player2_label = kLobbyPlayerLabel + game_manager.opponent.GetName();
+    player1_name = game_manager.player.GetName();
+    player2_name = game_manager.opponent.GetName();
   } else if (game_manager.opponent.IsHost()) {
-    player2_label = kLobbyPlayerLabel + game_manager.player.GetName();
-    player1_label = kLobbyPlayerLabel + game_manager.opponent.GetName();
+    player2_name = game_manager.player.GetName();
+    player1_name = game_manager.opponent.GetName();
   }
 
   ofSetColor(250, 220, 65);
   ofPushMatrix();
-  ofTranslate(window_width / 2, window_height * kLobbyPlayerBoxYPosMultiplier);
+  ofTranslate(window_width / 2 - player_box_width / 2, player_box_y);
   ofScale(font_scale, font_scale, 1.0);
-  int player1_label_width = button_font.stringWidth(player1_label);
-  button_font.drawString(player1_label, -player1_label_width / 2,
+  button_font.drawString(kLobbyP1Label, 0, button_font.getLineHeight() * 1.25);
+  ofPopMatrix();
+
+  ofPushMatrix();
+  ofTranslate(window_width / 2 - player_box_width / 2, player_box_y * 2);
+  ofScale(font_scale, font_scale, 1.0);
+  button_font.drawString(kLobbyP2Label, 0, button_font.getLineHeight() * 1.25);
+  ofPopMatrix();
+
+  ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
+  ofPushMatrix();
+  int p1_label_width = button_font.stringWidth(kLobbyP1Label);
+  ofTranslate(window_width / 2 - player_box_width / 2, player_box_y);
+  ofScale(font_scale, font_scale, 1.0);
+  button_font.drawString(player1_name, p1_label_width,
                          button_font.getLineHeight() * 1.25);
   ofPopMatrix();
-  ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
+
+  ofPushMatrix();
+  int p2_label_width = button_font.stringWidth(kLobbyP2Label);
+  ofTranslate(window_width / 2 - player_box_width / 2, player_box_y * 2);
+  ofScale(font_scale, font_scale, 1.0);
+  button_font.drawString(player2_name, p2_label_width,
+                         button_font.getLineHeight() * 1.25);
+  ofPopMatrix();
 }
 
-void PuzzleDuel::DrawLobbyButtonText() {}
+void PuzzleDuel::DrawLobbyButtonText() {
+
+}
 
 void PuzzleDuel::DrawGameText() {
   ofSetColor(250, 220, 65);
