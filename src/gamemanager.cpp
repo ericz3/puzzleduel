@@ -36,21 +36,19 @@ void GameManager::SetupServer(std::string player_name, float move_time,
 }
 
 void GameManager::SyncSettingsHost() {
-  int send_interval = 2000;
-  int last_sent = ofGetElapsedTimeMillis();
   while (game_state == LOBBY) {
-    int current_time = ofGetElapsedTimeMillis();
-    if (current_time - last_sent >= send_interval) {
-      cout << "\n\nsent" << endl;
-      for (int client_id = 0; client_id < server.getLastID(); client_id++) {
-        if (server.isClientConnected(client_id)) {
-          server.send(client_id, std::to_string(move_time) + " " +
-                                     std::to_string(rounds) + " " +
-                                     player.GetName());
-          cout << client_id << endl;
+    for (int client_id = 0; client_id < server.getLastID(); client_id++) {
+      if (server.isClientConnected(client_id)) {
+        server.send(client_id, std::to_string(move_time) + " " +
+                                   std::to_string(rounds) + " " +
+                                   player.GetName());
+        /* std::string message;
+         std::string messages;*/
+        if (opponent.GetName().empty()) {
+          std::string opponent_name = server.receive(client_id);
+          opponent = Player(opponent_name, false);
         }
       }
-      last_sent = current_time;
     }
   }
 }
@@ -61,15 +59,15 @@ void GameManager::SyncSettingsClient() {
     while (game_info.length() == 0) {
       game_info = client.receive();
     }
-    cout << "\n\n" << game_info << endl;
-    int divider1_pos = game_info.find(" ");
-    move_time = std::stoi(game_info.substr(0, divider1_pos));
-    game_info.replace(0, divider1_pos, "");
-    int divider2_pos = game_info.find(" ");
-    rounds = std::stoi(game_info.substr(0, divider2_pos));
-    game_info.replace(0, divider2_pos, "");
+    client.send(player.GetName());
 
-    std::cout << move_time << ": " << rounds << ": " << game_info;
+    int divider1_pos = game_info.find(" ") + 1;
+    move_time = float(std::stoi(game_info.substr(0, divider1_pos)));
+    game_info.erase(0, divider1_pos);
+    int divider2_pos = game_info.find(" ") + 1;
+    rounds = int(std::stoi(game_info.substr(0, divider2_pos)));
+    game_info.erase(0, divider2_pos);
+    opponent = Player(game_info, true);
   }
 }
 

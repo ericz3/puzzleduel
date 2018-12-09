@@ -3,6 +3,7 @@
 Player::Player() {
   score = 0;
   win = false;
+  name = "";
 }
 
 Player::Player(std::string name, bool is_host) {
