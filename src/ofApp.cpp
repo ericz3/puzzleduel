@@ -899,8 +899,7 @@ void PuzzleDuel::mouseReleased(int x, int y, int button) {
           mouse_clicked_y <
               window_height * kConfirmButtonYPosMultiplier + button_height) {
         if (game_manager.game_state == CREATE_GAME) {
-          game_manager.game_state = LOBBY;
-          game_manager.SetupServer(player_name);
+          game_manager.SetupServer(player_name, end_time, num_rounds);
         } else if (game_manager.game_state == JOIN_GAME &&
                    port_s.length() == kPortStrLength) {
           int port = std::stoi(port_s);

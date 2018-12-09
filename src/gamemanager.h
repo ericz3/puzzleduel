@@ -29,21 +29,20 @@ class GameManager {
   GameState game_state;
   ofxTCPServer server;
   ofxTCPClient client;
-  bool connected;
   int port;
-  int move_time;
+  float move_time;
   int rounds;
 
   GameManager();
   void SetupClient(std::string player_name, int port);
-  void SetupServer(std::string player_name);
+  void SetupServer(std::string player_name, float move_time, int rounds);
   void SendBoard();
   Board ReceiveBoard();
   void SendScore();
   int RecieveScore();
-  bool IsConnected();
 
  private:
   void ConnectClient();
-  void CreateServer();
+  void SyncSettingsHost();
+  void SyncSettingsClient();
 };
