@@ -35,23 +35,81 @@ void GameManager::SetupServer(std::string player_name, float move_time,
   send_game_info.detach();
 }
 
+void GameManager::DisconnectLobby() {
+  if (player.IsHost()) {
+    std::thread dc_host(&GameManager::DisconnectHost, this);
+    dc_host.detach();
+  } else {
+    std::thread dc_client(&GameManager::DisconnectClient, this);
+    dc_client.detach();
+  }
+}
+
+void GameManager::StartGame() {
+  std::thread start_attempt(&GameManager::TryStartGame, this);
+  start_attempt.detach();
+}
+
+void GameManager::TryStartGame() {
+  if (ServerHasConnectedClients()) {
+    game_state = PLAYER_TURN;
+    int start = ofGetElapsedTimeMillis();
+    while (ofGetElapsedTimeMillis() - start < 500) {
+      server.sendToAll(kStartGameMessage);
+    }
+  }
+}
+
+bool GameManager::ServerHasConnectedClients() {
+  for (int client_id = 0; client_id <= server.getLastID(); client_id++) {
+    if (server.isClientConnected(client_id)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+void GameManager::ConnectClient() {
+  int connection_start_time = ofGetElapsedTimeMillis();
+  ofxTCPSettings settings(port);
+  while (!client.isConnected() &&
+         ofGetElapsedTimeMillis() - connection_start_time <=
+             kConnectionTimeOut) {
+    if (game_state != CONNECTING) {
+      return;
+    }
+
+    client.setup(settings);
+    client.setMessageDelimiter(kMessageDelimiter);
+  }
+
+  if (client.isConnected()) {
+    game_state = LOBBY;
+    SyncSettingsClient();
+    std::thread listen(&GameManager::Listen, this);
+    listen.detach();
+  } else {
+    game_state = CONNECTION_FAILED;
+  }
+}
+
 void GameManager::SyncSettingsHost() {
   while (game_state == LOBBY) {
     for (int client_id = 0; client_id < server.getLastID(); client_id++) {
-      if (server.isClientConnected(client_id)) {
+      if (server.isClientConnected(client_id) &&
+          opponent.client_id != client_id) {
         server.send(client_id, std::to_string(move_time) + " " +
                                    std::to_string(rounds) + " " +
                                    player.GetName());
-        /* std::string message;
-         std::string messages;*/
         std::string opponent_name = server.receive(client_id);
-        if (!opponent_name.empty() && opponent_name.length() <= 10) {
-          opponent = Player(opponent_name, false, client_id);
+        while (opponent_name.empty()) {
+          opponent_name = server.receive(client_id);
         }
-      } else {
-        if (opponent.client_id == client_id) {
-          opponent = Player();
-        }
+        opponent = Player(opponent_name, false, client_id);
+      } else if (!server.isClientConnected(client_id) &&
+                 opponent.client_id == client_id) {
+        opponent = Player();
       }
     }
   }
@@ -75,38 +133,27 @@ void GameManager::SyncSettingsClient() {
   }
 }
 
-void GameManager::DisconnectLobby() {
-  if (player.IsHost()) {
-    server.close();
-  } else {
-    client.close();
-  }
-
+void GameManager::DisconnectHost() {
+  server.close();
   game_state = START;
   player = Player();
   opponent = Player();
 }
 
-void GameManager::ConnectClient() {
-  int connection_start_time = ofGetElapsedTimeMillis();
-  int connect_time = 0;
-  ofxTCPSettings settings(port);
-  while (!client.isConnected() &&
-         ofGetElapsedTimeMillis() - connection_start_time <=
-             kConnectionTimeOut) {
-    if (game_state != CONNECTING) {
+void GameManager::DisconnectClient() {
+  client.close();
+  game_state = START;
+  player = Player();
+  opponent = Player();
+}
+
+void GameManager::Listen() {
+  while (client.isConnected()) {
+    std::string receive = client.receive();
+    if (receive == kStartGameMessage && game_state == LOBBY) {
+      cout << receive << endl;
+      game_state = OPPONENT_TURN;
       return;
     }
-
-    client.setup(settings);
-    client.setMessageDelimiter(kMessageDelimiter);
-    connect_time = ofGetElapsedTimeMillis();
-  }
-
-  if (client.isConnected()) {
-    game_state = LOBBY;
-    SyncSettingsClient();
-  } else {
-    game_state = CONNECTION_FAILED;
   }
 }

@@ -68,8 +68,8 @@ class PuzzleDuel : public ofBaseApp {
   int button_height;
   int box_width;
   int box_height;
-  int mouse_clicked_x;  // used for button clicking
-  int mouse_clicked_y;  // used for button clicking
+  int mouse_clicked_x;
+  int mouse_clicked_y;
   int slider_bar_length;
   int slider_bar_height;
   int slider_bar_x;

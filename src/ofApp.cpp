@@ -163,6 +163,15 @@ void PuzzleDuel::update() {
     }
 
   } else if (game_manager.game_state == LOBBY) {
+    if (!game_manager.player.IsHost()) {
+      if (!game_manager.client.isConnected()) {
+        game_manager.DisconnectLobby();
+        port_s.clear();
+        player_name.clear();
+        end_time = kDefaultMoveTime;
+        num_rounds = kDefaultNumRounds;
+      }
+    }
   }
 }
 
@@ -581,10 +590,15 @@ void PuzzleDuel::DrawLobbyPlayerBoxes() {
 void PuzzleDuel::DrawLobbyButtons() {
   ofSetColor(125, 200, 220);
   ofDrawRectRounded(window_width / 2 - button_width / 2,
-                    window_height * kLobbyStartButtonYPosMultiplier,
-                    button_width, button_height, button_height / 4);
-  ofDrawRectRounded(window_width / 2 - button_width / 2,
                     window_height * kLobbyLeaveButtonYPosMultiplier,
+                    button_width, button_height, button_height / 4);
+
+  if (!game_manager.player.IsHost()) {
+    ofSetColor(180, 205, 215);
+  }
+
+  ofDrawRectRounded(window_width / 2 - button_width / 2,
+                    window_height * kLobbyStartButtonYPosMultiplier,
                     button_width, button_height, button_height / 4);
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
@@ -1114,8 +1128,9 @@ void PuzzleDuel::mouseReleased(int x, int y, int button) {
           mouse_clicked_y <
               window_height * kLobbyStartButtonYPosMultiplier + button_height) {
         if (game_manager.player.IsHost()) {
-          game_manager.game_state == PLAYER_TURN;
-          // start game message
+          while (game_manager.game_state != PLAYER_TURN) {
+            game_manager.StartGame();
+          }
         }
       }
     } else if (MouseInArea(window_width / 2 - button_width / 2,

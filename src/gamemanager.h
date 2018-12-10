@@ -1,9 +1,12 @@
 #pragma once
 
+#include <string>
 #include <vector>
 #include "board.h"
 #include "ofxNetwork.h"
 #include "player.h"
+
+const string kStartGameMessage = "start";
 
 enum GameState {
   START,
@@ -41,9 +44,15 @@ class GameManager {
   void SendScore();
   int RecieveScore();
   void DisconnectLobby();
+  void StartGame();
 
  private:
+  void TryStartGame();
+  bool ServerHasConnectedClients();
   void ConnectClient();
   void SyncSettingsHost();
   void SyncSettingsClient();
+  void DisconnectHost();
+  void DisconnectClient();
+  void Listen();
 };
