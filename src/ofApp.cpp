@@ -1131,8 +1131,6 @@ void PuzzleDuel::mouseReleased(int x, int y, int button) {
           mouse_clicked_y <
               window_height * kLobbyStartButtonYPosMultiplier + button_height) {
         if (game_manager.player.IsHost()) {
-          // int start = ofGetElapsedTimeMillis();
-
           game_manager.StartGame();
         }
       }

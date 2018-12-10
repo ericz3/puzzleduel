@@ -48,23 +48,13 @@ void GameManager::StartGame() {
 }
 
 void GameManager::TryStartGame() {
-  if (ServerHasConnectedClients() && game_state == LOBBY) {
+  if (!opponent.GetName().empty() && game_state == LOBBY) {
     game_state = PLAYER_TURN;
     int start = ofGetElapsedTimeMillis();
     while (ofGetElapsedTimeMillis() - start < 500) {
       server.sendToAll(kStartGameMessage);
     }
   }
-}
-
-bool GameManager::ServerHasConnectedClients() {
-  for (int client_id = 0; client_id <= server.getLastID(); client_id++) {
-    if (server.isClientConnected(client_id)) {
-      return true;
-    }
-  }
-
-  return false;
 }
 
 void GameManager::ConnectClient() {

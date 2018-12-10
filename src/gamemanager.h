@@ -48,7 +48,6 @@ class GameManager {
 
  private:
   void TryStartGame();
-  bool ServerHasConnectedClients();
   void ConnectClient();
   void SyncSettingsHost();
   void SyncSettingsClient();
