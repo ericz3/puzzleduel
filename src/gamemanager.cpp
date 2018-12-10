@@ -44,9 +44,13 @@ void GameManager::SyncSettingsHost() {
                                    player.GetName());
         /* std::string message;
          std::string messages;*/
-        if (opponent.GetName().empty()) {
-          std::string opponent_name = server.receive(client_id);
-          opponent = Player(opponent_name, false);
+        std::string opponent_name = server.receive(client_id);
+        if (!opponent_name.empty() && opponent_name.length() <= 10) {
+          opponent = Player(opponent_name, false, client_id);
+        }
+      } else {
+        if (opponent.client_id == client_id) {
+          opponent = Player();
         }
       }
     }
@@ -62,13 +66,25 @@ void GameManager::SyncSettingsClient() {
     client.send(player.GetName());
 
     int divider1_pos = game_info.find(" ") + 1;
-    move_time = float(std::stoi(game_info.substr(0, divider1_pos)));
+    move_time = std::stof(game_info.substr(0, divider1_pos));
     game_info.erase(0, divider1_pos);
     int divider2_pos = game_info.find(" ") + 1;
-    rounds = int(std::stoi(game_info.substr(0, divider2_pos)));
+    rounds = std::stoi(game_info.substr(0, divider2_pos));
     game_info.erase(0, divider2_pos);
     opponent = Player(game_info, true);
   }
+}
+
+void GameManager::DisconnectLobby() {
+  if (player.IsHost()) {
+    server.close();
+  } else {
+    client.close();
+  }
+
+  game_state = START;
+  player = Player();
+  opponent = Player();
 }
 
 void GameManager::ConnectClient() {

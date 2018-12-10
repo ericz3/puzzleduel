@@ -18,10 +18,13 @@ const string kNameBoxLabel = "Name (10 chars max)";
 const string kPortBoxLabel = "Lobby ID (5 digits)";
 const string kConnectingText = "Connecting ...";
 const string kQuitButtonText = "Quit";
-const string kConnectionErrorMessage1 = "CONNECTION FAILED";
+const string kConnectionErrorMessage1 = "CONNECTION ERROR";
 const string kConnectionErrorMessage2 = "Press any key";
 const string kLobbyP1Label = " Player 1: ";
 const string kLobbyP2Label = " Player 2: ";
+const string kWaitingForHostMessage = "Waiting for host to start game...";
+const string kStartButtonText = "Start Game!";
+const string kLeaveButtonText = "Leave Lobby";
 
 unsigned const int kMouseSizeDivisor = 7;
 unsigned const int kTileSizeDivisor = 6;
@@ -43,7 +46,7 @@ const float kSliderLengthMultiplier = 0.7;
 const float kRoundSelectorYPosMultiplier = 0.1;
 const float kMoveTimeSelectorYPosMultiplier = 0.25;
 const float kSliderHeightMultiplier = 0.008;
-const float kSecondsPerMillisecond = 0.001;
+const float kSecInMilliSec = 0.001;
 const float kConfirmButtonYPosMultiplier = 0.6;
 const float kBackButtonYPosMultiplier = 0.75;
 const float kErrorBoxWidthMultiplier = 0.70;
@@ -51,7 +54,7 @@ const float kLobbyPlayerBoxWidthMultiplier = 0.90;
 const float kLobbyPlayerBoxHeightMultiplier = 0.1;
 const float kLobbyPlayerBoxYPosMultiplier = 0.15;
 const float kLobbyIdYPosMultiplier = 0.1;
-const float kLobbyQuitButtonYPosMultiplier = 0.85;
+const float kLobbyLeaveButtonYPosMultiplier = 0.85;
 const float kLobbyStartButtonYPosMultiplier = 0.7;
 const float kLobbySettingsYPosMultiplier = 0.5;
 
@@ -294,8 +297,7 @@ void PuzzleDuel::DrawSettingsSlidersText() {
   ofScale(font_scale, font_scale, 1.0);
   string move_time_string =
       "Move Time: " +
-      std::to_string((int)std::round(end_time * kSecondsPerMillisecond)) +
-      " Seconds";
+      std::to_string((int)std::round(end_time * kSecInMilliSec)) + " Seconds";
   int font_width_mt = label_font.stringWidth(move_time_string);
   int font_height_mt = label_font.stringHeight(move_time_string);
   label_font.drawString(move_time_string, -font_width_mt / 2,
@@ -582,7 +584,7 @@ void PuzzleDuel::DrawLobbyButtons() {
                     window_height * kLobbyStartButtonYPosMultiplier,
                     button_width, button_height, button_height / 4);
   ofDrawRectRounded(window_width / 2 - button_width / 2,
-                    window_height * kLobbyQuitButtonYPosMultiplier,
+                    window_height * kLobbyLeaveButtonYPosMultiplier,
                     button_width, button_height, button_height / 4);
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
@@ -606,16 +608,31 @@ void PuzzleDuel::DrawLobbySettings() {
   ofPushMatrix();
   ofTranslate(window_width / 2, window_height * kLobbySettingsYPosMultiplier);
   ofScale(font_scale, font_scale, 1.0);
-  std::string rounds_string = "rounds: " + std::to_string(game_manager.rounds);
+  std::string rounds_string = "Rounds: " + std::to_string(game_manager.rounds);
   int rounds_string_width = label_font.stringWidth(rounds_string);
   std::string move_time_string =
-      "move time: " + std::to_string((int)(game_manager.move_time / 1000)) +
+      "Move Time: " +
+      std::to_string((int)std::round(game_manager.move_time * kSecInMilliSec)) +
       " seconds";
   int move_time_string_width = label_font.stringWidth(move_time_string);
   label_font.drawString(rounds_string, -rounds_string_width / 2, 0);
   label_font.drawString(move_time_string, -move_time_string_width / 2,
                         label_font.getLineHeight());
   ofPopMatrix();
+
+  if (!game_manager.player.IsHost()) {
+    ofSetColor(105, 255, 115);
+    ofPushMatrix();
+    ofTranslate(window_width / 2,
+                window_height * kLobbyStartButtonYPosMultiplier);
+    ofScale(font_scale * 0.85, font_scale * 0.85, 1.0);
+    int message_width = label_font.stringWidth(kWaitingForHostMessage);
+    label_font.drawString(kWaitingForHostMessage, -message_width / 2,
+                          -label_font.getLineHeight());
+    ofPopMatrix();
+  }
+
+  ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
 
 void PuzzleDuel::DrawLobbyPlayerNames() {
@@ -661,7 +678,25 @@ void PuzzleDuel::DrawLobbyPlayerNames() {
 }
 
 void PuzzleDuel::DrawLobbyButtonText() {
+  ofSetColor(250, 220, 65);
+  ofPushMatrix();
+  int start_button_width = button_font.stringWidth(kStartButtonText);
+  ofTranslate(window_width / 2,
+              window_height * kLobbyStartButtonYPosMultiplier);
+  ofScale(font_scale, font_scale, 1.0);
+  button_font.drawString(kStartButtonText, -start_button_width / 2,
+                         button_font.getLineHeight() * 1.25);
+  ofPopMatrix();
 
+  ofPushMatrix();
+  int leave_button_width = button_font.stringWidth(kLeaveButtonText);
+  ofTranslate(window_width / 2,
+              window_height * kLobbyLeaveButtonYPosMultiplier);
+  ofScale(font_scale, font_scale, 1.0);
+  button_font.drawString(kLeaveButtonText, -leave_button_width / 2,
+                         button_font.getLineHeight() * 1.25);
+  ofPopMatrix();
+  ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
 
 void PuzzleDuel::DrawGameText() {
@@ -976,6 +1011,9 @@ void PuzzleDuel::mousePressed(int x, int y, int button) {
       orb_tile = cursor_tile;
       game_manager.game_state = PLAYER_MOVE;
     }
+  } else if (game_manager.game_state == LOBBY) {
+    mouse_clicked_x = x;
+    mouse_clicked_y = y;
   }
 }
 
@@ -1064,6 +1102,39 @@ void PuzzleDuel::mouseReleased(int x, int y, int button) {
     cursor_orb = Orb::EMPTY;
     game_board.CalculatePoints();
     game_manager.game_state = PLAYER_ERASE_MATCHES;
+  } else if (game_manager.game_state == LOBBY) {
+    if (MouseInArea(
+            window_width / 2 - button_width / 2,
+            window_width / 2 + button_width / 2,
+            window_height * kLobbyStartButtonYPosMultiplier,
+            window_height * kLobbyStartButtonYPosMultiplier + button_height)) {
+      if (mouse_clicked_x > window_width / 2 - button_width / 2 &&
+          mouse_clicked_x < window_width / 2 + button_width / 2 &&
+          mouse_clicked_y > window_height * kLobbyStartButtonYPosMultiplier &&
+          mouse_clicked_y <
+              window_height * kLobbyStartButtonYPosMultiplier + button_height) {
+        if (game_manager.player.IsHost()) {
+          game_manager.game_state == PLAYER_TURN;
+          // start game message
+        }
+      }
+    } else if (MouseInArea(window_width / 2 - button_width / 2,
+                           window_width / 2 + button_width / 2,
+                           window_height * kLobbyLeaveButtonYPosMultiplier,
+                           window_height * kLobbyLeaveButtonYPosMultiplier +
+                               button_height)) {
+      if (mouse_clicked_x > window_width / 2 - button_width / 2 &&
+          mouse_clicked_x < window_width / 2 + button_width / 2 &&
+          mouse_clicked_y > window_height * kLobbyLeaveButtonYPosMultiplier &&
+          mouse_clicked_y <
+              window_height * kLobbyLeaveButtonYPosMultiplier + button_height) {
+        game_manager.DisconnectLobby();
+        port_s.clear();
+        player_name.clear();
+        end_time = kDefaultMoveTime;
+        num_rounds = kDefaultNumRounds;
+      }
+    }
   }
 }
 

@@ -40,6 +40,7 @@ class GameManager {
   Board ReceiveBoard();
   void SendScore();
   int RecieveScore();
+  void DisconnectLobby();
 
  private:
   void ConnectClient();

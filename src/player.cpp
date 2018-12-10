@@ -4,6 +4,7 @@ Player::Player() {
   score = 0;
   win = false;
   name = "";
+  client_id = 10000;
 }
 
 Player::Player(std::string name, bool is_host) {
@@ -11,6 +12,15 @@ Player::Player(std::string name, bool is_host) {
   score = 0;
   win = false;
   this->is_host = is_host;
+  client_id = 10000;
+}
+
+Player::Player(std::string name, bool is_host, int client_id) {
+  this->name = name;
+  score = 0;
+  win = false;
+  this->is_host = is_host;
+  this->client_id = client_id;
 }
 
 void Player::SetName(std::string name) { this->name = name; }
