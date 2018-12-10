@@ -124,8 +124,8 @@ void PuzzleDuel::setup() {
   player_name = "";
   port_s = "";
 
-  end_time = kDefaultMoveTime;
-  num_rounds = kDefaultNumRounds;
+  game_manager.move_time = kDefaultMoveTime;
+  game_manager.rounds = kDefaultNumRounds;
   erase_fade = kMaxAlpha;
 
   /*
@@ -138,7 +138,7 @@ void PuzzleDuel::setup() {
 //--------------------------------------------------------------
 void PuzzleDuel::update() {
   if (game_manager.game_state == PLAYER_MOVE) {
-    if (ofGetElapsedTimeMillis() - start_time > end_time) {
+    if (ofGetElapsedTimeMillis() - start_time > game_manager.move_time) {
       mouseReleased(ofGetMouseX(), ofGetMouseY(), 0);
     }
 
@@ -168,8 +168,8 @@ void PuzzleDuel::update() {
         game_manager.DisconnectLobby();
         port_s.clear();
         player_name.clear();
-        end_time = kDefaultMoveTime;
-        num_rounds = kDefaultNumRounds;
+        game_manager.move_time = kDefaultMoveTime;
+        game_manager.rounds = kDefaultNumRounds;
       }
     }
   }
@@ -275,13 +275,13 @@ void PuzzleDuel::DrawSettingsSliders() {
                   slider_bar_height);
 
   ofSetColor(250, 230, 40);
-  float round_slide_proportion =
-      (float)(num_rounds - kMinRounds) / (float)(kMaxRounds - kMinRounds);
+  float round_slide_proportion = (float)(game_manager.rounds - kMinRounds) /
+                                 (float)(kMaxRounds - kMinRounds);
   round_slider_x = round_slide_proportion * slider_bar_length + slider_bar_x;
   ofDrawCircle(round_slider_x, round_slider_bar_y + slider_bar_height / 2,
                slider_radius);
-  float mt_slide_porportion =
-      ((float)(end_time - kMinMoveTime) / (float)(kMaxMoveTime - kMinMoveTime));
+  float mt_slide_porportion = ((float)(game_manager.move_time - kMinMoveTime) /
+                               (float)(kMaxMoveTime - kMinMoveTime));
   mt_slider_x = mt_slide_porportion * slider_bar_length + slider_bar_x;
   ofDrawCircle(mt_slider_x, mt_slider_bar_y + slider_bar_height / 2,
                slider_radius);
@@ -293,7 +293,7 @@ void PuzzleDuel::DrawSettingsSlidersText() {
   ofPushMatrix();
   ofTranslate(window_width / 2, window_height * kRoundSelectorYPosMultiplier);
   ofScale(font_scale, font_scale, 1.0);
-  string rounds_string = "Rounds: " + std::to_string(num_rounds);
+  string rounds_string = "Rounds: " + std::to_string(game_manager.rounds);
   int font_width_rounds = label_font.stringWidth(rounds_string);
   int font_height_rounds = label_font.stringHeight(rounds_string);
   label_font.drawString(rounds_string, -font_width_rounds / 2,
@@ -306,7 +306,8 @@ void PuzzleDuel::DrawSettingsSlidersText() {
   ofScale(font_scale, font_scale, 1.0);
   string move_time_string =
       "Move Time: " +
-      std::to_string((int)std::round(end_time * kSecInMilliSec)) + " Seconds";
+      std::to_string((int)std::round(game_manager.move_time * kSecInMilliSec)) +
+      " Seconds";
   int font_width_mt = label_font.stringWidth(move_time_string);
   int font_height_mt = label_font.stringHeight(move_time_string);
   label_font.drawString(move_time_string, -font_width_mt / 2,
@@ -718,8 +719,8 @@ void PuzzleDuel::DrawGameText() {
   ofPushMatrix();  // draw round number start
   ofTranslate(window_width / 2, board_start_height / 2);
   ofScale(font_scale, font_scale, 1.0);
-  string round_s =
-      "Round " + std::to_string(round) + "/" + std::to_string(num_rounds);
+  string round_s = "Round " + std::to_string(round) + "/" +
+                   std::to_string(game_manager.rounds);
   int font_width = game_font.stringWidth(round_s);
   game_font.drawString(round_s, -font_width / 2, 0);
   ofPopMatrix();  // draw round number end
@@ -758,8 +759,8 @@ void PuzzleDuel::DrawCursor() {
 
 void PuzzleDuel::DrawMoveTimeBar() {
   float current_time = ofGetElapsedTimeMillis() - start_time;
-  if (current_time <= end_time) {
-    float timer_bar = 1.0 - current_time / end_time;
+  if (current_time <= game_manager.move_time) {
+    float timer_bar = 1.0 - current_time / game_manager.move_time;
 
     // color shift from green -> yellow -> red as time runs out
     if (timer_bar >= 0.6) {
@@ -943,10 +944,12 @@ void PuzzleDuel::mouseDragged(int x, int y, int button) {
 
     if (dragging_round_slider == true) {
       float rounds_range = (float)(kMaxRounds - kMinRounds);
-      num_rounds = std::round(bar_proportion * rounds_range + kMinRounds);
+      game_manager.rounds =
+          std::round(bar_proportion * rounds_range + kMinRounds);
     } else if (dragging_time_slider == true) {
       float move_time_range = (float)(kMaxMoveTime - kMinMoveTime);
-      end_time = std::round(bar_proportion * move_time_range + kMinMoveTime);
+      game_manager.move_time =
+          std::round(bar_proportion * move_time_range + kMinMoveTime);
     }
   }
 }
@@ -1072,7 +1075,7 @@ void PuzzleDuel::mouseReleased(int x, int y, int button) {
           mouse_clicked_y <
               window_height * kConfirmButtonYPosMultiplier + button_height) {
         if (game_manager.game_state == CREATE_GAME) {
-          game_manager.SetupServer(player_name, end_time, num_rounds);
+          game_manager.SetupServer(player_name);
         } else if (game_manager.game_state == JOIN_GAME &&
                    port_s.length() == kPortStrLength) {
           int port = std::stoi(port_s);
@@ -1128,9 +1131,9 @@ void PuzzleDuel::mouseReleased(int x, int y, int button) {
           mouse_clicked_y <
               window_height * kLobbyStartButtonYPosMultiplier + button_height) {
         if (game_manager.player.IsHost()) {
-          while (game_manager.game_state != PLAYER_TURN) {
-            game_manager.StartGame();
-          }
+          // int start = ofGetElapsedTimeMillis();
+
+          game_manager.StartGame();
         }
       }
     } else if (MouseInArea(window_width / 2 - button_width / 2,
@@ -1146,8 +1149,8 @@ void PuzzleDuel::mouseReleased(int x, int y, int button) {
         game_manager.DisconnectLobby();
         port_s.clear();
         player_name.clear();
-        end_time = kDefaultMoveTime;
-        num_rounds = kDefaultNumRounds;
+        game_manager.move_time = kDefaultMoveTime;
+        game_manager.rounds = kDefaultNumRounds;
       }
     }
   }

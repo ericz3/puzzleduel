@@ -21,11 +21,8 @@ void GameManager::SetupClient(std::string player_name, int port) {
   connect.detach();
 }
 
-void GameManager::SetupServer(std::string player_name, float move_time,
-                              int rounds) {
+void GameManager::SetupServer(std::string player_name) {
   player = Player(player_name, true);
-  this->move_time = move_time;
-  this->rounds = rounds;
   port = rand() % kMaxPort + 1;
   ofxTCPSettings settings(port);
   server.setup(settings);
@@ -51,7 +48,7 @@ void GameManager::StartGame() {
 }
 
 void GameManager::TryStartGame() {
-  if (ServerHasConnectedClients()) {
+  if (ServerHasConnectedClients() && game_state == LOBBY) {
     game_state = PLAYER_TURN;
     int start = ofGetElapsedTimeMillis();
     while (ofGetElapsedTimeMillis() - start < 500) {

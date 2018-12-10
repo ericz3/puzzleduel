@@ -38,7 +38,7 @@ class GameManager {
 
   GameManager();
   void SetupClient(std::string player_name, int port);
-  void SetupServer(std::string player_name, float move_time, int rounds);
+  void SetupServer(std::string player_name);
   void SendBoard();
   Board ReceiveBoard();
   void SendScore();

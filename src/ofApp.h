@@ -49,7 +49,6 @@ class PuzzleDuel : public ofBaseApp {
 
   GameManager game_manager;
   Board game_board;
-  unsigned int num_rounds;
   bool player_win;
   Orb cursor_orb;
 
@@ -139,7 +138,6 @@ class PuzzleDuel : public ofBaseApp {
   bool port_box_selected;
 
   float start_time;
-  float end_time;
   int erase_fade;
   int connection_start_time;
   int connect_time;
