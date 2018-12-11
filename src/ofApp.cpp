@@ -116,7 +116,7 @@ void PuzzleDuel::setup() {
   ResizeUI();
 
   ofSetEscapeQuitsApp(false);
-  game_board.GenerateBoard();
+  game_manager.board.GenerateBoard();
   round = 1;
   name_box_selected = false;
   dragging_round_slider = false;
@@ -151,10 +151,10 @@ void PuzzleDuel::update() {
       ofClear(255, 255, 255);
       count_points.end();*/
 
-      std::vector<int> &board_points = game_board.GetPointsGrid();
+      std::vector<int> &board_points = game_manager.board.GetPointsGrid();
       for (int i = 0; i < kBoardSize; i++) {
         if (board_points.at(i) == kOrbPointValue) {
-          game_board.SetOrb(i, Orb::EMPTY);
+          game_manager.board.SetOrb(i, Orb::EMPTY);
         }
       }
 
@@ -816,8 +816,8 @@ void PuzzleDuel::DrawBoard() {
   board_tiles.draw(0, board_start_height, board_width, board_width);
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 
-  std::vector<Orb> &board = game_board.GetBoardGrid();
-  std::vector<int> &board_points = game_board.GetPointsGrid();
+  std::vector<Orb> &board = game_manager.board.GetBoardGrid();
+  std::vector<int> &board_points = game_manager.board.GetPointsGrid();
   ofImage orb_image;
   int orb_row;
   int orb_col;
@@ -931,7 +931,7 @@ void PuzzleDuel::mouseDragged(int x, int y, int button) {
     }
 
     cursor_tile = kOrbsInRowAndCol * cursor_row + cursor_col;
-    game_board.Swap(cursor_tile, orb_tile);
+    game_manager.board.Swap(cursor_tile, orb_tile);
     orb_tile = cursor_tile;
   } else if (game_manager.game_state == CREATE_GAME) {
     float bar_proportion;
@@ -1024,8 +1024,8 @@ void PuzzleDuel::mousePressed(int x, int y, int button) {
       cursor_row = (y - board_start_height) / tile_width;
       cursor_col = x / tile_width;
       cursor_tile = kOrbsInRowAndCol * cursor_row + cursor_col;
-      cursor_orb = game_board.GetOrb(cursor_tile);
-      game_board.SetOrb(cursor_tile, Orb::EMPTY);
+      cursor_orb = game_manager.board.GetOrb(cursor_tile);
+      game_manager.board.SetOrb(cursor_tile, Orb::EMPTY);
       orb_tile = cursor_tile;
       game_manager.game_state = PLAYER_MOVE;
     }
@@ -1116,9 +1116,9 @@ void PuzzleDuel::mouseReleased(int x, int y, int button) {
       }
     }
   } else if (game_manager.game_state == PLAYER_MOVE) {
-    game_board.SetOrb(orb_tile, cursor_orb);
+    game_manager.board.SetOrb(orb_tile, cursor_orb);
     cursor_orb = Orb::EMPTY;
-    game_board.CalculatePoints();
+    game_manager.board.CalculatePoints();
     game_manager.game_state = PLAYER_ERASE_MATCHES;
   } else if (game_manager.game_state == LOBBY) {
     if (MouseInArea(

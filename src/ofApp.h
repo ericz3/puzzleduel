@@ -48,7 +48,7 @@ class PuzzleDuel : public ofBaseApp {
   float font_scale;
 
   GameManager game_manager;
-  Board game_board;
+  //Board game_board;
   bool player_win;
   Orb cursor_orb;
 

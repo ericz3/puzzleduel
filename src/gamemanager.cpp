@@ -142,8 +142,10 @@ void GameManager::ClientCommunicate() {
       cout << receive << endl;
       game_state = OPPONENT_TURN;
       return;
-    } else if (receive.front() == kBoardMessageHeader) {
-		
-	}
+    } /*else if (!receive.empty() && receive.front() == kBoardMessageHeader) {
+      for (int i = 0; i < kBoardSize; i++) {
+      
+	  }
+    }*/
   }
 }
