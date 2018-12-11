@@ -44,6 +44,7 @@ class GameManager {
   void SetupClient(std::string player_name, int port);
   void SetupServer(std::string player_name);
   void SendBoard();
+  void SendEndTurn();
   std::string ReceiveBoard();
   void SendScore();
   int RecieveScore();

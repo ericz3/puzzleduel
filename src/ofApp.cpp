@@ -71,7 +71,7 @@ const float kMinMoveTime = 5000;
 unsigned const int kMaxNameLength = 10;
 unsigned const int kPortStrLength = 5;
 
-const float kEraseFadeIncrement = 1.5;
+const float kEraseFadeIncrement = 2;
 unsigned const int kMaxAlpha = 255;
 unsigned const int kDefaultRGB = 255;
 
@@ -137,15 +137,18 @@ void PuzzleDuel::setup() {
 
 //--------------------------------------------------------------
 void PuzzleDuel::update() {
+  // communication between players
   if (game_manager.game_state == PLAYER_MOVE ||
       game_manager.game_state == PLAYER_TURN) {
     game_manager.SendBoard();
+  } else if (game_manager.game_state == PLAYER_ERASE_MATCHES) {
+    game_manager.SendEndTurn();
   } else if (game_manager.game_state == OPPONENT_TURN) {
     std::string message = game_manager.ReceiveBoard();
     if (!message.empty()) {
       if (message == kEndTurn) {
-
-        game_manager.game_state == OPPONENT_ERASE_MATCHES;
+        game_manager.round_points = game_manager.board.CalculatePoints();
+        game_manager.game_state = OPPONENT_ERASE_MATCHES;
       } else {
         Orb cursor = Orb(message.back() - '0');
         message.pop_back();
@@ -161,14 +164,21 @@ void PuzzleDuel::update() {
     }
   }
 
+  // update
   if (game_manager.game_state == PLAYER_MOVE) {
     if (ofGetElapsedTimeMillis() - start_time > game_manager.move_time) {
       mouseReleased(ofGetMouseX(), ofGetMouseY(), 0);
     }
-  } else if (game_manager.game_state == PLAYER_ERASE_MATCHES) {
+  } else if (game_manager.game_state == PLAYER_ERASE_MATCHES ||
+             game_manager.game_state == OPPONENT_ERASE_MATCHES) {
     if (erase_fade <= 0) {
       erase_fade = kMaxAlpha;
-      game_manager.game_state = PLAYER_ADD_POINTS;
+      if (game_manager.game_state == PLAYER_ERASE_MATCHES) {
+        game_manager.game_state = PLAYER_ADD_POINTS;
+      } else {
+        game_manager.game_state = OPPONENT_ADD_POINTS;
+      }
+
       std::vector<int> &board_points = game_manager.board.GetPointsGrid();
       for (int i = 0; i < kBoardSize; i++) {
         if (board_points.at(i) == kOrbPointValue) {
@@ -178,6 +188,8 @@ void PuzzleDuel::update() {
     } else {
       erase_fade -= kEraseFadeIncrement;
     }
+  } else if (game_manager.game_state==PLAYER_ADD_POINTS||game_manager.game_state==OPPONENT_ADD_POINTS) {
+
   } else if (game_manager.game_state == LOBBY) {
     if (!game_manager.player.IsHost()) {
       if (!game_manager.client.isConnected()) {
@@ -726,13 +738,13 @@ void PuzzleDuel::DrawGame() {
   background.draw(0, 0, background_width, background_width);
   DrawGameText();
   DrawBoard();
-  if (game_manager.game_state == PLAYER_ERASE_MATCHES) {
+  if (game_manager.game_state == PLAYER_ERASE_MATCHES ||
+      game_manager.game_state == OPPONENT_ERASE_MATCHES) {
     DrawCountPoints();
-  }
-  if (game_manager.game_state == PLAYER_ADD_POINTS) {
+  } else if (game_manager.game_state == PLAYER_ADD_POINTS ||
+             game_manager.game_state == OPPONENT_ADD_POINTS) {
     DrawAddPoints();
-  }
-  if (game_manager.game_state == PLAYER_MOVE) {
+  } else if (game_manager.game_state == PLAYER_MOVE) {
     DrawMoveTimeBar();
   }
 }

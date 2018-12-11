@@ -44,6 +44,11 @@ void GameManager::SendBoard() {
   }
 }
 
+void GameManager::SendEndTurn() {
+  cout << kEndTurn << endl;
+  server.send(opponent.client_id, kEndTurn);
+}
+
 std::string GameManager::ReceiveBoard() {
   if (player.IsHost()) {
   } else {
@@ -59,7 +64,6 @@ void GameManager::HostSendBoard() {
         .append(board.AsString())
         .append(std::to_string((int)cursor_orb));
     server.send(opponent.client_id, board_msg);
-    cout << board_msg << endl;
   }
 }
 
@@ -69,6 +73,8 @@ std::string GameManager::ClientReceiveBoard() {
     if (!receive.empty() && receive.length() > kBoardSize) {
       std::string board_msg = receive.substr(kBoardMsgHeader.length());
       return board_msg;
+    } else if (!receive.empty() && receive == kEndTurn) {
+      return receive;
     } else {
       return "";
     }
