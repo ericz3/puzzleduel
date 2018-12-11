@@ -828,7 +828,8 @@ void PuzzleDuel::DrawBoard() {
     orb_image.clear();
     Orb current_orb = board.at(i);
 
-    if (game_manager.game_state == PLAYER_ERASE_MATCHES &&
+    if ((game_manager.game_state == PLAYER_ERASE_MATCHES ||
+         game_manager.game_state == OPPONENT_ERASE_MATCHES) &&
         board_points.at(i) == kOrbPointValue) {
       ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB, erase_fade);
     }

@@ -7,6 +7,7 @@ const string kMessageDelimiter = "\n";
 const string kMessageValueDivider = " ";
 unsigned const int kConnectionTimeOut = 30000;
 unsigned const int kConnectTimeInterval = 3000;
+const char kBoardMessageHeader = 'B';
 
 GameManager::GameManager() {
   game_state = START;
@@ -74,7 +75,7 @@ void GameManager::ConnectClient() {
   if (client.isConnected()) {
     game_state = LOBBY;
     SyncSettingsClient();
-    std::thread listen(&GameManager::Listen, this);
+    std::thread listen(&GameManager::ClientCommunicate, this);
     listen.detach();
   } else {
     game_state = CONNECTION_FAILED;
@@ -134,13 +135,15 @@ void GameManager::DisconnectClient() {
   opponent = Player();
 }
 
-void GameManager::Listen() {
+void GameManager::ClientCommunicate() {
   while (client.isConnected()) {
     std::string receive = client.receive();
     if (receive == kStartGameMessage && game_state == LOBBY) {
       cout << receive << endl;
       game_state = OPPONENT_TURN;
       return;
-    }
+    } else if (receive.front() == kBoardMessageHeader) {
+		
+	}
   }
 }

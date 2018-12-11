@@ -35,13 +35,17 @@ end of the game, the player with the most points is the winner.
 	- [ ] animate opponent turn
 - [ ] Sound
 	- [ ] shifting orbs
-	-[]
+	- [ ] clicking buttons
+	- [ ] music
 - [ ] networking
 	- [ ] animate other player's movements
 	- [ ] send over score info
+	- [x] lobby
+	- [x] send game info
 - [x] GUI
 	- [x] game settings
 	- [x] buttons (start game, etc.)
+	- [x] text
 
 ### Stretch Goals
 - [ ] point multipliers for amounts of matches (ex: 1.25x points with 5+ matches)

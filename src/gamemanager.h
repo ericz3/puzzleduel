@@ -27,6 +27,7 @@ enum GameState {
 
 class GameManager {
  public:
+  Board board;
   Player player;
   Player opponent;
   GameState game_state;
@@ -53,5 +54,6 @@ class GameManager {
   void SyncSettingsClient();
   void DisconnectHost();
   void DisconnectClient();
-  void Listen();
+  void HostCommunicate();
+  void ClientCommunicate();
 };
