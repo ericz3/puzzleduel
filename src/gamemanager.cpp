@@ -3,16 +3,18 @@
 #include <thread>
 
 unsigned const int kMaxPort = 65535;
-const string kMessageDelimiter = "\n";
-const string kMessageValueDivider = " ";
+const string kMsgDelimiter = "\n";
+const string kMsgValueDivider = " ";
 unsigned const int kConnectionTimeOut = 30000;
 unsigned const int kConnectTimeInterval = 3000;
-const char kBoardMessageHeader = 'B';
+const string kBoardMsgHeader = "Board";
+const string kClientStartConfirmation = "Started";
 
 GameManager::GameManager() {
-  game_state = PLAYER_TURN;
+  game_state = START;
   player = Player();
   opponent = Player();
+  cursor_orb = Orb::EMPTY;
 }
 
 void GameManager::SetupClient(std::string player_name, int port) {
@@ -27,10 +29,50 @@ void GameManager::SetupServer(std::string player_name) {
   port = rand() % kMaxPort + 1;
   ofxTCPSettings settings(port);
   server.setup(settings);
-  server.setMessageDelimiter(kMessageDelimiter);
+  server.setMessageDelimiter(kMsgDelimiter);
   game_state = LOBBY;
   std::thread send_game_info(&GameManager::SyncSettingsHost, this);
   send_game_info.detach();
+}
+
+void GameManager::SendBoard() {
+  if (player.IsHost()) {
+    HostSendBoard();
+    /* std::thread send(&GameManager::HostSendBoard, this);
+     send.detach();*/
+  } else {
+  }
+}
+
+std::string GameManager::ReceiveBoard() {
+  if (player.IsHost()) {
+  } else {
+    return ClientReceiveBoard();
+  }
+}
+
+void GameManager::HostSendBoard() {
+  if (!opponent.GetName().empty()) {
+    std::string board_msg;
+    board_msg.reserve(kBoardSize + kBoardMsgHeader.length() + 1);
+    board_msg.append(kBoardMsgHeader)
+        .append(board.AsString())
+        .append(std::to_string((int)cursor_orb));
+    server.send(opponent.client_id, board_msg);
+    cout << board_msg << endl;
+  }
+}
+
+std::string GameManager::ClientReceiveBoard() {
+  if (client.isConnected()) {
+    std::string receive = client.receive();
+    if (!receive.empty() && receive.length() > kBoardSize) {
+      std::string board_msg = receive.substr(kBoardMsgHeader.length());
+      return board_msg;
+    } else {
+      return "";
+    }
+  }
 }
 
 void GameManager::DisconnectLobby() {
@@ -51,9 +93,11 @@ void GameManager::StartGame() {
 void GameManager::TryStartGame() {
   if (!opponent.GetName().empty() && game_state == LOBBY) {
     game_state = PLAYER_TURN;
-    int start = ofGetElapsedTimeMillis();
-    while (ofGetElapsedTimeMillis() - start < 500) {
-      server.sendToAll(kStartGameMessage);
+    while (true) {
+      server.sendToAll(kStartGameMsg);
+      if (server.receive(opponent.client_id) == kClientStartConfirmation) {
+        return;
+      }
     }
   }
 }
@@ -69,14 +113,14 @@ void GameManager::ConnectClient() {
     }
 
     client.setup(settings);
-    client.setMessageDelimiter(kMessageDelimiter);
+    client.setMessageDelimiter(kMsgDelimiter);
   }
 
   if (client.isConnected()) {
     game_state = LOBBY;
     SyncSettingsClient();
-    std::thread listen(&GameManager::ClientCommunicate, this);
-    listen.detach();
+    std::thread client_start(&GameManager::ClientListenStart, this);
+    client_start.detach();
   } else {
     game_state = CONNECTION_FAILED;
   }
@@ -135,24 +179,13 @@ void GameManager::DisconnectClient() {
   opponent = Player();
 }
 
-void GameManager::HostCommunicate() {
-  while (!opponent.GetName().empty()) {
-
-  }
-}
-
-void GameManager::ClientCommunicate() {
+void GameManager::ClientListenStart() {
   while (client.isConnected()) {
     std::string receive = client.receive();
-    if (receive == kStartGameMessage && game_state == LOBBY) {
-      cout << receive << endl;
+    if (receive == kStartGameMsg && game_state == LOBBY) {
       game_state = OPPONENT_TURN;
+      client.send(kClientStartConfirmation);
       return;
-    } /*else if (!receive.empty() && receive.front() == kBoardMessageHeader) {
-
-      for (int i = 0; i < kBoardSize; i++) {
-                
-          }
-    }*/
+    }
   }
 }

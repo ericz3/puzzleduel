@@ -50,9 +50,6 @@ class PuzzleDuel : public ofBaseApp {
   float font_scale;
 
   GameManager game_manager;
-  // Board game_board;
-  bool player_win;
-  Orb cursor_orb;
 
   std::string player_name;
 

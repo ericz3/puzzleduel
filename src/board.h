@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <string>
 #include <vector>
 #include "ofMain.h"
 
@@ -33,6 +34,7 @@ class Board {
   void SetOrb(int pos, Orb orb);
   std::vector<Orb> GetBoardGrid();
   std::vector<int> GetPointsGrid();
+  std::string AsString();
 
  private:
   std::vector<Orb> board_grid;

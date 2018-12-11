@@ -102,6 +102,17 @@ vector<Orb> Board::GetBoardGrid() { return board_grid; }
 
 vector<int> Board::GetPointsGrid() { return board_points; }
 
+std::string Board::AsString() {
+  std::string board_string;
+  board_string.reserve(kBoardSize);
+  for (int i = 0; i < kBoardSize; i++) {
+    int orb_val = (int)board_grid.at(i);
+    board_string.append(std::to_string(orb_val));
+  }
+
+  return board_string;
+}
+
 std::ostream& operator<<(std::ostream& os, const Orb& obj) {
   os << static_cast<std::underlying_type<Orb>::type>(obj);
   return os;

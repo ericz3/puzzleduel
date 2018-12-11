@@ -91,7 +91,7 @@ void PuzzleDuel::setup() {
   hand_closed.load("closedhand.png");
   cursor = hand_open;
 
-  background.load("background2.png");
+  background.load("background.png");
 
   board_tiles.load("boardtiles.jpg");
   red_orb.load("redorb.png");
@@ -137,11 +137,34 @@ void PuzzleDuel::setup() {
 
 //--------------------------------------------------------------
 void PuzzleDuel::update() {
+  if (game_manager.game_state == PLAYER_MOVE ||
+      game_manager.game_state == PLAYER_TURN) {
+    game_manager.SendBoard();
+  } else if (game_manager.game_state == OPPONENT_TURN) {
+    std::string message = game_manager.ReceiveBoard();
+    if (!message.empty()) {
+      if (message == kEndTurn) {
+
+        game_manager.game_state == OPPONENT_ERASE_MATCHES;
+      } else {
+        Orb cursor = Orb(message.back() - '0');
+        message.pop_back();
+        for (int i = 0; i < kBoardSize; i++) {
+          Orb orb = Orb(std::stoi(message.substr(i, 1)));
+          if (orb == Orb::EMPTY) {
+            game_manager.board.SetOrb(i, cursor);
+          } else {
+            game_manager.board.SetOrb(i, orb);
+          }
+        }
+      }
+    }
+  }
+
   if (game_manager.game_state == PLAYER_MOVE) {
     if (ofGetElapsedTimeMillis() - start_time > game_manager.move_time) {
       mouseReleased(ofGetMouseX(), ofGetMouseY(), 0);
     }
-
   } else if (game_manager.game_state == PLAYER_ERASE_MATCHES) {
     if (erase_fade <= 0) {
       erase_fade = kMaxAlpha;
@@ -152,11 +175,9 @@ void PuzzleDuel::update() {
           game_manager.board.SetOrb(i, Orb::EMPTY);
         }
       }
-
     } else {
       erase_fade -= kEraseFadeIncrement;
     }
-
   } else if (game_manager.game_state == LOBBY) {
     if (!game_manager.player.IsHost()) {
       if (!game_manager.client.isConnected()) {
@@ -778,17 +799,17 @@ void PuzzleDuel::DrawGameText() {
 void PuzzleDuel::DrawCursor() {
   if (game_manager.game_state == PLAYER_MOVE) {
     ofImage cursor_orb_image;
-    if (cursor_orb == Orb::RED) {
+    if (game_manager.cursor_orb == Orb::RED) {
       cursor_orb_image = red_orb;
-    } else if (cursor_orb == Orb::BLUE) {
+    } else if (game_manager.cursor_orb == Orb::BLUE) {
       cursor_orb_image = blue_orb;
-    } else if (cursor_orb == Orb::GREEN) {
+    } else if (game_manager.cursor_orb == Orb::GREEN) {
       cursor_orb_image = green_orb;
-    } else if (cursor_orb == Orb::YELLOW) {
+    } else if (game_manager.cursor_orb == Orb::YELLOW) {
       cursor_orb_image = yellow_orb;
-    } else if (cursor_orb == Orb::WHITE) {
+    } else if (game_manager.cursor_orb == Orb::WHITE) {
       cursor_orb_image = white_orb;
-    } else if (cursor_orb == Orb::PURPLE) {
+    } else if (game_manager.cursor_orb == Orb::PURPLE) {
       cursor_orb_image = purple_orb;
     }
 
@@ -889,7 +910,7 @@ void PuzzleDuel::DrawBoard() {
       game_manager.game_state != PLAYER_MOVE &&
       game_manager.game_state != PLAYER_ERASE_MATCHES &&
       game_manager.game_state != PLAYER_ADD_POINTS) {
-    ofSetColor(130,195,210);
+    ofSetColor(80, 90, 90, 140);
     ofDrawRectangle(0, board_start_height, board_width, board_width);
   }
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB, kDefaultRGB);
@@ -1060,7 +1081,7 @@ void PuzzleDuel::mousePressed(int x, int y, int button) {
       cursor_row = (y - board_start_height) / tile_width;
       cursor_col = x / tile_width;
       cursor_tile = kOrbsInRowAndCol * cursor_row + cursor_col;
-      cursor_orb = game_manager.board.GetOrb(cursor_tile);
+      game_manager.cursor_orb = game_manager.board.GetOrb(cursor_tile);
       game_manager.board.SetOrb(cursor_tile, Orb::EMPTY);
       orb_tile = cursor_tile;
       game_manager.game_state = PLAYER_MOVE;
@@ -1152,8 +1173,8 @@ void PuzzleDuel::mouseReleased(int x, int y, int button) {
       }
     }
   } else if (game_manager.game_state == PLAYER_MOVE) {
-    game_manager.board.SetOrb(orb_tile, cursor_orb);
-    cursor_orb = Orb::EMPTY;
+    game_manager.board.SetOrb(orb_tile, game_manager.cursor_orb);
+    game_manager.cursor_orb = Orb::EMPTY;
     game_manager.round_points = game_manager.board.CalculatePoints();
     game_manager.game_state = PLAYER_ERASE_MATCHES;
   } else if (game_manager.game_state == LOBBY) {

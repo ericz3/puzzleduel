@@ -6,7 +6,8 @@
 #include "ofxNetwork.h"
 #include "player.h"
 
-const string kStartGameMessage = "start";
+const string kStartGameMsg = "start";
+const string kEndTurn = "end";
 
 enum GameState {
   START,
@@ -31,6 +32,7 @@ class GameManager {
   Player player;
   Player opponent;
   GameState game_state;
+  Orb cursor_orb;
   ofxTCPServer server;
   ofxTCPClient client;
   int port;
@@ -42,7 +44,7 @@ class GameManager {
   void SetupClient(std::string player_name, int port);
   void SetupServer(std::string player_name);
   void SendBoard();
-  Board ReceiveBoard();
+  std::string ReceiveBoard();
   void SendScore();
   int RecieveScore();
   void DisconnectLobby();
@@ -53,8 +55,13 @@ class GameManager {
   void ConnectClient();
   void SyncSettingsHost();
   void SyncSettingsClient();
+  void ClientSendBoard();
+  void HostSendBoard();
+  std::string ClientReceiveBoard();
+  std::string HostReceiveBoard();
+  void ClientSendScore();
+  void HostSendScore();
   void DisconnectHost();
   void DisconnectClient();
-  void HostCommunicate();
-  void ClientCommunicate();
+  void ClientListenStart();
 };
