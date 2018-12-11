@@ -25,6 +25,8 @@ const string kLobbyP2Label = " Player 2: ";
 const string kWaitingForHostMessage = "Waiting for host to start game...";
 const string kStartButtonText = "Start Game!";
 const string kLeaveButtonText = "Leave Lobby";
+const string kPlayerTurnString = "Your Turn";
+const string kOpponentTurnString = "Opponent Turn";
 
 unsigned const int kMouseSizeDivisor = 7;
 unsigned const int kTileSizeDivisor = 6;
@@ -33,6 +35,7 @@ unsigned const int kRoundFontSizeDivisor = 10;
 unsigned const int kStartFontSizeDivisor = 8;
 unsigned const int kButtonFontSizeDivisor = 18;
 unsigned const int kLabelFontSizeDivisor = 22;
+unsigned const int kPointsFontSizeDivisor = 12;
 unsigned const int kMessageFontSizedivisor = 28;
 unsigned const int kButtonHeightDivisor = 10;
 const float kButtonWidthDivisor = 1.5;
@@ -58,7 +61,6 @@ const float kLobbyLeaveButtonYPosMultiplier = 0.85;
 const float kLobbyStartButtonYPosMultiplier = 0.7;
 const float kLobbySettingsYPosMultiplier = 0.5;
 
-// unsigned const int kDrawCountPointsTimeInterval = 400;
 const float kDefaultMoveTime = 15000;
 unsigned const int kDefaultNumRounds = 5;
 unsigned const int kMinRounds = 3;
@@ -69,7 +71,7 @@ const float kMinMoveTime = 5000;
 unsigned const int kMaxNameLength = 10;
 unsigned const int kPortStrLength = 5;
 
-unsigned const int kEraseFadeIncrement = 3;
+const float kEraseFadeIncrement = 1.5;
 unsigned const int kMaxAlpha = 255;
 unsigned const int kDefaultRGB = 255;
 
@@ -89,7 +91,7 @@ void PuzzleDuel::setup() {
   hand_closed.load("closedhand.png");
   cursor = hand_open;
 
-  background.load("background.png");
+  background.load("background2.png");
 
   board_tiles.load("boardtiles.jpg");
   red_orb.load("redorb.png");
@@ -109,6 +111,10 @@ void PuzzleDuel::setup() {
   label_font.load("Xolonium-Regular.ttf", window_width / kLabelFontSizeDivisor);
   message_font.load("Xolonium-Regular.ttf",
                     window_width / kMessageFontSizedivisor);
+  points_font.load("primer.print-bold.ttf",
+                   window_width / kPointsFontSizeDivisor);
+  player_name_font.load("primer.print-bold.ttf",
+                        window_width / kButtonFontSizeDivisor);
 
   ResizeCursor();
   ResizeOrb();
@@ -127,12 +133,6 @@ void PuzzleDuel::setup() {
   game_manager.move_time = kDefaultMoveTime;
   game_manager.rounds = kDefaultNumRounds;
   erase_fade = kMaxAlpha;
-
-  /*
-  count_points.allocate(ofGetWindowWidth(), ofGetWindowHeight());
-  count_points.begin();
-  ofClear(255, 255, 255);
-  count_points.end();*/
 }
 
 //--------------------------------------------------------------
@@ -143,14 +143,9 @@ void PuzzleDuel::update() {
     }
 
   } else if (game_manager.game_state == PLAYER_ERASE_MATCHES) {
-    if (erase_fade == 0) {
+    if (erase_fade <= 0) {
       erase_fade = kMaxAlpha;
-      game_manager.game_state = PLAYER_COUNT_POINTS;
-      /*last_count_ind = 0;
-      count_points.begin();
-      ofClear(255, 255, 255);
-      count_points.end();*/
-
+      game_manager.game_state = PLAYER_ADD_POINTS;
       std::vector<int> &board_points = game_manager.board.GetPointsGrid();
       for (int i = 0; i < kBoardSize; i++) {
         if (board_points.at(i) == kOrbPointValue) {
@@ -190,15 +185,7 @@ void PuzzleDuel::draw() {
   } else if (game_manager.game_state == LOBBY) {
     DrawLobby();
   } else {
-    background.draw(0, 0, background_width, background_width);
-    DrawGameText();
-    DrawBoard();
-    if (game_manager.game_state == PLAYER_COUNT_POINTS) {
-      DrawCountPoints();
-    }
-    if (game_manager.game_state == PLAYER_MOVE) {
-      DrawMoveTimeBar();
-    }
+    DrawGame();
   }
 
   DrawCursor();
@@ -714,20 +701,77 @@ void PuzzleDuel::DrawLobbyButtonText() {
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
 
+void PuzzleDuel::DrawGame() {
+  background.draw(0, 0, background_width, background_width);
+  DrawGameText();
+  DrawBoard();
+  if (game_manager.game_state == PLAYER_ERASE_MATCHES) {
+    DrawCountPoints();
+  }
+  if (game_manager.game_state == PLAYER_ADD_POINTS) {
+    DrawAddPoints();
+  }
+  if (game_manager.game_state == PLAYER_MOVE) {
+    DrawMoveTimeBar();
+  }
+}
+
 void PuzzleDuel::DrawGameText() {
+  ofSetColor(240, 170, 20);
+  ofPushMatrix();
+  ofTranslate(window_width / 2, 0);
+  ofScale(font_scale, font_scale, 1.0);
+  string turn;
+  if (game_manager.game_state == PLAYER_TURN ||
+      game_manager.game_state == PLAYER_MOVE ||
+      game_manager.game_state == PLAYER_ERASE_MATCHES ||
+      game_manager.game_state == PLAYER_ADD_POINTS) {
+    turn = kPlayerTurnString;
+  } else {
+    turn = kOpponentTurnString;
+  }
+
+  int turn_s_width = button_font.stringWidth(turn);
+  int turn_s_height = button_font.getLineHeight();
+  button_font.drawString(turn, -turn_s_width / 2, turn_s_height);
+  ofPopMatrix();
+
   ofSetColor(250, 220, 65);
-  ofPushMatrix();  // draw round number start
+  ofPushMatrix();
   ofTranslate(window_width / 2, board_start_height / 2);
   ofScale(font_scale, font_scale, 1.0);
   string round_s = "Round " + std::to_string(round) + "/" +
                    std::to_string(game_manager.rounds);
   int font_width = game_font.stringWidth(round_s);
   game_font.drawString(round_s, -font_width / 2, 0);
-  ofPopMatrix();  // draw round number end
+  ofPopMatrix();
 
-  ofPushMatrix();  // draw player score start
+  std::string player1_name;
+  std::string player2_name;
+  if (game_manager.player.IsHost()) {
+    player1_name = game_manager.player.GetName() + ": ";
+    player2_name = game_manager.opponent.GetName() + ": ";
+  } else {
+    player1_name = game_manager.opponent.GetName() + ": ";
+    player2_name = game_manager.player.GetName() + ": ";
+  }
 
-  ofPopMatrix();  // draw player score end
+  /*int player_name_width;
+  if (player1_name.length() > player2_name.length()) {
+    player_name_width = button_font.stringWidth(player1_name);
+  } else {
+    player_name_width = button_font.stringWidth(player2_name);
+  }*/
+
+  int player_name_height = player_name_font.getLineHeight();
+
+  ofSetColor(240, 170, 20);
+  ofPushMatrix();
+  ofTranslate(window_width / 35, board_start_height);
+  ofScale(font_scale, font_scale, 1.0);
+  player_name_font.drawString(player1_name, 0, -player_name_height * 1.5);
+  player_name_font.drawString(player2_name, 0, -player_name_height * 0.5);
+  ofPopMatrix();
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
 
@@ -778,41 +822,24 @@ void PuzzleDuel::DrawMoveTimeBar() {
 }
 
 void PuzzleDuel::DrawCountPoints() {
-  /*std::vector<int> &board_points = game_board.GetPointsGrid();
-  int current_time = ofGetElapsedTimeMillis();
-  if (current_time - start_time >= kDrawCountPointsTimeInterval) {
-    start_time = current_time;
-    int tile_row;
-    int tile_col;
-    int tile_x_pos;
-    int tile_y_pos;
-    int tile_width = window_width / kTileSizeDivisor;
-    for (int i = last_count_ind + 1; i < kBoardSize; i++) {
-      if (board_points.at(i) == kOrbPointValue) {
-        tile_row = i / kOrbsInRowAndCol;
-        tile_col = i % kOrbsInRowAndCol;
-        tile_x_pos = tile_col * tile_width;
-        tile_y_pos = board_start_height + tile_row * tile_width;
+  std::string points_s = "+" + std::to_string(game_manager.round_points);
+  int points_s_width = points_font.stringWidth(points_s);
+  int points_s_height = points_font.stringHeight(points_s);
 
-        last_count_ind = i;
-
-        count_points.begin();
-        ofCircle(tile_x_pos, tile_y_pos, 30);
-        count_points.end();
-
-        break;
-      }
-      if (i == kBoardSize - 1) {
-        game_state == PLAYER_TURN;
-      }
-    }
-  }
-
-  count_points.draw(0, 0);*/
+  ofSetColor(130, 220, 210);
+  ofPushMatrix();
+  ofTranslate(board_width, board_start_height);
+  ofScale(font_scale, font_scale, 1.0);
+  points_font.drawString(points_s, -points_s_width - points_s_width / 5,
+                         -points_s_height * 0.6);
+  ofPopMatrix();
+  ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
 
+void PuzzleDuel::DrawAddPoints() {}
+
 void PuzzleDuel::DrawBoard() {
-  ofSetColor(175, 250, 250);
+  ofSetColor(170, 240, 250);
   board_tiles.draw(0, board_start_height, board_width, board_width);
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 
@@ -857,6 +884,15 @@ void PuzzleDuel::DrawBoard() {
 
     ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB, kDefaultRGB);
   }
+
+  if (game_manager.game_state != PLAYER_TURN &&
+      game_manager.game_state != PLAYER_MOVE &&
+      game_manager.game_state != PLAYER_ERASE_MATCHES &&
+      game_manager.game_state != PLAYER_ADD_POINTS) {
+    ofSetColor(130,195,210);
+    ofDrawRectangle(0, board_start_height, board_width, board_width);
+  }
+  ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
 
 //--------------------------------------------------------------
@@ -1118,7 +1154,7 @@ void PuzzleDuel::mouseReleased(int x, int y, int button) {
   } else if (game_manager.game_state == PLAYER_MOVE) {
     game_manager.board.SetOrb(orb_tile, cursor_orb);
     cursor_orb = Orb::EMPTY;
-    game_manager.board.CalculatePoints();
+    game_manager.round_points = game_manager.board.CalculatePoints();
     game_manager.game_state = PLAYER_ERASE_MATCHES;
   } else if (game_manager.game_state == LOBBY) {
     if (MouseInArea(
@@ -1179,7 +1215,6 @@ void PuzzleDuel::windowResized(int w, int h) {
   board_start_height = window_height - window_width;
   board_width = window_width;
   ofSetWindowShape(window_width, window_height);
-  // count_points.allocate(ofGetWindowWidth(), ofGetWindowHeight());
 
   ResizeCursor();
   ResizeBackground();

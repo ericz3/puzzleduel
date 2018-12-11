@@ -17,11 +17,11 @@ enum GameState {
   LOBBY,
   PLAYER_TURN,
   PLAYER_MOVE,
-  PLAYER_COUNT_POINTS,
   PLAYER_ERASE_MATCHES,
+  PLAYER_ADD_POINTS,
   OPPONENT_TURN,
-  OPPONENT_COUNT_POINTS,
   OPPONENT_ERASE_MATCHES,
+  OPPONENT_ADD_POINTS,
   GAME_OVER
 };
 
@@ -36,6 +36,7 @@ class GameManager {
   int port;
   float move_time;
   int rounds;
+  int round_points;
 
   GameManager();
   void SetupClient(std::string player_name, int port);

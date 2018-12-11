@@ -10,7 +10,7 @@ unsigned const int kConnectTimeInterval = 3000;
 const char kBoardMessageHeader = 'B';
 
 GameManager::GameManager() {
-  game_state = START;
+  game_state = PLAYER_TURN;
   player = Player();
   opponent = Player();
 }
@@ -135,6 +135,12 @@ void GameManager::DisconnectClient() {
   opponent = Player();
 }
 
+void GameManager::HostCommunicate() {
+  while (!opponent.GetName().empty()) {
+
+  }
+}
+
 void GameManager::ClientCommunicate() {
   while (client.isConnected()) {
     std::string receive = client.receive();
@@ -143,9 +149,10 @@ void GameManager::ClientCommunicate() {
       game_state = OPPONENT_TURN;
       return;
     } /*else if (!receive.empty() && receive.front() == kBoardMessageHeader) {
+
       for (int i = 0; i < kBoardSize; i++) {
-      
-	  }
+                
+          }
     }*/
   }
 }

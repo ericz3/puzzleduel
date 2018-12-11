@@ -45,10 +45,12 @@ class PuzzleDuel : public ofBaseApp {
   ofTrueTypeFont button_font;
   ofTrueTypeFont label_font;
   ofTrueTypeFont message_font;
+  ofTrueTypeFont points_font;
+  ofTrueTypeFont player_name_font;
   float font_scale;
 
   GameManager game_manager;
-  //Board game_board;
+  // Board game_board;
   bool player_win;
   Orb cursor_orb;
 
@@ -116,10 +118,12 @@ class PuzzleDuel : public ofBaseApp {
   void DrawLobbyPlayerNames();
   void DrawLobbyButtonText();
 
+  void DrawGame();
   void DrawGameText();
   void DrawCursor();
   void DrawMoveTimeBar();
   void DrawCountPoints();
+  void DrawAddPoints();
   void DrawBoard();
 
   void ResizeCursor();
