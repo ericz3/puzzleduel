@@ -38,19 +38,16 @@ void GameManager::SetupServer(std::string player_name) {
 void GameManager::SendBoard() {
   if (player.IsHost()) {
     HostSendBoard();
-    /* std::thread send(&GameManager::HostSendBoard, this);
-     send.detach();*/
   } else {
+    ClientSendBoard();
   }
 }
 
-void GameManager::SendEndTurn() {
-  cout << kEndTurn << endl;
-  server.send(opponent.client_id, kEndTurn);
-}
+void GameManager::SendEndTurn() { server.send(opponent.client_id, kEndTurn); }
 
 std::string GameManager::ReceiveBoard() {
   if (player.IsHost()) {
+    return HostReceiveBoard();
   } else {
     return ClientReceiveBoard();
   }
@@ -79,7 +76,11 @@ std::string GameManager::ClientReceiveBoard() {
       return "";
     }
   }
+
+  return "";
 }
+
+std::string GameManager::HostReceiveBoard() { return std::string(); }
 
 void GameManager::DisconnectLobby() {
   if (player.IsHost()) {
@@ -170,6 +171,8 @@ void GameManager::SyncSettingsClient() {
     opponent = Player(game_info, true);
   }
 }
+
+void GameManager::ClientSendBoard() {}
 
 void GameManager::DisconnectHost() {
   server.close();

@@ -46,8 +46,6 @@ class GameManager {
   void SendBoard();
   void SendEndTurn();
   std::string ReceiveBoard();
-  void SendScore();
-  int RecieveScore();
   void DisconnectLobby();
   void StartGame();
 
@@ -60,8 +58,6 @@ class GameManager {
   void HostSendBoard();
   std::string ClientReceiveBoard();
   std::string HostReceiveBoard();
-  void ClientSendScore();
-  void HostSendScore();
   void DisconnectHost();
   void DisconnectClient();
   void ClientListenStart();

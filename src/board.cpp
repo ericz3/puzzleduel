@@ -5,6 +5,7 @@ using std::vector;
 
 void Board::GenerateBoard() {
   board_grid.clear();
+  board_points = vector<int>(kBoardSize, 0);
 
   for (int i = 0; i < kBoardSize; i++) {
     int col = i % kOrbsInRowAndCol;

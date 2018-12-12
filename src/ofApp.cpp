@@ -35,8 +35,10 @@ unsigned const int kRoundFontSizeDivisor = 10;
 unsigned const int kStartFontSizeDivisor = 8;
 unsigned const int kButtonFontSizeDivisor = 18;
 unsigned const int kLabelFontSizeDivisor = 22;
-unsigned const int kPointsFontSizeDivisor = 12;
+unsigned const int kAddPointsFontSizeDivisor = 12;
 unsigned const int kMessageFontSizedivisor = 28;
+unsigned const int kPlayerNameFontSizeDivisor = 19;
+unsigned const int kPlayerPointsFontSizeDivisor = 17;
 unsigned const int kButtonHeightDivisor = 10;
 const float kButtonWidthDivisor = 1.5;
 unsigned const int kBoxOutlineThicknessDivisor = 100;
@@ -91,8 +93,7 @@ void PuzzleDuel::setup() {
   hand_closed.load("closedhand.png");
   cursor = hand_open;
 
-  background.load("background.png");
-
+  background.load("back.png");
   board_tiles.load("boardtiles.jpg");
   red_orb.load("redorb.png");
   blue_orb.load("blueorb.png");
@@ -111,10 +112,12 @@ void PuzzleDuel::setup() {
   label_font.load("Xolonium-Regular.ttf", window_width / kLabelFontSizeDivisor);
   message_font.load("Xolonium-Regular.ttf",
                     window_width / kMessageFontSizedivisor);
-  points_font.load("primer.print-bold.ttf",
-                   window_width / kPointsFontSizeDivisor);
-  player_name_font.load("primer.print-bold.ttf",
-                        window_width / kButtonFontSizeDivisor);
+  add_points_font.load("primer.print-bold.ttf",
+                   window_width / kAddPointsFontSizeDivisor);
+  player_name_font.load("Xolonium-Regular.ttf",
+                        window_width / kPlayerNameFontSizeDivisor);
+  player_points_font.load("primer.print-bold.ttf",
+                        window_width / kPlayerPointsFontSizeDivisor);
 
   ResizeCursor();
   ResizeOrb();
@@ -188,8 +191,24 @@ void PuzzleDuel::update() {
     } else {
       erase_fade -= kEraseFadeIncrement;
     }
-  } else if (game_manager.game_state==PLAYER_ADD_POINTS||game_manager.game_state==OPPONENT_ADD_POINTS) {
+  } else if (game_manager.game_state == PLAYER_ADD_POINTS ||
+             game_manager.game_state == OPPONENT_ADD_POINTS) {
+    if (game_manager.round_points > 0) {
+      game_manager.round_points--;
+      if (game_manager.game_state == PLAYER_ADD_POINTS) {
+        game_manager.player.AddPoints(1);
+      } else {
+        game_manager.opponent.AddPoints(1);
+      }
+    } else {
+      if (game_manager.game_state == PLAYER_ADD_POINTS) {
+        game_manager.game_state = OPPONENT_TURN;
+      } else {
+        game_manager.game_state = PLAYER_TURN;
+      }
 
+      game_manager.board.GenerateBoard();
+    }
   } else if (game_manager.game_state == LOBBY) {
     if (!game_manager.player.IsHost()) {
       if (!game_manager.client.isConnected()) {
@@ -739,10 +758,9 @@ void PuzzleDuel::DrawGame() {
   DrawGameText();
   DrawBoard();
   if (game_manager.game_state == PLAYER_ERASE_MATCHES ||
-      game_manager.game_state == OPPONENT_ERASE_MATCHES) {
-    DrawCountPoints();
-  } else if (game_manager.game_state == PLAYER_ADD_POINTS ||
-             game_manager.game_state == OPPONENT_ADD_POINTS) {
+      game_manager.game_state == OPPONENT_ERASE_MATCHES ||
+      game_manager.game_state == PLAYER_ADD_POINTS ||
+      game_manager.game_state == OPPONENT_ADD_POINTS) {
     DrawAddPoints();
   } else if (game_manager.game_state == PLAYER_MOVE) {
     DrawMoveTimeBar();
@@ -781,12 +799,18 @@ void PuzzleDuel::DrawGameText() {
 
   std::string player1_name;
   std::string player2_name;
+  std::string player1_points;
+  std::string player2_points;
   if (game_manager.player.IsHost()) {
     player1_name = game_manager.player.GetName() + ": ";
+    player1_points = std::to_string(game_manager.player.GetScore());
     player2_name = game_manager.opponent.GetName() + ": ";
+    player2_points = std::to_string(game_manager.opponent.GetScore());
   } else {
     player1_name = game_manager.opponent.GetName() + ": ";
+    player1_points = std::to_string(game_manager.opponent.GetScore());
     player2_name = game_manager.player.GetName() + ": ";
+    player2_points = std::to_string(game_manager.player.GetScore());
   }
 
   /*int player_name_width;
@@ -797,6 +821,8 @@ void PuzzleDuel::DrawGameText() {
   }*/
 
   int player_name_height = player_name_font.getLineHeight();
+  int player1_name_width = player_name_font.stringWidth(player1_name);
+  int player2_name_width = player_name_font.stringWidth(player2_name);
 
   ofSetColor(240, 170, 20);
   ofPushMatrix();
@@ -804,6 +830,16 @@ void PuzzleDuel::DrawGameText() {
   ofScale(font_scale, font_scale, 1.0);
   player_name_font.drawString(player1_name, 0, -player_name_height * 1.5);
   player_name_font.drawString(player2_name, 0, -player_name_height * 0.5);
+  ofPopMatrix();
+
+  ofSetColor(130, 220, 210);
+  ofPushMatrix();
+  ofTranslate(window_width / 35, board_start_height);
+  ofScale(font_scale, font_scale, 1.0);
+  player_points_font.drawString(player1_points, player1_name_width,
+                              -player_name_height * 1.5);
+  player_points_font.drawString(player2_points, player2_name_width,
+                              -player_name_height * 0.5);
   ofPopMatrix();
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
@@ -854,22 +890,20 @@ void PuzzleDuel::DrawMoveTimeBar() {
   }
 }
 
-void PuzzleDuel::DrawCountPoints() {
+void PuzzleDuel::DrawAddPoints() {
   std::string points_s = "+" + std::to_string(game_manager.round_points);
-  int points_s_width = points_font.stringWidth(points_s);
-  int points_s_height = points_font.stringHeight(points_s);
+  int points_s_width = add_points_font.stringWidth(points_s);
+  int points_s_height = add_points_font.stringHeight(points_s);
 
   ofSetColor(130, 220, 210);
   ofPushMatrix();
   ofTranslate(board_width, board_start_height);
   ofScale(font_scale, font_scale, 1.0);
-  points_font.drawString(points_s, -points_s_width - points_s_width / 5,
+  add_points_font.drawString(points_s, -points_s_width - points_s_width / 5,
                          -points_s_height * 0.6);
   ofPopMatrix();
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
-
-void PuzzleDuel::DrawAddPoints() {}
 
 void PuzzleDuel::DrawBoard() {
   ofSetColor(170, 240, 250);
