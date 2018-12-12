@@ -38,6 +38,7 @@ class GameManager {
   int port;
   float move_time;
   int rounds;
+  int current_round;
   int round_points;
 
   GameManager();
@@ -48,7 +49,7 @@ class GameManager {
   std::string ReceiveBoard();
   void DisconnectLobby();
   void StartGame();
-
+  
  private:
   void TryStartGame();
   void ConnectClient();

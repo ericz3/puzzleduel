@@ -62,7 +62,6 @@ class PuzzleDuel : public ofBaseApp {
   int orb_diameter;
   int background_width;
   int orb_tile;
-  int round;
   int button_width;
   int button_height;
   int box_width;
@@ -123,6 +122,8 @@ class PuzzleDuel : public ofBaseApp {
   void DrawAddPoints();
   void DrawBoard();
 
+  void DrawGameOver();
+
   void ResizeCursor();
   void ResizeBackground();
   void ResizeOrb();
@@ -142,6 +143,8 @@ class PuzzleDuel : public ofBaseApp {
   int erase_fade;
   int connection_start_time;
   int connect_time;
+
+  int game_over_fade;
 
   // ofFbo count_points;
 

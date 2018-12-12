@@ -67,7 +67,6 @@ void GameManager::ClientSendBoard() {
         .append(board.AsString())
         .append(std::to_string((int)cursor_orb));
     client.send(board_msg);
-    cout << "Send:   " << board_msg << endl;
   }
 }
 
@@ -79,39 +78,32 @@ void GameManager::HostSendBoard() {
         .append(board.AsString())
         .append(std::to_string((int)cursor_orb));
     server.send(opponent.client_id, board_msg);
-    cout << "Send:   " << board_msg << endl;
   }
 }
 
 std::string GameManager::ClientReceiveBoard() {
   if (client.isConnected()) {
     std::string receive = client.receive();
-    // cout << "receive:   " << receive << endl;
     if (!receive.empty() && receive.length() > kBoardSize) {
       std::string board_msg = receive.substr(kBoardMsgHeader.length());
       return board_msg;
     } else if (!receive.empty() && receive == kEndTurn) {
       return receive;
     } else {
-      return "";
+      return ClientReceiveBoard();
     }
   }
-
-  return "";
 }
 
 std::string GameManager::HostReceiveBoard() {
   std::string receive = server.receive(opponent.client_id);
   if (!receive.empty() && receive.length() > kBoardSize) {
     std::string board_msg = receive.substr(kBoardMsgHeader.length());
-    cout << "1" << endl;
     return board_msg;
   } else if (!receive.empty() && receive == kEndTurn) {
-    cout << "2" << endl;
     return receive;
   } else {
-    cout << "3" << endl;
-    return "";
+    return HostReceiveBoard();
   }
 }
 
