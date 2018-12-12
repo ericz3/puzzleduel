@@ -144,9 +144,7 @@ class PuzzleDuel : public ofBaseApp {
   int connection_start_time;
   int connect_time;
 
+  int curr_display_points_delay;
+
   int game_over_fade;
-
-  // ofFbo count_points;
-
-  // int last_count_ind;
 };

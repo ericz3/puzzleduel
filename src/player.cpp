@@ -2,7 +2,6 @@
 
 Player::Player() {
   score = 0;
-  win = false;
   name = "";
   client_id = 10000;
 }
@@ -10,7 +9,6 @@ Player::Player() {
 Player::Player(std::string name, bool is_host) {
   this->name = name;
   score = 0;
-  win = false;
   this->is_host = is_host;
   client_id = 10000;
 }
@@ -18,7 +16,6 @@ Player::Player(std::string name, bool is_host) {
 Player::Player(std::string name, bool is_host, int client_id) {
   this->name = name;
   score = 0;
-  win = false;
   this->is_host = is_host;
   this->client_id = client_id;
 }
@@ -30,7 +27,5 @@ std::string Player::GetName() { return name; }
 int Player::GetScore() { return score; }
 
 void Player::AddPoints(int points) { score += points; }
-
-bool Player::IsWinner() { return win; }
 
 bool Player::IsHost() { return is_host; }

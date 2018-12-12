@@ -27,6 +27,9 @@ const string kStartButtonText = "Start Game!";
 const string kLeaveButtonText = "Leave Lobby";
 const string kPlayerTurnString = "Your Turn";
 const string kOpponentTurnString = "Opponent Turn";
+const string kWinMsg = "YOU WIN!";
+const string kLoseMsg = "YOU LOSE";
+const string kTieMsg = "TIED GAME";
 
 unsigned const int kMouseSizeDivisor = 7;
 unsigned const int kTileSizeDivisor = 6;
@@ -63,6 +66,8 @@ const float kLobbyLeaveButtonYPosMultiplier = 0.85;
 const float kLobbyStartButtonYPosMultiplier = 0.7;
 const float kLobbySettingsYPosMultiplier = 0.5;
 
+unsigned const int kDisplayPointsDelay = 60;
+
 const float kDefaultMoveTime = 15000;
 unsigned const int kDefaultNumRounds = 5;
 unsigned const int kMinRounds = 3;
@@ -74,7 +79,7 @@ unsigned const int kMaxNameLength = 10;
 unsigned const int kPortStrLength = 5;
 
 const float kEraseFadeIncrement = 2;
-const float kGameOverFadeIncrement = 2;
+const float kGameOverFadeIncrement = 3;
 unsigned const int kMaxAlpha = 255;
 unsigned const int kDefaultRGB = 255;
 
@@ -137,6 +142,7 @@ void PuzzleDuel::setup() {
   game_manager.move_time = kDefaultMoveTime;
   game_manager.rounds = kDefaultNumRounds;
   erase_fade = kMaxAlpha;
+  curr_display_points_delay = 0;
   game_over_fade = 0;
 }
 
@@ -212,7 +218,10 @@ void PuzzleDuel::update() {
       } else {
         game_manager.opponent.AddPoints(1);
       }
+    } else if (curr_display_points_delay < kDisplayPointsDelay) {
+      curr_display_points_delay++;
     } else {
+      curr_display_points_delay = 0;
       if (game_manager.game_state == PLAYER_ADD_POINTS) {
         game_manager.game_state = OPPONENT_TURN;
         if (!game_manager.player.IsHost()) {
@@ -989,7 +998,19 @@ void PuzzleDuel::DrawGameOver() {
     DrawGame();
   }
 
-  ofSetColor(145, 225, 240, game_over_fade);
+  std::string game_over_msg;
+  if (game_manager.player.GetScore() > game_manager.opponent.GetScore()) {
+    game_over_msg = kWinMsg;
+    ofSetColor(145, 225, 240, game_over_fade);
+  } else if (game_manager.player.GetScore() ==
+             game_manager.opponent.GetScore()) {
+    game_over_msg = kTieMsg;
+    ofSetColor(145, 225, 240, game_over_fade);
+  } else {
+    game_over_msg = kLoseMsg;
+    ofSetColor(240, 200, 140, game_over_fade);
+  }
+
   menu_background.draw(0, 0, window_width,
                        window_width / kAspectRatioMultiplier);
 

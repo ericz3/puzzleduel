@@ -6,7 +6,6 @@ class Player {
  private:
   int score;
   std::string name;
-  bool win;
   bool is_host;
 
  public:
@@ -19,6 +18,5 @@ class Player {
   std::string GetName();
   int GetScore();
   void AddPoints(int points);
-  bool IsWinner();
   bool IsHost();
 };
