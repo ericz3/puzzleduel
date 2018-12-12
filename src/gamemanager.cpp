@@ -43,13 +43,31 @@ void GameManager::SendBoard() {
   }
 }
 
-void GameManager::SendEndTurn() { server.send(opponent.client_id, kEndTurn); }
+void GameManager::SendEndTurn() {
+  if (player.IsHost()) {
+    server.send(opponent.client_id, kEndTurn);
+  } else {
+    client.send(kEndTurn);
+  }
+}
 
 std::string GameManager::ReceiveBoard() {
   if (player.IsHost()) {
     return HostReceiveBoard();
   } else {
     return ClientReceiveBoard();
+  }
+}
+
+void GameManager::ClientSendBoard() {
+  if (client.isConnected()) {
+    std::string board_msg;
+    board_msg.reserve(kBoardSize + kBoardMsgHeader.length() + 1);
+    board_msg.append(kBoardMsgHeader)
+        .append(board.AsString())
+        .append(std::to_string((int)cursor_orb));
+    client.send(board_msg);
+    cout << "Send:   " << board_msg << endl;
   }
 }
 
@@ -61,12 +79,14 @@ void GameManager::HostSendBoard() {
         .append(board.AsString())
         .append(std::to_string((int)cursor_orb));
     server.send(opponent.client_id, board_msg);
+    cout << "Send:   " << board_msg << endl;
   }
 }
 
 std::string GameManager::ClientReceiveBoard() {
   if (client.isConnected()) {
     std::string receive = client.receive();
+    // cout << "receive:   " << receive << endl;
     if (!receive.empty() && receive.length() > kBoardSize) {
       std::string board_msg = receive.substr(kBoardMsgHeader.length());
       return board_msg;
@@ -80,7 +100,20 @@ std::string GameManager::ClientReceiveBoard() {
   return "";
 }
 
-std::string GameManager::HostReceiveBoard() { return std::string(); }
+std::string GameManager::HostReceiveBoard() {
+  std::string receive = server.receive(opponent.client_id);
+  if (!receive.empty() && receive.length() > kBoardSize) {
+    std::string board_msg = receive.substr(kBoardMsgHeader.length());
+    cout << "1" << endl;
+    return board_msg;
+  } else if (!receive.empty() && receive == kEndTurn) {
+    cout << "2" << endl;
+    return receive;
+  } else {
+    cout << "3" << endl;
+    return "";
+  }
+}
 
 void GameManager::DisconnectLobby() {
   if (player.IsHost()) {
@@ -171,8 +204,6 @@ void GameManager::SyncSettingsClient() {
     opponent = Player(game_info, true);
   }
 }
-
-void GameManager::ClientSendBoard() {}
 
 void GameManager::DisconnectHost() {
   server.close();

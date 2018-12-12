@@ -113,11 +113,11 @@ void PuzzleDuel::setup() {
   message_font.load("Xolonium-Regular.ttf",
                     window_width / kMessageFontSizedivisor);
   add_points_font.load("primer.print-bold.ttf",
-                   window_width / kAddPointsFontSizeDivisor);
+                       window_width / kAddPointsFontSizeDivisor);
   player_name_font.load("Xolonium-Regular.ttf",
                         window_width / kPlayerNameFontSizeDivisor);
   player_points_font.load("primer.print-bold.ttf",
-                        window_width / kPlayerPointsFontSizeDivisor);
+                          window_width / kPlayerPointsFontSizeDivisor);
 
   ResizeCursor();
   ResizeOrb();
@@ -205,9 +205,8 @@ void PuzzleDuel::update() {
         game_manager.game_state = OPPONENT_TURN;
       } else {
         game_manager.game_state = PLAYER_TURN;
+        game_manager.board.GenerateBoard();
       }
-
-      game_manager.board.GenerateBoard();
     }
   } else if (game_manager.game_state == LOBBY) {
     if (!game_manager.player.IsHost()) {
@@ -837,9 +836,9 @@ void PuzzleDuel::DrawGameText() {
   ofTranslate(window_width / 35, board_start_height);
   ofScale(font_scale, font_scale, 1.0);
   player_points_font.drawString(player1_points, player1_name_width,
-                              -player_name_height * 1.5);
+                                -player_name_height * 1.5);
   player_points_font.drawString(player2_points, player2_name_width,
-                              -player_name_height * 0.5);
+                                -player_name_height * 0.5);
   ofPopMatrix();
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
@@ -900,7 +899,7 @@ void PuzzleDuel::DrawAddPoints() {
   ofTranslate(board_width, board_start_height);
   ofScale(font_scale, font_scale, 1.0);
   add_points_font.drawString(points_s, -points_s_width - points_s_width / 5,
-                         -points_s_height * 0.6);
+                             -points_s_height * 0.6);
   ofPopMatrix();
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
