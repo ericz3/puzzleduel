@@ -33,10 +33,9 @@ end of the game, the player with the most points is the winner.
 	- [x] draw board
 	- [x] orb mathcing animation
 	- [x] animate opponent turn
-- [ ] Sound
-	- [ ] shifting orbs
-	- [ ] clicking buttons
-	- [ ] music
+- [x] Sound
+	- [x] clicking buttons
+	- [x] music
 - [x] networking
 	- [x] animate other player's movements
 	- [x] send over score info
