@@ -103,7 +103,7 @@ vector<Orb> Board::GetBoardGrid() { return board_grid; }
 
 vector<int> Board::GetPointsGrid() { return board_points; }
 
-std::string Board::AsString() {
+std::string Board::ToString() {
   std::string board_string;
   board_string.reserve(kBoardSize);
   for (int i = 0; i < kBoardSize; i++) {

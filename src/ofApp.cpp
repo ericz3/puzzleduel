@@ -154,22 +154,21 @@ void PuzzleDuel::update() {
     game_manager.SendBoard();
   } else if (game_manager.game_state == OPPONENT_TURN) {
     std::string message = game_manager.ReceiveBoard();
-    if (!message.empty()) {
-      if (message == kEndTurn) {
-        game_manager.round_points = game_manager.board.CalculatePoints();
-        game_manager.game_state = OPPONENT_ERASE_MATCHES;
-      } else {
-        Orb cursor = Orb(message.back() - '0');
-        message.pop_back();
-        for (int i = 0; i < kBoardSize; i++) {
-          Orb orb = Orb(std::stoi(message.substr(i, 1)));
-          if (orb == Orb::EMPTY) {
-            game_manager.board.SetOrb(i, cursor);
-          } else {
-            game_manager.board.SetOrb(i, orb);
-          }
+    if (!message.empty() && message != kEndTurn &&
+        message.length() == kBoardSize + 1) {
+      Orb cursor = Orb(message.back() - '0');
+      message.pop_back();
+      for (int i = 0; i < kBoardSize; i++) {
+        Orb orb = Orb(std::stoi(message.substr(i, 1)));
+        if (orb == Orb::EMPTY) {
+          game_manager.board.SetOrb(i, cursor);
+        } else {
+          game_manager.board.SetOrb(i, orb);
         }
       }
+    } else if (message == kEndTurn) {
+      game_manager.round_points = game_manager.board.CalculatePoints();
+      game_manager.game_state = OPPONENT_ERASE_MATCHES;
     }
   }
 
@@ -1032,9 +1031,8 @@ void PuzzleDuel::DrawGameOver() {
 
   ofSetColor(125, 200, 220);
   ofDrawRectRounded(window_width / 2 - button_width / 2,
-                    window_height / 2 - button_height, button_width,
+                    window_height / 1.5 - button_height, button_width,
                     button_height, button_height / 4);
-
 
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }

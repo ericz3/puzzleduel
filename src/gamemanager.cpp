@@ -64,7 +64,7 @@ void GameManager::ClientSendBoard() {
     std::string board_msg;
     board_msg.reserve(kBoardSize + kBoardMsgHeader.length() + 1);
     board_msg.append(kBoardMsgHeader)
-        .append(board.AsString())
+        .append(board.ToString())
         .append(std::to_string((int)cursor_orb));
     client.send(board_msg);
   }
@@ -75,7 +75,7 @@ void GameManager::HostSendBoard() {
     std::string board_msg;
     board_msg.reserve(kBoardSize + kBoardMsgHeader.length() + 1);
     board_msg.append(kBoardMsgHeader)
-        .append(board.AsString())
+        .append(board.ToString())
         .append(std::to_string((int)cursor_orb));
     server.send(opponent.client_id, board_msg);
   }
@@ -83,34 +83,36 @@ void GameManager::HostSendBoard() {
 
 std::string GameManager::ClientReceiveBoard() {
   int start_time = ofGetElapsedTimeMillis();
-  while (ofGetElapsedTimeMillis() - start_time <= 800) {
+  while (ofGetElapsedTimeMillis() - start_time <= 500) {
     if (client.isConnected()) {
       std::string receive = client.receive();
-      if (!receive.empty() && receive.length() > kBoardSize) {
+      if (!receive.empty() && receive.length() > kBoardSize &&
+          receive.find(kBoardMsgHeader) == 0) {
         std::string board_msg = receive.substr(kBoardMsgHeader.length());
         return board_msg;
-      } else if (!receive.empty() && receive == kEndTurn) {
-        return receive;
+      } else if (receive == kEndTurn) {
+        return kEndTurn;
       }
     }
   }
 
-  return kEndTurn;
+  return board.ToString() + "0";
 }
 
 std::string GameManager::HostReceiveBoard() {
   int start_time = ofGetElapsedTimeMillis();
-  while (ofGetElapsedTimeMillis() - start_time <= 800) {
+  while (ofGetElapsedTimeMillis() - start_time <= 500) {
     std::string receive = server.receive(opponent.client_id);
-    if (!receive.empty() && receive.length() > kBoardSize) {
+    if (!receive.empty() && receive.length() > kBoardSize &&
+        receive.find(kBoardMsgHeader) == 0) {
       std::string board_msg = receive.substr(kBoardMsgHeader.length());
       return board_msg;
-    } else if (!receive.empty() && receive == kEndTurn) {
-      return receive;
+    } else if (receive == kEndTurn) {
+      return kEndTurn;
     }
   }
 
-  return kEndTurn;
+  return board.ToString() + "0";
 }
 
 void GameManager::DisconnectLobby() {

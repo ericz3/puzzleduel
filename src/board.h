@@ -34,7 +34,7 @@ class Board {
   void SetOrb(int pos, Orb orb);
   std::vector<Orb> GetBoardGrid();
   std::vector<int> GetPointsGrid();
-  std::string AsString();
+  std::string ToString();
 
  private:
   std::vector<Orb> board_grid;
