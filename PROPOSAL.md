@@ -27,19 +27,19 @@ end of the game, the player with the most points is the winner.
 	- [x] generate board
 	- [x] detect matches
 	- [x] calculate points
-- [ ] Graphics
+- [x] Graphics
 	- [x] orb movement animations
 	- [x] draw orbs
 	- [x] draw board
 	- [x] orb mathcing animation
-	- [ ] animate opponent turn
+	- [x] animate opponent turn
 - [ ] Sound
 	- [ ] shifting orbs
 	- [ ] clicking buttons
 	- [ ] music
-- [ ] networking
-	- [ ] animate other player's movements
-	- [ ] send over score info
+- [x] networking
+	- [x] animate other player's movements
+	- [x] send over score info
 	- [x] lobby
 	- [x] send game info
 - [x] GUI
@@ -51,8 +51,7 @@ end of the game, the player with the most points is the winner.
 - [ ] point multipliers for amounts of matches (ex: 1.25x points with 5+ matches)
 - [ ] detect matches from orbs falling
 - [ ] allow for more than 2 players
-- [ ] improve/add more graphics
-- [ ] add sounds
+- [x] improve/add more graphics
 - [ ] different points for different colors, adjust rarity of different colors
 
 ## Resources

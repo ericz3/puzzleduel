@@ -15,6 +15,8 @@ GameManager::GameManager() {
   player = Player();
   opponent = Player();
   cursor_orb = Orb::EMPTY;
+  click.load("click.wav");
+  click.setLoop(false);
 }
 
 void GameManager::SetupClient(std::string player_name, int port) {
@@ -63,9 +65,9 @@ void GameManager::ClientSendBoard() {
   if (client.isConnected()) {
     std::string board_msg;
     board_msg.reserve(kBoardSize + kBoardMsgHeader.length() + 1);
-    board_msg.append(kBoardMsgHeader)
-        .append(board.ToString())
-        .append(std::to_string((int)cursor_orb));
+    board_msg.append(kBoardMsgHeader);
+    board_msg.append(board.ToString());
+    board_msg.append(std::to_string((int)cursor_orb));
     client.send(board_msg);
   }
 }
@@ -74,9 +76,9 @@ void GameManager::HostSendBoard() {
   if (!opponent.GetName().empty()) {
     std::string board_msg;
     board_msg.reserve(kBoardSize + kBoardMsgHeader.length() + 1);
-    board_msg.append(kBoardMsgHeader)
-        .append(board.ToString())
-        .append(std::to_string((int)cursor_orb));
+    board_msg.append(kBoardMsgHeader);
+    board_msg.append(board.ToString());
+    board_msg.append(std::to_string((int)cursor_orb));
     server.send(opponent.client_id, board_msg);
   }
 }
@@ -92,11 +94,14 @@ std::string GameManager::ClientReceiveBoard() {
         return board_msg;
       } else if (receive == kEndTurn) {
         return kEndTurn;
+      } else if (receive.empty()) {
+        cout << "no" << endl;
+        continue;
       }
     }
   }
-
-  return board.ToString() + "0";
+  cout << "RIP" << endl;
+  return (board.ToString() + std::to_string((int)cursor_orb));
 }
 
 std::string GameManager::HostReceiveBoard() {
@@ -109,10 +114,14 @@ std::string GameManager::HostReceiveBoard() {
       return board_msg;
     } else if (receive == kEndTurn) {
       return kEndTurn;
+    } else if (receive.empty()) {
+      cout << "no" << endl;
+      continue;
     }
   }
 
-  return board.ToString() + "0";
+  cout << "RIP" << endl;
+  return (board.ToString() + std::to_string((int)cursor_orb));
 }
 
 void GameManager::DisconnectLobby() {
@@ -136,6 +145,7 @@ void GameManager::TryStartGame() {
     while (true) {
       server.sendToAll(kStartGameMsg);
       if (server.receive(opponent.client_id) == kClientStartConfirmation) {
+        click.play();
         return;
       }
     }

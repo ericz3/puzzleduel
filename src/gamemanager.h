@@ -40,6 +40,7 @@ class GameManager {
   int rounds;
   int current_round;
   int round_points;
+  ofSoundPlayer click;
 
   GameManager();
   void SetupClient(std::string player_name, int port);

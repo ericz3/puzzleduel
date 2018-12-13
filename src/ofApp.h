@@ -38,6 +38,11 @@ class PuzzleDuel : public ofBaseApp {
   ofImage white_orb;
   ofImage purple_orb;
   ofImage menu_background;
+  ofImage board_lock;
+
+  ofSoundPlayer music;
+  ofSoundPlayer click;
+  bool music_paused;
 
   ofTrueTypeFont game_font;
   ofTrueTypeFont game_font_bold;

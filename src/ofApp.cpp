@@ -105,6 +105,15 @@ void PuzzleDuel::LoadResources() {
   white_orb.load("whiteorb.png");
   purple_orb.load("purpleorb.png");
   menu_background.load("startbackground.jpg");
+  board_lock.load("boardlock.png");
+
+  music.load("music.wav");
+  music.setLoop(true);
+  music.play();
+  music_paused = false;
+  music.setVolume(0.8);
+  click.load("click.wav");
+  click.setLoop(false);
 
   game_font.load("Xolonium-Regular.ttf", window_width / kRoundFontSizeDivisor);
   game_font_bold.load("Xolonium-Bold.ttf",
@@ -166,8 +175,7 @@ void PuzzleDuel::update() {
     game_manager.SendBoard();
   } else if (game_manager.game_state == OPPONENT_TURN) {
     std::string message = game_manager.ReceiveBoard();
-    if (!message.empty() && message != kEndTurn &&
-        message.length() == kBoardSize + 1) {
+    if (message.length() == kBoardSize + 1) {
       Orb cursor = Orb(message.back() - '0');
       message.pop_back();
       for (int i = 0; i < kBoardSize; i++) {
@@ -194,7 +202,6 @@ void PuzzleDuel::update() {
     }
   } else if (game_manager.game_state == PLAYER_MOVE) {
     if (ofGetElapsedTimeMillis() - start_time > game_manager.move_time) {
-      // mouseReleased(ofGetMouseX(), ofGetMouseY(), 0);
       cursor = hand_open;
       cursor.resize(cursor_width, cursor_width);
       game_manager.board.SetOrb(orb_tile, game_manager.cursor_orb);
@@ -202,6 +209,7 @@ void PuzzleDuel::update() {
       game_manager.round_points = game_manager.board.CalculatePoints();
       game_manager.SendEndTurn();
       game_manager.game_state = PLAYER_ERASE_MATCHES;
+      // mouseReleased(ofGetMouseX(), ofGetMouseY(), 0);
     }
   } else if (game_manager.game_state == PLAYER_ERASE_MATCHES ||
              game_manager.game_state == OPPONENT_ERASE_MATCHES) {
@@ -1007,6 +1015,10 @@ void PuzzleDuel::DrawBoard() {
       game_manager.game_state != PLAYER_ADD_POINTS) {
     ofSetColor(80, 90, 90, 140);
     ofDrawRectangle(0, board_start_height, board_width, board_width);
+    ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB, 245);
+    board_lock.draw(window_width - window_width / 3.5,
+                    window_height - window_width / 3.5, window_width / 4,
+                    window_width / 4);
   }
 
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB, kDefaultRGB);
@@ -1060,6 +1072,16 @@ void PuzzleDuel::DrawGameOver() {
 
 //--------------------------------------------------------------
 void PuzzleDuel::keyPressed(int key) {
+  if (key == 109 && !name_box_selected) {
+    if (music_paused) {
+      music_paused = false;
+      music.setPaused(false);
+    } else {
+      music_paused = true;
+      music.setPaused(true);
+    }
+  }
+
   if (game_manager.game_state == CREATE_GAME) {
     if (name_box_selected) {
       if (key == OF_KEY_BACKSPACE && player_name.length() > 0) {
@@ -1251,6 +1273,7 @@ void PuzzleDuel::mouseReleased(int x, int y, int button) {
           mouse_clicked_x < window_width / 2 + button_width / 2 &&
           mouse_clicked_y > window_height / 2 &&
           mouse_clicked_y < window_height / 2 + button_height) {
+        click.play();
         game_manager.game_state = CREATE_GAME;
       }
     } else if (MouseInArea(window_width / 2 - button_width / 2,
@@ -1261,6 +1284,7 @@ void PuzzleDuel::mouseReleased(int x, int y, int button) {
           mouse_clicked_x < window_width / 2 + button_width / 2 &&
           mouse_clicked_y > window_height / 2 + button_height * 1.5 &&
           mouse_clicked_y < window_height / 2 + button_height * 2.5) {
+        click.play();
         game_manager.game_state = JOIN_GAME;
       }
     }
@@ -1280,9 +1304,11 @@ void PuzzleDuel::mouseReleased(int x, int y, int button) {
           mouse_clicked_y <
               window_height * kConfirmButtonYPosMultiplier + button_height) {
         if (game_manager.game_state == CREATE_GAME) {
+          click.play();
           game_manager.SetupServer(player_name);
         } else if (game_manager.game_state == JOIN_GAME &&
                    port_s.length() == kPortStrLength) {
+          click.play();
           int port = std::stoi(port_s);
           game_manager.game_state = CONNECTING;
           game_manager.SetupClient(player_name, port);
@@ -1300,6 +1326,7 @@ void PuzzleDuel::mouseReleased(int x, int y, int button) {
               window_height * kBackButtonYPosMultiplier + button_height) {
         player_name.clear();
         port_s.clear();
+        click.play();
         game_manager.game_state = START;
       }
     }
@@ -1316,6 +1343,7 @@ void PuzzleDuel::mouseReleased(int x, int y, int button) {
               window_height * kBackButtonYPosMultiplier + button_height) {
         player_name.clear();
         port_s.clear();
+        click.play();
         game_manager.game_state = START;
       }
     }
@@ -1350,6 +1378,7 @@ void PuzzleDuel::mouseReleased(int x, int y, int button) {
           mouse_clicked_y > window_height * kLobbyLeaveButtonYPosMultiplier &&
           mouse_clicked_y <
               window_height * kLobbyLeaveButtonYPosMultiplier + button_height) {
+        click.play();
         game_manager.DisconnectLobby();
         port_s.clear();
         player_name.clear();
@@ -1365,6 +1394,7 @@ void PuzzleDuel::mouseReleased(int x, int y, int button) {
           mouse_clicked_x < window_width / 2 + button_width / 2 &&
           mouse_clicked_y > window_height / 1.5 - button_height &&
           mouse_clicked_y < window_height / 1.5) {
+        click.play();
         game_manager.game_state = START;
         game_manager.player = Player();
         game_manager.opponent = Player();
