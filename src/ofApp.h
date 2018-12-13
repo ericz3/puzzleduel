@@ -85,6 +85,10 @@ class PuzzleDuel : public ofBaseApp {
   int player_box_height;
   int player_box_y;
 
+  void LoadResources();
+  void InitVars();
+  void InitSettings();
+
   void DrawStart();
   void DrawStartButtons();
   void DrawStartTitle();

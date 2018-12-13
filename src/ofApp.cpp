@@ -30,6 +30,7 @@ const string kOpponentTurnString = "Opponent Turn";
 const string kWinMsg = "YOU WIN!";
 const string kLoseMsg = "YOU LOSE";
 const string kTieMsg = "TIED GAME";
+const string kRestartButtonText = "Back to Menu";
 
 unsigned const int kMouseSizeDivisor = 7;
 unsigned const int kTileSizeDivisor = 6;
@@ -85,16 +86,12 @@ unsigned const int kDefaultRGB = 255;
 
 //--------------------------------------------------------------
 void PuzzleDuel::setup() {
-  ofSetVerticalSync(true);
-  ofSetFrameRate(60);
-  ofEnableAntiAliasing();
+  InitSettings();
+  LoadResources();
+  InitVars();
+}
 
-  window_height = ofGetWindowHeight();
-  window_width = ofGetWindowWidth();
-  board_width = window_width;
-  board_start_height = window_height - window_width;
-
-  ofHideCursor();
+void PuzzleDuel::LoadResources() {
   hand_open.load("openhand.png");
   hand_closed.load("closedhand.png");
   cursor = hand_open;
@@ -124,13 +121,9 @@ void PuzzleDuel::setup() {
                         window_width / kPlayerNameFontSizeDivisor);
   player_points_font.load("primer.print-bold.ttf",
                           window_width / kPlayerPointsFontSizeDivisor);
+}
 
-  ResizeCursor();
-  ResizeOrb();
-  ResizeBackground();
-  ResizeUI();
-
-  ofSetEscapeQuitsApp(false);
+void PuzzleDuel::InitVars() {
   game_manager.board.GenerateBoard();
   game_manager.current_round = 1;
   name_box_selected = false;
@@ -144,6 +137,25 @@ void PuzzleDuel::setup() {
   erase_fade = kMaxAlpha;
   curr_display_points_delay = 0;
   game_over_fade = 0;
+}
+
+void PuzzleDuel::InitSettings() {
+  ofSetVerticalSync(true);
+  ofSetFrameRate(60);
+  ofEnableAntiAliasing();
+  ofSetEscapeQuitsApp(false);
+
+  window_height = ofGetWindowHeight();
+  window_width = ofGetWindowWidth();
+  board_width = window_width;
+  board_start_height = window_height - window_width;
+
+  ofHideCursor();
+
+  ResizeCursor();
+  ResizeOrb();
+  ResizeBackground();
+  ResizeUI();
 }
 
 //--------------------------------------------------------------
@@ -1029,10 +1041,19 @@ void PuzzleDuel::DrawGameOver() {
                        game_font.getLineHeight() / 2);
   ofPopMatrix();
 
-  ofSetColor(125, 200, 220);
+  ofSetColor(125, 200, 220, game_over_fade);
   ofDrawRectRounded(window_width / 2 - button_width / 2,
                     window_height / 1.5 - button_height, button_width,
                     button_height, button_height / 4);
+
+  ofSetColor(250, 220, 65);
+  ofPushMatrix();
+  ofTranslate(window_width / 2, window_height / 1.5);
+  ofScale(font_scale, font_scale, 1.0);
+  int restart_text_width = button_font.stringWidth(kRestartButtonText);
+  button_font.drawString(kRestartButtonText, -restart_text_width / 2,
+                         -button_font.getLineHeight() * 0.75);
+  ofPopMatrix();
 
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
@@ -1212,6 +1233,9 @@ void PuzzleDuel::mousePressed(int x, int y, int button) {
   } else if (game_manager.game_state == LOBBY) {
     mouse_clicked_x = x;
     mouse_clicked_y = y;
+  } else if (game_manager.game_state == GAME_OVER) {
+    mouse_clicked_x = x;
+    mouse_clicked_y = y;
   }
 }
 
@@ -1331,6 +1355,22 @@ void PuzzleDuel::mouseReleased(int x, int y, int button) {
         player_name.clear();
         game_manager.move_time = kDefaultMoveTime;
         game_manager.rounds = kDefaultNumRounds;
+      }
+    }
+  } else if (game_manager.game_state == GAME_OVER) {
+    if (MouseInArea(window_width / 2 - button_width / 2,
+                    window_width / 2 + button_width / 2,
+                    window_height / 1.5 - button_height, window_height / 1.5)) {
+      if (mouse_clicked_x > window_width / 2 - button_width / 2 &&
+          mouse_clicked_x < window_width / 2 + button_width / 2 &&
+          mouse_clicked_y > window_height / 1.5 - button_height &&
+          mouse_clicked_y < window_height / 1.5) {
+        game_manager.game_state = START;
+        game_manager.player = Player();
+        game_manager.opponent = Player();
+        game_manager.server.close();
+        game_manager.client.close();
+        InitVars();
       }
     }
   }
