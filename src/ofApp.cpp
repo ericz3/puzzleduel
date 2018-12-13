@@ -1022,6 +1022,13 @@ void PuzzleDuel::DrawGameOver() {
   menu_background.draw(0, 0, window_width,
                        window_width / kAspectRatioMultiplier);
 
+  ofPushMatrix();
+  ofTranslate(window_width / 2, window_height / 2);
+  ofScale(font_scale, font_scale, 1.0);
+  int game_over_msg_width = game_font.stringWidth(game_over_msg);
+  game_font.drawString(game_over_msg, -game_over_msg_width / 2,
+                       game_font.getLineHeight() / 2);
+  ofPopMatrix();
   ofSetColor(kDefaultRGB, kDefaultRGB, kDefaultRGB, kDefaultRGB);
 }
 
