@@ -1,4 +1,4 @@
-# Project Proposal - puzzle battle
+#Puzzle Duel
 
 ## Summary
 
