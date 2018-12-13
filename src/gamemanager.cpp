@@ -54,6 +54,7 @@ void GameManager::SendEndTurn() {
 std::string GameManager::ReceiveBoard() {
   if (player.IsHost()) {
     return HostReceiveBoard();
+
   } else {
     return ClientReceiveBoard();
   }
@@ -82,29 +83,39 @@ void GameManager::HostSendBoard() {
 }
 
 std::string GameManager::ClientReceiveBoard() {
-  if (client.isConnected()) {
-    std::string receive = client.receive();
+  int start_time = ofGetElapsedTimeMillis();
+  while (ofGetElapsedTimeMillis() - start_time <= 2000) {
+    if (client.isConnected()) {
+      std::string receive = client.receive();
+      if (!receive.empty() && receive.length() > kBoardSize) {
+        std::string board_msg = receive.substr(kBoardMsgHeader.length());
+        return board_msg;
+      } else if (!receive.empty() && receive == kEndTurn) {
+        return receive;
+      } else {
+        return ClientReceiveBoard();
+      }
+    }
+  }
+
+  return kEndTurn;
+}
+
+std::string GameManager::HostReceiveBoard() {
+  int start_time = ofGetElapsedTimeMillis();
+  while (ofGetElapsedTimeMillis() - start_time <= 2000) {
+    std::string receive = server.receive(opponent.client_id);
     if (!receive.empty() && receive.length() > kBoardSize) {
       std::string board_msg = receive.substr(kBoardMsgHeader.length());
       return board_msg;
     } else if (!receive.empty() && receive == kEndTurn) {
       return receive;
     } else {
-      return ClientReceiveBoard();
+      return HostReceiveBoard();
     }
   }
-}
 
-std::string GameManager::HostReceiveBoard() {
-  std::string receive = server.receive(opponent.client_id);
-  if (!receive.empty() && receive.length() > kBoardSize) {
-    std::string board_msg = receive.substr(kBoardMsgHeader.length());
-    return board_msg;
-  } else if (!receive.empty() && receive == kEndTurn) {
-    return receive;
-  } else {
-    return HostReceiveBoard();
-  }
+  return kEndTurn;
 }
 
 void GameManager::DisconnectLobby() {

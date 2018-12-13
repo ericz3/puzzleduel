@@ -78,8 +78,8 @@ const float kMinMoveTime = 5000;
 unsigned const int kMaxNameLength = 10;
 unsigned const int kPortStrLength = 5;
 
-const float kEraseFadeIncrement = 2;
-const float kGameOverFadeIncrement = 3;
+const float kEraseFadeIncrement = 3;
+const float kGameOverFadeIncrement = 4;
 unsigned const int kMaxAlpha = 255;
 unsigned const int kDefaultRGB = 255;
 
@@ -183,7 +183,14 @@ void PuzzleDuel::update() {
     }
   } else if (game_manager.game_state == PLAYER_MOVE) {
     if (ofGetElapsedTimeMillis() - start_time > game_manager.move_time) {
-      mouseReleased(ofGetMouseX(), ofGetMouseY(), 0);
+      // mouseReleased(ofGetMouseX(), ofGetMouseY(), 0);
+      cursor = hand_open;
+      cursor.resize(cursor_width, cursor_width);
+      game_manager.board.SetOrb(orb_tile, game_manager.cursor_orb);
+      game_manager.cursor_orb = Orb::EMPTY;
+      game_manager.round_points = game_manager.board.CalculatePoints();
+      game_manager.SendEndTurn();
+      game_manager.game_state = PLAYER_ERASE_MATCHES;
     }
   } else if (game_manager.game_state == PLAYER_ERASE_MATCHES ||
              game_manager.game_state == OPPONENT_ERASE_MATCHES) {
@@ -209,11 +216,6 @@ void PuzzleDuel::update() {
     if (game_manager.round_points > 0) {
       game_manager.round_points--;
       if (game_manager.game_state == PLAYER_ADD_POINTS) {
-        if (game_manager.player.IsHost()) {
-          game_manager.client.receive();
-        } else {
-          game_manager.server.receive(game_manager.opponent.client_id);
-        }
         game_manager.player.AddPoints(1);
       } else {
         game_manager.opponent.AddPoints(1);
@@ -229,6 +231,9 @@ void PuzzleDuel::update() {
           if (game_manager.current_round > game_manager.rounds) {
             game_manager.current_round = game_manager.rounds;
             game_manager.game_state = GAME_OVER;
+            game_manager.client.close();
+            game_manager.board.SetBoard(
+                std::vector<Orb>(kBoardSize, Orb::EMPTY));
           }
         }
       } else {
@@ -239,6 +244,9 @@ void PuzzleDuel::update() {
           if (game_manager.current_round > game_manager.rounds) {
             game_manager.current_round = game_manager.rounds;
             game_manager.game_state = GAME_OVER;
+            game_manager.server.close();
+            game_manager.board.SetBoard(
+                std::vector<Orb>(kBoardSize, Orb::EMPTY));
           }
         }
       }
