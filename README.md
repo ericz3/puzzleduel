@@ -1,22 +1,22 @@
 # Puzzle Duel
 
-## Summary
+## Overview
 
 This is a two player puzzle game where players compete to see 
 who can get the most points in a certain amount of turns. The players play on
-a 6 x 6 board. Players earn points by erasing orbs. Orbs are erased when 3 or 
-more of the same color are touching. Each orb erased grants 1 point. 
-Players play a turn by selecting an orb and dragging it; when the orb 
-passes over another orb, they swap places. When the player releases the orb or the time runs out, 
-their turn is over. At the end of all the turns, the player with the most points is the winner.
+a six by six board and earn points by matching three or more orbs. Each orb matched grants 1 point. 
+The player with the most points at the end of the turns wins.
 
-## User Interface
+## Menus
 
-There are Two buttons on the start screen:
--create lobby
-	-create a lobby that another player can join by entering the lobby id displayed at the top of the lobby screen
-	-select move time and number of rounds
--join lobby
-	-enter a lobby id to join a friend
+The main menu includes two buttons: one to create a new game lobby, and one to join an existing game lobby. The player can mute and unmute the game music at any time by pressing the "m" key. 
 
--press m to mute the music
+Clicking on "Create Lobby" or "Join Lobby" will present the user with one of the two following screens:
+
+## Gameplay
+
+During the game, players will alternate turns to try and obtain as many points as possible through matching orbs of the same color. Each matched orb will grant the player one point. To match orbs, a player will select a single orb and drag it around the six by six board. The orb that the player's cursor moves over will swap with the one that the player is holding. When either the time runs out or the player releases the orb, the player's turn ends and a new board is generated for the next player to take their turn. At the end of all of the turns, the player wiht the most points wins.
+
+## Download
+
+Clone or Dowload the git repository; the game executable is in the "app" directory. There is currently only a Windows version.
