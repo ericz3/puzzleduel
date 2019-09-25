@@ -4,7 +4,7 @@
 
 This is a two player puzzle game where players compete to see 
 who can get the most points in a certain amount of turns. The players play on
-a six by six board and earn points by matching three or more orbs. Each orb matched grants 1 point. 
+a six by six board and earn points by matching three or more orbs. Each orb matched grants one point. 
 The player with the most points at the end of the turns wins.
 
 ## Gameplay
