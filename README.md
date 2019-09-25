@@ -13,8 +13,7 @@ The main menu includes two buttons: one to create a new game lobby, and one to j
 
 During the game, players will alternate turns to try and obtain as many points as possible through matching orbs of the same color. Each matched orb will grant the player one point. To match orbs, a player will select a single orb and drag it around the six by six board. The orb that the player's cursor moves over will swap with the one that the player is holding. When either the time runs out or the player releases the orb, the player's turn ends and a new board is generated for the next player to take their turn. At the end of all of the turns, the player wiht the most points wins.
 
-![gameplay](/app/data/gameplay.png)
-Format: ![Alt Text](url)
+![gameplay](/app/data/gameplay.PNG)
 
 The player can mute and unmute the game music at any time by pressing the "m" key. 
 
